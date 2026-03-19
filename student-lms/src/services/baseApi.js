@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Point this to your existing Express backend
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "https://api.neiedu.online/api";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
