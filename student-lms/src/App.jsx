@@ -2,13 +2,14 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./app/ProtectedRoute";
 import StudentLayout from "./components/layout/StudentLayout";
 import LoginView from "./features/auth/views/LoginView";
-
-// Feature Views
+import ClassroomView from "./features/academics/ClassroomView";
+import TimetableView from "./features/academics/TimetableView";
+import DatesheetView from "./features/academics/DatesheetView";
 import DashboardView from "./features/dashboard/DashboardView";
 import FinanceView from "./features/finance/FinanceView";
 import CourseRegistrationView from "./features/academics/CourseRegistrationView";
 import TranscriptView from "./features/academics/TranscriptView";
-import ProfileView from "./features/profile/ProfileView"; // ✅ Import Profile
+import ProfileView from "./features/profile/ProfileView"; 
 
 const App = () => {
   return (
@@ -21,8 +22,11 @@ const App = () => {
 
           <Route path="/dashboard" element={<DashboardView />} />
           <Route path="/courses" element={<CourseRegistrationView />} />
+          <Route path="/datesheet" element={<DatesheetView />} />
           <Route path="/transcripts" element={<TranscriptView />} />
           <Route path="/finance" element={<FinanceView />} />
+          <Route path="/classroom" element={<ClassroomView />} />
+          <Route path="/timetable" element={<TimetableView />} />
 
           {/* ✅ Add Profile Route */}
           <Route path="/profile" element={<ProfileView />} />

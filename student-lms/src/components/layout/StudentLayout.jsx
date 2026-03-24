@@ -18,6 +18,8 @@ import {
   Search,
   CalendarDays,
   ChevronDown,
+  MonitorPlay,
+  Calendar,
 } from "lucide-react";
 
 // --- Sub-Component: Live Header Clock ---
@@ -62,11 +64,15 @@ const StudentLayout = () => {
     navigate("/login");
   };
 
+  // ✅ CORRECTED AND CONSISTENT SIDEBAR NAMING
   const navItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "My Classroom", path: "/classroom", icon: MonitorPlay },
+    { name: "Class Timetable", path: "/timetable", icon: Calendar },
+    { name: "Date Sheet", path: "/datesheet", icon: CalendarDays },
     { name: "Course Registration", path: "/courses", icon: BookOpen },
-    { name: "Transcripts", path: "/transcripts", icon: FileText },
-    { name: "Fee Vouchers", path: "/finance", icon: CreditCard },
+    { name: "Transcripts & Results", path: "/transcripts", icon: FileText },
+    { name: "Fee & Payments", path: "/finance", icon: CreditCard },
     { name: "My Profile", path: "/profile", icon: User },
   ];
 
