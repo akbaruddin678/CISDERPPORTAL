@@ -9,13 +9,21 @@ import DashboardView from "./features/dashboard/DashboardView";
 import FinanceView from "./features/finance/FinanceView";
 import CourseRegistrationView from "./features/academics/CourseRegistrationView";
 import TranscriptView from "./features/academics/TranscriptView";
-import ProfileView from "./features/profile/ProfileView"; 
+import ProfileView from "./features/profile/ProfileView";
+
+// Import the Direct Registration component
+import DirectRegistration from "./components/registration/DirectRegistration";
 
 const App = () => {
   return (
     <Routes>
+      {/* --- PUBLIC / UNPROTECTED ROUTES --- */}
       <Route path="/login" element={<LoginView />} />
 
+      {/* ✅ Add the Direct Registration Route here so it can be accessed without logging in */}
+      <Route path="/direct-register" element={<DirectRegistration />} />
+
+      {/* --- PROTECTED ROUTES (Requires Login) --- */}
       <Route element={<ProtectedRoute />}>
         <Route element={<StudentLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
@@ -28,11 +36,11 @@ const App = () => {
           <Route path="/classroom" element={<ClassroomView />} />
           <Route path="/timetable" element={<TimetableView />} />
 
-          {/* ✅ Add Profile Route */}
           <Route path="/profile" element={<ProfileView />} />
         </Route>
       </Route>
 
+      {/* Catch-all route for unknown URLs */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
