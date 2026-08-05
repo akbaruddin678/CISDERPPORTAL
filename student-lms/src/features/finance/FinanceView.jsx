@@ -1,8 +1,7 @@
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { useGetMyChallansQuery } from "./financeApi";
+import { useGetMyChallansQuery, useGetMyInstallmentPlanQuery } from "./financeApi";
 import {
-  Download,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -12,6 +11,8 @@ import {
   TrendingDown,
   TrendingUp,
   FileText,
+  CalendarClock,
+  Layers,
 } from "lucide-react";
 
 import neilogo from "../../assets/neilogo.png";
@@ -30,6 +31,10 @@ const FinanceView = () => {
 
   const challans = challansRes?.data?.challans || challansRes?.data || [];
 
+  const { data: planRes, isLoading: isLoadingPlan } =
+    useGetMyInstallmentPlanQuery(undefined, { skip: !user?.profileId });
+  const plan = planRes?.data || {};
+
   // ── SUMMARIES (backend untouched) ────────────────────────────────
   const { totalDue, totalPaid, upcomingCount } = useMemo(() => {
     let due = 0, paid = 0, upcoming = 0;
@@ -40,6 +45,62 @@ const FinanceView = () => {
     });
     return { totalDue: due, totalPaid: paid, upcomingCount: upcoming };
   }, [challans]);
+
+  // ── INSTALLMENT PLAN — the student's FULL schedule for their current
+  // semester, not just whatever challans already happen to exist. Backend
+  // (/lms/finance/my-installments) already drops paid ones and fills in
+  // the planned month + amount for installments that haven't been billed
+  // yet, so a later installment's month/amount is visible well before it's
+  // actually issued. Matched here against the full challan objects (from
+  // /my-challans) purely so an already-issued installment can still be
+  // printed — the plan endpoint itself only returns a slim projection. ───
+  const hasInstallmentPlan = Boolean(plan.hasPlan);
+  const pendingInstallments = plan.installments || [];
+  const semesterLabel = plan.semester?.name
+    ? plan.semester.name
+    : plan.semester?.number
+      ? `Semester ${plan.semester.number}`
+      : null;
+
+  const { dueThisMonthInstallment, upcomingInstallment } = useMemo(() => {
+    if (pendingInstallments.length === 0)
+      return { dueThisMonthInstallment: null, upcomingInstallment: null };
+    const currentMonthName = new Date().toLocaleString("en-US", {
+      month: "long",
+    });
+    const isOverdue = (c) =>
+      c.isGenerated &&
+      (c.status === "overdue" ||
+        (c.dueDate && new Date(c.dueDate) < new Date()));
+    const dueThisMonth = pendingInstallments.find(
+      (c) => c.month && c.month.toLowerCase() === currentMonthName.toLowerCase(),
+    );
+    const upcoming = pendingInstallments.find(
+      (c) => c !== dueThisMonth && !isOverdue(c),
+    );
+    return {
+      dueThisMonthInstallment: dueThisMonth || null,
+      upcomingInstallment: upcoming || null,
+    };
+  }, [pendingInstallments]);
+
+  // An installment already billed carries a real challan somewhere in the
+  // full Voucher History list — needed for Print, since the plan endpoint
+  // only returns a slim {month, amount, status} projection, not enough to
+  // render a voucher.
+  const findFullChallan = (installment) =>
+    installment.isGenerated
+      ? challans.find((c) => c._id === installment.challanId)
+      : null;
+
+  const monthLabel = (installment) =>
+    installment.month ||
+    (installment.dueDate
+      ? new Date(installment.dueDate).toLocaleDateString("en-GB", {
+          month: "long",
+          year: "numeric",
+        })
+      : "Month TBD");
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -247,6 +308,192 @@ const FinanceView = () => {
         </div>
       </div>
 
+      {/* ── INSTALLMENT PLAN — pending installments only, by month ── */}
+      {hasInstallmentPlan && (
+        <div className="no-print">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+              <Layers size={15} className="text-red-900" />
+            </div>
+            <h2 className="text-base font-bold text-slate-800">
+              Installment Plan
+            </h2>
+            {semesterLabel && (
+              <span className="text-xs font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
+                {semesterLabel}
+              </span>
+            )}
+            {pendingInstallments.length > 0 && (
+              <span className="ml-auto text-xs font-bold bg-red-900 text-white px-2.5 py-0.5 rounded-full">
+                {pendingInstallments.length} pending
+              </span>
+            )}
+          </div>
+
+          {isLoadingPlan ? (
+            <div className="flex items-center justify-center gap-2 py-10 bg-white rounded-2xl border border-slate-100 shadow-sm text-slate-400 text-sm font-semibold">
+              <Loader2 className="animate-spin" size={18} /> Loading
+              installment plan…
+            </div>
+          ) : (
+            <>
+              {dueThisMonthInstallment && (
+                <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <CalendarClock size={20} className="text-amber-700" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-amber-900">
+                      You have an installment due this month —{" "}
+                      {monthLabel(dueThisMonthInstallment)}
+                    </p>
+                    <p className="text-xs text-amber-700/80 mt-0.5">
+                      Installment {dueThisMonthInstallment.installmentNumber} ·
+                      Rs.{" "}
+                      {Number(
+                        dueThisMonthInstallment.amount || 0,
+                      ).toLocaleString()}
+                      {dueThisMonthInstallment.dueDate &&
+                        ` · due ${formatDate(dueThisMonthInstallment.dueDate)}`}
+                    </p>
+                  </div>
+                  {dueThisMonthInstallment.isGenerated ? (
+                    <button
+                      onClick={() =>
+                        handlePrint(findFullChallan(dueThisMonthInstallment))
+                      }
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white transition-colors"
+                    >
+                      <Printer size={13} /> Print Voucher
+                    </button>
+                  ) : (
+                    <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-3 py-1.5 rounded-lg whitespace-nowrap">
+                      Not Yet Issued
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {upcomingInstallment && (
+                <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center flex-shrink-0">
+                    <CalendarClock size={20} className="text-sky-700" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-sky-900">
+                      Upcoming installment — {monthLabel(upcomingInstallment)}
+                    </p>
+                    <p className="text-xs text-sky-700/80 mt-0.5">
+                      Installment {upcomingInstallment.installmentNumber} · Rs.{" "}
+                      {Number(
+                        upcomingInstallment.amount || 0,
+                      ).toLocaleString()}
+                      {upcomingInstallment.dueDate &&
+                        ` · due ${formatDate(upcomingInstallment.dueDate)}`}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {pendingInstallments.length === 0 ? (
+                <div className="flex items-center gap-3 py-6 px-5 bg-emerald-50 border border-emerald-100 rounded-2xl">
+                  <CheckCircle2
+                    size={20}
+                    className="text-emerald-600 shrink-0"
+                  />
+                  <p className="text-sm font-semibold text-emerald-800">
+                    All installments have been paid.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+                  {pendingInstallments.map((c) => {
+                    const isDueThisMonth =
+                      dueThisMonthInstallment &&
+                      c.installmentNumber ===
+                        dueThisMonthInstallment.installmentNumber;
+                    const isUpcoming =
+                      upcomingInstallment &&
+                      c.installmentNumber ===
+                        upcomingInstallment.installmentNumber;
+                    const isOverdue =
+                      c.isGenerated &&
+                      (c.status === "overdue" ||
+                        (c.dueDate && new Date(c.dueDate) < new Date()));
+                    const fullChallan = findFullChallan(c);
+                    return (
+                      <div
+                        key={c.installmentNumber}
+                        className={`flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 ${
+                          isDueThisMonth
+                            ? "bg-amber-50/60"
+                            : isUpcoming
+                              ? "bg-sky-50/60"
+                              : ""
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="font-bold text-slate-800 text-sm">
+                              Installment {c.installmentNumber}
+                            </p>
+                            <span className="text-[10px] font-semibold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">
+                              {monthLabel(c)}
+                            </span>
+                            {isDueThisMonth && (
+                              <span className="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                                Due This Month
+                              </span>
+                            )}
+                            {isUpcoming && (
+                              <span className="text-[10px] font-bold bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">
+                                Upcoming
+                              </span>
+                            )}
+                            {isOverdue && !isDueThisMonth && (
+                              <span className="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                                Overdue
+                              </span>
+                            )}
+                            {!c.isGenerated && (
+                              <span className="text-[10px] font-semibold bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full">
+                                Not Yet Issued
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-1">
+                            {c.dueDate
+                              ? `Due ${formatDate(c.dueDate)}`
+                              : "Due date will be confirmed when issued"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4 sm:gap-6">
+                          <p className="text-lg font-black text-slate-900">
+                            Rs. {Number(c.amount || 0).toLocaleString()}
+                          </p>
+                          {c.isGenerated && fullChallan ? (
+                            <button
+                              onClick={() => handlePrint(fullChallan)}
+                              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-red-50 border border-red-200 text-red-800 hover:bg-red-100 transition-colors"
+                            >
+                              <Printer size={13} /> Print
+                            </button>
+                          ) : (
+                            <span className="text-xs font-semibold text-slate-300 px-3 py-2">
+                              —
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {/* ── VOUCHER HISTORY ── */}
       <div className="no-print">
         <div className="flex items-center gap-3 mb-4">
@@ -361,20 +608,19 @@ const FinanceView = () => {
                       {getStatusBadge(challan.status, challan.dueDate)}
                     </div>
 
-                    {/* Action */}
+                    {/* Action — paid challans have nothing left to pay, so
+                        no print/receipt option is offered for them. */}
                     <div className="col-span-1 text-right md:text-center no-print mt-2 md:mt-0">
-                      <button
-                        onClick={() => handlePrint(challan)}
-                        className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 w-full md:w-auto border ${
-                          isPaid
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                            : "bg-red-50 border-red-200 text-red-800 hover:bg-red-100"
-                        }`}
-                        title={isPaid ? "Download Receipt" : "Print Voucher"}
-                      >
-                        {isPaid ? <Download size={13} /> : <Printer size={13} />}
-                        <span>{isPaid ? "Receipt" : "Print"}</span>
-                      </button>
+                      {!isPaid && (
+                        <button
+                          onClick={() => handlePrint(challan)}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 w-full md:w-auto border bg-red-50 border-red-200 text-red-800 hover:bg-red-100"
+                          title="Print Voucher"
+                        >
+                          <Printer size={13} />
+                          <span>Print</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );

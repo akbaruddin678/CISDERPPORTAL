@@ -7,7 +7,12 @@ export const financeApi = baseApi.injectEndpoints({
       query: () => `/lms/finance/my-challans`,
       providesTags: ["Finance"],
     }),
+    getMyInstallmentPlan: builder.query({
+      query: () => `/lms/finance/my-installments`,
+      providesTags: ["Finance"],
+    }),
   }),
 });
 
-export const { useGetMyChallansQuery } = financeApi;
+export const { useGetMyChallansQuery, useGetMyInstallmentPlanQuery } =
+  financeApi;
