@@ -30,5 +30,3 @@ Thumbs.db
 # Backed-up nested repos
 .git.bak/
 
-# Let's Encrypt data
-certbot/
