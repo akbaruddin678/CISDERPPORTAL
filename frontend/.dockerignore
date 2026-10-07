@@ -2,5 +2,5 @@ node_modules
 Dockerfile
 .dockerignore
 .git
-.env
+.git.bak
 dist
