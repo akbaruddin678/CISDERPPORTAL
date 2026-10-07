@@ -57,7 +57,7 @@ const StudentDirectoryView = ({
                   <th className="px-6 py-4 font-semibold">Student</th>
                   <th className="px-6 py-4 font-semibold">Registration ID</th>
                   <th className="px-6 py-4 font-semibold">Program</th>
-                  <th className="px-6 py-4 font-semibold">Semester</th>
+                  <th className="px-6 py-4 font-semibold">Section</th>
                   <th className="px-6 py-4 font-semibold">Status</th>
                   <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>

@@ -6,6 +6,7 @@ import Counter from "../model/Counter.js";
 import StudentFeeStructure from "../../accountant/model/StudentFeeStructure.js";
 import StudentFeePreference from "../../accountant/model/StudentFeePreference.js";
 import { ScholarshipService } from "./scholarship.service.js";
+import { getLateFineAmount } from "./fineSetting.service.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { uploadToR2 } from "../../core/utils/cloudflareR2.js";
 
@@ -1314,6 +1315,8 @@ export class StudentChallanService {
           Array.isArray(pref.customAmounts) &&
           pref.customAmounts.length === pref.defaultInstallments;
         const fixedAmounts = useFixedAmounts ? pref.customAmounts.map(Number) : [];
+        const isMonthlyBasis = pref?.feeBasis === "monthly";
+        const monthParts = isMonthlyBasis ? Math.max(1, pref.installmentsPerMonth || 1) : 1;
 
         // =======================================================================
         // ✅ SMART INSTALLMENT & MONTH VALIDATION
@@ -1323,9 +1326,12 @@ export class StudentChallanService {
           percentages = pref.customPercentages || [];
           configuredMonths = pref.customMonths || []; // Get the custom months assigned during config
 
+          // A monthly plan's percentages are shares of ONE month's fee (each
+          // month adds up to 100), so the whole list adds up to 100 x months.
+          const expectedPctTotal = isMonthlyBasis ? 100 * (count / monthParts) : 100;
           if (
             percentages.length !== count ||
-            Math.abs(percentages.reduce((a, b) => a + b, 0) - 100) > 0.02
+            Math.abs(percentages.reduce((a, b) => a + b, 0) - expectedPctTotal) > 0.02
           ) {
             const base = Math.floor(100 / count);
             percentages = Array(count).fill(base);
@@ -1537,7 +1543,9 @@ export class StudentChallanService {
         if (shouldSplit) {
           const groupRefId = `GRP-${student._id.toString().slice(-4)}-${termId.toString().slice(-4)}`;
           let runningOriginal = 0,
-            runningScholarship = 0;
+            runningScholarship = 0,
+            monthRunningOriginal = 0,
+            monthRunningScholarship = 0;
 
           for (let i = 0; i < count; i++) {
             const currentInstNum = i + 1;
@@ -1557,13 +1565,30 @@ export class StudentChallanService {
               thisOriginal = Math.round((grandTotal * pct) / 100);
               thisScholarship = Math.round((scholarshipAmount * pct) / 100);
 
-              if (i === count - 1) {
+              if (isMonthlyBasis) {
+                // Each month is billed on its own: the last part of a month
+                // takes whatever is left of that month's fee so the parts
+                // always add up exactly to the monthly fee.
+                if (i % monthParts === monthParts - 1) {
+                  thisOriginal = grandTotal - monthRunningOriginal;
+                  thisScholarship = scholarshipAmount - monthRunningScholarship;
+                }
+              } else if (i === count - 1) {
                 thisOriginal = grandTotal - runningOriginal;
                 thisScholarship = scholarshipAmount - runningScholarship;
               }
             }
             runningOriginal += thisOriginal;
             runningScholarship += thisScholarship;
+            if (isMonthlyBasis) {
+              if (i % monthParts === monthParts - 1) {
+                monthRunningOriginal = 0;
+                monthRunningScholarship = 0;
+              } else {
+                monthRunningOriginal += thisOriginal;
+                monthRunningScholarship += thisScholarship;
+              }
+            }
 
             const thisNet = Math.max(0, thisOriginal - thisScholarship);
 
@@ -2145,8 +2170,12 @@ export class StudentChallanService {
 
     let isModified = false;
     if (today > due) {
-      if (!challan.fineAmount || challan.fineAmount === 0) {
-        challan.fineAmount = 2000;
+      // Late fine comes from the Late Fine setting (snapshotted on the
+      // challan when it was created). 0 means no fine is ever imposed.
+      const lateFine =
+        challan.lateFeeAmount ?? (await getLateFineAmount(challan.campusId || null));
+      if (lateFine > 0 && (!challan.fineAmount || challan.fineAmount === 0)) {
+        challan.fineAmount = lateFine;
         isModified = true;
       }
       if (challan.status === "issued" || challan.status === "partial") {
@@ -3019,7 +3048,7 @@ export class StudentChallanService {
     const cleanInvoiceNo = safeString(invoiceNo);
     if (cleanInvoiceNo) {
       const regex = new RegExp(cleanInvoiceNo, "i");
-      q.$or = [{ challanNo: regex }, { ezPayBillId: regex }];
+      q.challanNo = regex;
     }
 
     if (dueFrom || dueTo) {
@@ -3091,10 +3120,10 @@ export class StudentChallanService {
       ]),
     ]);
 
-    // Standard flat late fee (matches recalculateFine's hardcoded 2000),
+    // Late fine from the Late Fine setting (snapshotted on each challan),
     // shown here as "what this would cost if paid after the due date" even
     // for invoices that haven't actually gone overdue yet.
-    const LATE_FEE = 2000;
+    const DEFAULT_LATE_FEE = await getLateFineAmount(null);
     const data = rows.map((c) => {
       const baseAmount = (c.netAmount || 0) - (c.fineAmount || 0);
       const isPaid = c.status === "paid";
@@ -3102,16 +3131,15 @@ export class StudentChallanService {
         _id: c._id,
         challanNo: c.challanNo,
         regNo: c.studentId?.studentId || "N/A",
-        oneBillInvoiceNo: c.ezPayBillId || "",
         name: c.studentId?.personalInfo?.fullName || "Unknown",
         dueDate: c.dueDate,
         amount: baseAmount,
-        afterDueDateAmount: baseAmount + LATE_FEE,
+        afterDueDateAmount: baseAmount + (c.lateFeeAmount ?? DEFAULT_LATE_FEE),
         amountPaid: c.paidAmount || 0,
         paidDate: c.paidAt || null,
         mobile: c.studentId?.personalInfo?.phone || "N/A",
         status: isPaid ? "PAID" : "UNPAID",
-        paidBy: isPaid ? (c.ezPayBillId ? "1 Bill" : "Manual") : "",
+        paidBy: isPaid ? "Manual" : "",
       };
     });
 

@@ -253,7 +253,7 @@ const ChallanStats = ({ backendStats }) => {
       {/* 2. Breakdown Tables */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <DetailedStatsTable
-          title="Department Performance"
+          title="Class Performance"
           data={deptData}
           icon={Building2}
         />
@@ -268,7 +268,7 @@ const ChallanStats = ({ backendStats }) => {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
         <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
           <h3 className="font-bold text-slate-800 flex items-center gap-2 text-lg">
-            <Calendar className="text-indigo-600" size={22} /> Semester-wise
+            <Calendar className="text-indigo-600" size={22} /> Section-wise
             Breakdown
           </h3>
         </div>
@@ -323,7 +323,7 @@ const ChallanStats = ({ backendStats }) => {
             <div className="col-span-full py-16 flex flex-col items-center justify-center text-slate-400 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
               <Search size={40} className="mb-3 opacity-20 text-slate-500" />
               <p className="font-bold text-slate-500">
-                No semester data found.
+                No section data found.
               </p>
               <p className="text-xs mt-1">
                 Challans must be generated to display metrics here.

@@ -1,31 +1,17 @@
 import { asyncHandler } from "../../accountant/middleware/asyncHandler.js";
 import { HostelAllocationService } from "../services/hostelAllocation.service.js";
-import { EzPayService } from "../../accountant/services/ezPay.service.js";
 import { StudentChallanService } from "../../accountant/services/studentChallan.service.js";
 import StudentChallan from "../../accountant/model/StudentChallan.js";
 
 export const assignHostel = asyncHandler(async (req, res) => {
   const result = await HostelAllocationService.assignHostel(req.body);
 
-  let ezPayStatus = "Skipped/No Challan";
-
-  if (result.challan) {
-    try {
-      const isSynced = await EzPayService.syncToEzPay(result.challan._id);
-      ezPayStatus = isSynced ? "Success" : "Failed";
-    } catch (e) {
-      console.error("EzPay Sync Error on Hostel Assign:", e.message);
-      ezPayStatus = "Error";
-    }
-  }
-
   res.status(201).json({
     success: true,
-    message: `Assigned successfully. EzPay Sync: ${ezPayStatus}`,
+    message: "Assigned successfully.",
     data: {
       allocation: result.allocation,
       challan: result.challan,
-      ezPayStatus,
     },
   });
 });
@@ -33,33 +19,10 @@ export const assignHostel = asyncHandler(async (req, res) => {
 export const generateBulkChallan = asyncHandler(async (req, res) => {
   const challans = await HostelAllocationService.generateBulkChallan(req.body);
 
-  let syncedCount = 0;
-  let failedCount = 0;
-
-  if (challans && challans.length > 0) {
-    for (const challan of challans) {
-      try {
-        const isSynced = await EzPayService.syncToEzPay(challan._id);
-        if (isSynced) {
-          syncedCount++;
-        } else {
-          failedCount++;
-        }
-      } catch (e) {
-        console.error(
-          `EzPay Sync Error for Bulk Hostel ${challan._id}:`,
-          e.message,
-        );
-        failedCount++;
-      }
-    }
-  }
-
   res.status(201).json({
     success: true,
-    message: `Generated ${challans.length} Challans. EzPay Synced: ${syncedCount}, Failed: ${failedCount}`,
+    message: `Generated ${challans.length} Challans.`,
     data: challans,
-    syncStats: { syncedCount, failedCount },
   });
 });
 
@@ -96,7 +59,7 @@ export const updateAllocation = asyncHandler(async (req, res) => {
 });
 
 // =========================================================
-// 🔥 AGGRESSIVE EMERGENCY REPAIR & SYNC FOR OLD BROKEN CHALLANS
+// 🔥 EMERGENCY REPAIR FOR OLD BROKEN CHALLANS
 // =========================================================
 export const syncExistingHostelChallans = asyncHandler(async (req, res) => {
   const challans = await StudentChallan.find({
@@ -104,7 +67,6 @@ export const syncExistingHostelChallans = asyncHandler(async (req, res) => {
     isDeleted: false,
   });
 
-  let syncedCount = 0;
   let fixedCount = 0;
   let errors = [];
 
@@ -131,11 +93,6 @@ export const syncExistingHostelChallans = asyncHandler(async (req, res) => {
       if (needsSave) {
         await challan.save();
         fixedCount++;
-
-        if (["issued", "overdue", "pending"].includes(challan.status)) {
-          const isSynced = await EzPayService.syncToEzPay(challan._id);
-          if (isSynced) syncedCount++;
-        }
       }
     } catch (error) {
       console.error(`Failed to sync ${challan._id}:`, error.message);
@@ -145,11 +102,10 @@ export const syncExistingHostelChallans = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: "Aggressive Hostel Challans Repair & Sync Complete.",
+    message: "Hostel challans repair complete.",
     data: {
       totalFoundInDatabase: challans.length,
       brokenInvoiceIdsRepaired: fixedCount,
-      successfullySyncedToEzPay: syncedCount,
       failedSyncs: errors.length,
       errorLog: errors,
     },

@@ -47,7 +47,7 @@ const CourseWithdrawalsView = ({
           Course Withdrawals
         </Typography>
         <Typography variant="body2" color="#64748b" mt={0.25}>
-          Withdraw a student from a course in your department — this is final, no separate approval step.
+          Withdraw a student from a course in your class — this is final, no separate approval step.
         </Typography>
       </Box>
 

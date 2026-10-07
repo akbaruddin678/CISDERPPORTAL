@@ -733,7 +733,7 @@ export const DetailModal = ({ isOpen, onClose, data, student }) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Semester:</span>{" "}
+                <span className="text-slate-500">Section:</span>{" "}
                 <span className="text-slate-700">
                   {student?.semester?.number || "N/A"}
                 </span>

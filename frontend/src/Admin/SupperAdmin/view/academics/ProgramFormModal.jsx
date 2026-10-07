@@ -133,7 +133,7 @@ export const ProgramFormModal = ({
                 render={({ field }) => (
                   <TextField
                     select
-                    label="Department"
+                    label="Class"
                     fullWidth
                     error={!!errors.departmentId}
                     helperText={errors.departmentId?.message}

@@ -60,9 +60,9 @@ export async function exportStudentDirectoryExcel(students, { scopeLabel = "All 
     { header: "Status", key: "status", width: 14 },
     { header: "Scholarship", key: "scholarship", width: 14 },
     { header: "Scholarship Name", key: "scholarshipName", width: 20 },
-    { header: "Department", key: "department", width: 28 },
+    { header: "Class", key: "department", width: 28 },
     { header: "Program", key: "program", width: 26 },
-    { header: "Semester", key: "semester", width: 14 },
+    { header: "Section", key: "semester", width: 14 },
   ];
   ws.columns = columns;
 

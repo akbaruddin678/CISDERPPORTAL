@@ -101,7 +101,7 @@ const StudentManagementView = ({
     { label: "Total Enrolled", value: stats.total, icon: FaUsers, bg: "#eef2ff", fg: "#4338ca" },
     { label: "Active", value: stats.active, icon: FaUserCheck, bg: "#ecfdf5", fg: "#047857" },
     { label: "Graduated", value: stats.graduated, icon: FaGraduationCap, bg: "#f5f3ff", fg: "#6d28d9" },
-    { label: "Departments", value: stats.byDepartment?.length || 0, icon: FaUniversity, bg: "#fffbeb", fg: "#b45309" },
+    { label: "Classes", value: stats.byDepartment?.length || 0, icon: FaUniversity, bg: "#fffbeb", fg: "#b45309" },
   ];
 
   const inputCls =
@@ -210,7 +210,7 @@ const StudentManagementView = ({
                 <tr>
                   <th className="px-4 py-3">Student ID</th>
                   <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Program / Department</th>
+                  <th className="px-4 py-3">Program / Class</th>
                   <th className="px-4 py-3">Reason</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -339,8 +339,8 @@ const StudentManagementView = ({
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <SelectField label="Department" value={filters.departmentId} onChange={(e) => handleFilterChange("departmentId", e.target.value)}>
-                <option value="">All Departments</option>
+              <SelectField label="Class" value={filters.departmentId} onChange={(e) => handleFilterChange("departmentId", e.target.value)}>
+                <option value="">All Classes</option>
                 {catalogData.departments?.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
               </SelectField>
 
@@ -349,8 +349,8 @@ const StudentManagementView = ({
                 {catalogData.programs?.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
               </SelectField>
 
-              <SelectField label="Semester" value={filters.semesterId} disabled={!filters.programId} onChange={(e) => handleFilterChange("semesterId", e.target.value)}>
-                <option value="">All Semesters</option>
+              <SelectField label="Section" value={filters.semesterId} disabled={!filters.programId} onChange={(e) => handleFilterChange("semesterId", e.target.value)}>
+                <option value="">All Sections</option>
                 {catalogData.semesters?.map((s) => <option key={s._id} value={s._id}>Semester {s.number}</option>)}
               </SelectField>
 
@@ -383,8 +383,8 @@ const StudentManagementView = ({
                   </th>
                   <th className="px-4 py-3">Student ID</th>
                   <th className="px-4 py-3">Name &amp; Contact</th>
-                  <th className="px-4 py-3">Program / Department</th>
-                  <th className="px-4 py-3">Session · Semester</th>
+                  <th className="px-4 py-3">Program / Class</th>
+                  <th className="px-4 py-3">Session · Section</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>

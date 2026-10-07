@@ -97,12 +97,20 @@ const StudentPromotionView = ({
   filters,
   setFilters,
   selectedStudentIds,
+  fullCatalog,
+  targetDepartmentId,
+  targetProgramId,
   targetSemesterId,
+  targetSessionId,
+  availableTargetPrograms,
   availableTargetSemesters,
   isProcessing,
   feedback,
   defaulterModal,
   setTargetSemesterId,
+  setTargetSessionId,
+  handleTargetDepartmentChange,
+  handleTargetProgramChange,
   handleSelectAll,
   handleSelectOne,
   handleBulkAction,
@@ -140,7 +148,7 @@ const StudentPromotionView = ({
                 Student Promotions
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Move students between semesters and manage fee overrides
+                Move students between sections and manage fee overrides
               </Typography>
             </Box>
             {students.length > 0 && (
@@ -173,16 +181,16 @@ const StudentPromotionView = ({
               <Grid container spacing={2} sx={{ mt: 1 }}>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth size="small">
-                    <InputLabel>Department</InputLabel>
+                    <InputLabel>Class</InputLabel>
                     <Select
                       value={filters.departmentId}
-                      label="Department"
+                      label="Class"
                       onChange={(e) =>
                         setFilters({ ...filters, departmentId: e.target.value })
                       }
                     >
                       <MenuItem value="">
-                        <em>All departments</em>
+                        <em>All classes</em>
                       </MenuItem>
                       {catalogData.departments.map((d) => (
                         <MenuItem key={d._id} value={d._id}>
@@ -225,16 +233,16 @@ const StudentPromotionView = ({
                     size="small"
                     disabled={!filters.programId}
                   >
-                    <InputLabel>Current semester</InputLabel>
+                    <InputLabel>Current section</InputLabel>
                     <Select
                       value={filters.semesterId}
-                      label="Current semester"
+                      label="Current section"
                       onChange={(e) =>
                         setFilters({ ...filters, semesterId: e.target.value })
                       }
                     >
                       <MenuItem value="">
-                        <em>Choose semester</em>
+                        <em>Choose section</em>
                       </MenuItem>
                       {catalogData.semesters.map((s) => (
                         <MenuItem key={s._id} value={s._id}>
@@ -337,40 +345,83 @@ const StudentPromotionView = ({
               </Typography>
 
               <Stack spacing={2} sx={{ mt: 2 }}>
-                <Box
-                  sx={{
-                    border: "1px dashed",
-                    borderColor: "divider",
-                    borderRadius: 1.5,
-                    px: 1.5,
-                    py: 1,
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary">
-                    Target session
-                  </Typography>
-                  <Typography variant="body2" fontWeight={600}>
-                    {currentSessionName || "Select a source session first"}
-                  </Typography>
-                </Box>
-
                 <FormControl fullWidth size="small">
-                  <InputLabel>Target semester</InputLabel>
+                  <InputLabel>Target class</InputLabel>
                   <Select
-                    value={targetSemesterId}
-                    label="Target semester"
-                    onChange={(e) => setTargetSemesterId(e.target.value)}
-                    disabled={!filters.programId}
+                    value={targetDepartmentId}
+                    label="Target class"
+                    onChange={(e) => handleTargetDepartmentChange(e.target.value)}
                   >
                     <MenuItem value="">
-                      <em>Select target semester</em>
+                      <em>Select target class</em>
                     </MenuItem>
-                    {availableTargetSemesters.map((s) => (
-                      <MenuItem key={s._id} value={s._id}>
-                        {s.name || `Semester ${s.number}`}
+                    {fullCatalog.departments.map((d) => (
+                      <MenuItem key={d._id} value={d._id}>
+                        {d.name}
                       </MenuItem>
                     ))}
                   </Select>
+                </FormControl>
+
+                <FormControl fullWidth size="small">
+                  <InputLabel>Target program</InputLabel>
+                  <Select
+                    value={targetProgramId}
+                    label="Target program"
+                    onChange={(e) => handleTargetProgramChange(e.target.value)}
+                    disabled={!targetDepartmentId}
+                  >
+                    <MenuItem value="">
+                      <em>Select target program</em>
+                    </MenuItem>
+                    {availableTargetPrograms.map((p) => (
+                      <MenuItem key={p._id} value={p._id}>
+                        {p.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth size="small">
+                  <InputLabel>Target section</InputLabel>
+                  <Select
+                    value={targetSemesterId}
+                    label="Target section"
+                    onChange={(e) => setTargetSemesterId(e.target.value)}
+                    disabled={!targetProgramId}
+                  >
+                    <MenuItem value="">
+                      <em>Select target section</em>
+                    </MenuItem>
+                    {availableTargetSemesters.map((s) => (
+                      <MenuItem key={s._id} value={s._id}>
+                        {s.name || `Section ${s.number}`}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl fullWidth size="small">
+                  <InputLabel>Target session</InputLabel>
+                  <Select
+                    value={targetSessionId}
+                    label="Target session"
+                    onChange={(e) => setTargetSessionId(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>Select target session</em>
+                    </MenuItem>
+                    {fullCatalog.sessions.map((s) => (
+                      <MenuItem key={s._id} value={s._id}>
+                        {s.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {currentSessionName && (
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                      Current session: {currentSessionName}
+                    </Typography>
+                  )}
                 </FormControl>
 
                 <Stack direction="row" spacing={1.5}>
@@ -690,7 +741,7 @@ const StudentPromotionView = ({
           >
             <Typography variant="body2" color="text.secondary">
               <strong>{defaulterModal.list.length} student(s)</strong> have
-              unpaid fees for the current semester. Promotion can't proceed
+              unpaid fees for the current section. Promotion can't proceed
               until this is resolved or overridden.
             </Typography>
           </Box>

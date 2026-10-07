@@ -85,10 +85,10 @@ const useExamCoordinationController = () => {
         th,td{border:1px solid #ccc;padding:6px 10px;font-size:12px;text-align:left;}
         th{background:#0f172a;color:#fff;}
       </style></head><body>
-      <h1>Department Exam Schedule</h1>
+      <h1>Class Exam Schedule</h1>
       <p>Session: ${sessionName}</p>
       <table>
-        <thead><tr><th>Course</th><th>Program</th><th>Semester</th><th>Type</th><th>Date</th><th>Time</th></tr></thead>
+        <thead><tr><th>Course</th><th>Program</th><th>Section</th><th>Type</th><th>Date</th><th>Time</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
       </body></html>`;

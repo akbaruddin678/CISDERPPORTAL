@@ -60,9 +60,14 @@ function AppContent() {
     "/landing/cms",
   ];
 
-  const shouldHideNavbar = hideNavbarPatterns.some(pattern => 
-    location.pathname.startsWith(pattern)
-  );
+  // Public marketing pages render their own header/footer (SiteLayout).
+  const publicSitePaths = ["/", "/about", "/admissions", "/contact", "/programs", "/campuses"];
+
+  const shouldHideNavbar =
+    publicSitePaths.includes(location.pathname) ||
+    hideNavbarPatterns.some(pattern => 
+      location.pathname.startsWith(pattern)
+    );
 
   return (
     <>

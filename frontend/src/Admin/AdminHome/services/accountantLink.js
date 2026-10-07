@@ -6,13 +6,11 @@ import {
   Award,
   FilePlus2,
   Printer,
-  Building,
   Building2,
   BarChart3,
   CalendarRange,
   AlarmClock,
   CreditCard,
-  GraduationCap,
   LucideAirVent,
   BanknoteArrowDown,
   TrendingUp,
@@ -42,10 +40,10 @@ export const accountantLinks = () => {
     },
     {
       title: "Revenue Explorer",
-      subtitle: "Department → Program → Semester → Student",
+      subtitle: "Class → Program → Section → Student",
       path: "/revenue-explorer",
       description:
-        "Drill down from whole-department monthly revenue into programs, semesters, and individual students — with Tuition/Exam/Admission/Misc broken out separately and one-click links into Fee Setup, Installments, and Challan Management for any student.",
+        "Drill down from whole-class monthly revenue into programs, sections, and individual students — with Tuition/Exam/Admission/Misc broken out separately and one-click links into Fee Setup, Installments, and Challan Management for any student.",
       icon: TrendingUp,
       accent: "#0f766e",
       bg: "#f0fdfa",
@@ -103,10 +101,10 @@ export const accountantLinks = () => {
     },
     {
       title: "Bulk Challan Print",
-      subtitle: "1Bill Generation",
+      subtitle: "Challan Generation",
       path: "/generate-challan-list",
       description:
-        "Bulk generate and print official 1Bill fee challans for entire sessions.",
+        "Bulk generate and print official fee challans for entire sessions.",
       icon: Printer,
       accent: "#4f46e5",
       bg: "#eef2ff",
@@ -122,21 +120,21 @@ export const accountantLinks = () => {
       bg: "#fff1f2",
     },
     {
-      title: "Hostel Billing",
-      subtitle: "Accommodation Fees",
-      path: "/hostelfee",
+      title: "Late Fine",
+      subtitle: "Fine After Due Date",
+      path: "/late-fine-settings",
       description:
-        "Manage accommodation charges and hostel-specific billing for residents.",
-      icon: Building,
-      accent: "#dc2626",
-      bg: "#fef2f2",
+        "Choose how much fine is imposed after the due date. Select 0 for no fine.",
+      icon: AlarmClock,
+      accent: "#e11d48",
+      bg: "#fff1f2",
     },
     {
       title: "Departmental Challans",
-      subtitle: "By Department",
+      subtitle: "By Class",
       path: "/department-challans",
       description:
-        "Track challans, student involvement, and financial recovery by department.",
+        "Track challans, student involvement, and financial recovery by class.",
       icon: Building2,
       accent: "#7c3aed",
       bg: "#f5f3ff",
@@ -172,26 +170,6 @@ export const accountantLinks = () => {
       bg: "#ecfdf5",
     },
     {
-      title: "Intermediate Studies",
-      subtitle: "COIS Fee Management",
-      path: "/college-of-intermediate-studies",
-      description:
-        "Manage College of Intermediate Studies fee collection and billing workflows.",
-      icon: GraduationCap,
-      accent: "#dc2626",
-      bg: "#fef2f2",
-    },
-    {
-      title: "Graduation Clearance",
-      subtitle: "Dues Check Before Degree",
-      path: "/graduation-clearance",
-      description:
-        "Confirm graduating students have no outstanding fees or fines and that the degree issuance fee is received.",
-      icon: GraduationCap,
-      accent: "#059669",
-      bg: "#ecfdf5",
-    },
-    {
       title: "Left Cases",
       subtitle: "Manage Student Withdrawal",
       path: "/left-caseses",
@@ -200,16 +178,6 @@ export const accountantLinks = () => {
       icon: BanknoteArrowDown,
       accent: "#dc2626",
       bg: "#fef2f2",
-    },
-    {
-      title: "Organization Fees",
-      subtitle: "TEVTA & John Safe Foundation",
-      path: "/miscellaneousfee",
-      description:
-        "Generate, track, and manage custom fee receipts for external organizations and corporate partners.",
-      icon: Building2,
-      accent: "#e11d48",
-      bg: "#fff1f2", 
     },
   ];
 };

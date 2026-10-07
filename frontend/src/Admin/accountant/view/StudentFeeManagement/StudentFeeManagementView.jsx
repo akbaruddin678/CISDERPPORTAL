@@ -401,7 +401,7 @@ const FeeSetupPage = (props) => {
                     : `This student needs a ${tabMeta?.label} fee setup for Semester ${currentSemesterFeeStatus.semesterNumber ?? "—"}${currentSemesterFeeStatus.termName ? ` (${currentSemesterFeeStatus.termName})` : ""} — none configured yet.`}
                   {currentSemesterFeeStatus.isLegacyUntagged && (
                     <span className="block text-xs font-normal text-emerald-700 mt-0.5">
-                      This is an older record set up before semester
+                      This is an older record set up before section
                       tracking — assign it properly so it stops relying on
                       a fallback.
                     </span>
@@ -615,7 +615,7 @@ const FeeSetupPage = (props) => {
                             {isPastSemester ? (
                               <div
                                 className="flex justify-end"
-                                title="Past semester — locked from editing"
+                                title="Past section — locked from editing"
                               >
                                 <Lock size={14} className="text-slate-300" />
                               </div>
@@ -757,11 +757,11 @@ const MainPage = (props) => {
 
           {[
             {
-              label: "Department",
+              label: "Class",
               val: selectedDept,
               onChange: handleDeptChange,
               opts: deptOptions,
-              placeholder: "All Departments",
+              placeholder: "All Classes",
             },
             {
               label: "Program",
@@ -772,11 +772,11 @@ const MainPage = (props) => {
               disabled: !selectedDept,
             },
             {
-              label: "Semester",
+              label: "Section",
               val: selectedSem,
               onChange: (v) => setSelectedSem(v),
               opts: semOptions,
-              placeholder: "All Semesters",
+              placeholder: "All Sections",
               disabled: !selectedProg,
             },
           ].map(({ label, val, onChange, opts, placeholder, disabled }) => (

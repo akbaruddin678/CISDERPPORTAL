@@ -14,7 +14,6 @@ const __dirname = path.dirname(__filename);
 // voucher, so an emailed challan looks like the one staff print/the
 // student already sees on the portal.
 const LOGO_PATH = path.join(__dirname, "../../../assets/cisd-logo.png");
-const ONEBILL_LOGO_PATH = path.join(__dirname, "../../../assets/onelink.png");
 const STAMP_PATH = path.join(__dirname, "../../../assets/accountss.jpeg");
 
 const NAVY = "#1a237e";
@@ -119,12 +118,6 @@ export function generateChallanPdfBuffer({
       if (fs.existsSync(LOGO_PATH)) {
         doc.image(LOGO_PATH, contentX, y, { width: 55, height: 55 });
       }
-      if (fs.existsSync(ONEBILL_LOGO_PATH)) {
-        doc.image(ONEBILL_LOGO_PATH, contentX + contentWidth - 55, y, {
-          width: 55,
-          height: 55,
-        });
-      }
 
       doc
         .font("Helvetica-Bold")
@@ -154,11 +147,7 @@ export function generateChallanPdfBuffer({
         );
 
       y += 62;
-      const invoiceSuffix =
-        paymentReference && paymentReference !== "00000000"
-          ? paymentReference
-          : challanNo;
-      const invoiceId = `101340${invoiceSuffix || ""}`;
+      const invoiceId = String(challanNo || "");
       const boxW = 180;
       const boxX = contentX + (contentWidth - boxW) / 2;
       doc.rect(boxX, y, boxW, 28).fillAndStroke("#e0f7fa", "#000000");
@@ -166,7 +155,7 @@ export function generateChallanPdfBuffer({
         .font("Helvetica-Bold")
         .fontSize(7)
         .fillColor(INK)
-        .text("1BILL INVOICE NO.", boxX, y + 5, { width: boxW, align: "center" });
+        .text("CHALLAN NO.", boxX, y + 5, { width: boxW, align: "center" });
       doc
         .font("Helvetica-Bold")
         .fontSize(12)
@@ -192,7 +181,7 @@ export function generateChallanPdfBuffer({
       ]);
       y += rowH;
       drawInfoRow(doc, contentX, y, contentWidth, rowH, [
-        "Program", programName || "N/A", "Semester", semesterLabel || "N/A",
+        "Section", semesterLabel || "N/A",
       ]);
       y += rowH;
       drawInfoRow(doc, contentX, y, contentWidth, rowH, [
@@ -297,7 +286,7 @@ export function generateChallanPdfBuffer({
       // --- Footer notes ---
       const notesLines = [
         "Note:",
-        "1- Pay via 1Link/1-Bill, Banking Apps, ATMs, Easypaisa, JazzCash, etc.",
+        "1- Pay at the bank or through your banking app before the due date.",
         "2- Direct deposit by visiting any bank branch nationwide.",
         "A late fee of 2,000 will be charged after the due date. Five days after the due date, the fee increases to 5,000.",
       ];

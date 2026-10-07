@@ -12,7 +12,7 @@ const DepartmentHomeView = ({ stats, isLoading }) => {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-300 pb-8">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight uppercase">
-              Department Portal
+              Class Portal
             </h1>
             <p className="text-lg text-slate-600 font-medium max-w-2xl">
               Manage your organizational unit, courses, students, and faculty.

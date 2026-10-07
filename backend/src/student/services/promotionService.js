@@ -49,7 +49,8 @@ export async function promoteAdmissionToStudent(
           },
         ]
       : [],
-    createdFromApplicationId: admission._id,
+    // Null for students registered directly by staff (no Admission record).
+    createdFromApplicationId: admission._id || null,
     promotionDate: new Date(),
     promotedBy: actorUserId || null,
     // Not visible in other modules until the first fee is paid.
@@ -156,15 +157,19 @@ export async function promoteAdmissionToStudent(
   });
   await enrollment.save({ session });
 
-  // 9. Update Admission status
-  admission.status = "accepted";
-  if (admission.application) {
-    admission.application.status = "Submitted";
+  // 9. Update Admission status — only when there is a saved Admission
+  // application. A student registered directly by staff passes plain data
+  // and has no application record to update.
+  if (typeof admission.save === "function") {
+    admission.status = "accepted";
+    if (admission.application) {
+      admission.application.status = "Submitted";
+    }
+    admission.updatedAt = new Date();
+    admission.promotedStudentId = studentProfile._id;
+    admission.promotionDate = new Date();
+    await admission.save({ session });
   }
-  admission.updatedAt = new Date();
-  admission.promotedStudentId = studentProfile._id;
-  admission.promotionDate = new Date();
-  await admission.save({ session });
 
   return { studentProfile, safeEmail };
 }

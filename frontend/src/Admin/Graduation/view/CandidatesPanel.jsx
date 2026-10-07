@@ -195,7 +195,7 @@ const BulkResultDialog = ({ w }) => {
 };
 
 const SemesterBar = ({ number, total, isFinal }) => {
-  if (number == null) return <span className="text-[11px] font-semibold text-slate-400">No semester</span>;
+  if (number == null) return <span className="text-[11px] font-semibold text-slate-400">No section</span>;
   const pct = total ? Math.min(100, Math.round((number / total) * 100)) : 0;
   return (
     <div className="w-full">

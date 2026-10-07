@@ -59,7 +59,7 @@ const DegreeAuditView = ({
         <div>
           <h1 className="text-lg font-extrabold tracking-tight text-slate-900 leading-tight">Degree Audit</h1>
           <p className="text-xs font-medium text-slate-500">
-            Batch Completion — checks CGPA, credit hours and curriculum coverage for final-semester students
+            Batch Completion — checks CGPA, credit hours and curriculum coverage for final-section students
             and marks the ones who qualify as academically complete.
           </p>
         </div>
@@ -171,7 +171,7 @@ const DegreeAuditView = ({
           {result.done.length === 0 && result.failed.length === 0 && !result.timeBarred?.length && (
             <EmptyState
               icon={ClipboardCheck}
-              title="No final-semester students in scope"
+              title="No final-section students in scope"
               hint="No active student in this program (and batch, if selected) is in their final semester yet."
             />
           )}

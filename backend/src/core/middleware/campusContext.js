@@ -9,7 +9,7 @@ export function getCampusContext() {
 
 export function enterCampusContext(user, requestedCampusId) {
   const roles = user?.roles || [];
-  const hasGlobalAccess = roles.includes("admin") || roles.includes("headofaccount");
+  const hasGlobalAccess = roles.includes("admin") || roles.includes("headofaccount") || user?.allCampuses === true;
   const assignedCampusId = user?.campusId?.toString?.() || null;
   const requested = String(requestedCampusId || "").trim();
 

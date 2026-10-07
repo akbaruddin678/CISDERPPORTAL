@@ -59,7 +59,7 @@ const StudentPicker = ({ c }) => {
           onChange={(e) => c.setFilter("departmentId", e.target.value)}
           className={selectCls}
         >
-          <option value="">All departments</option>
+          <option value="">All classes</option>
           {c.departments.map((d) => (
             <option key={d._id} value={d._id}>
               {d.name}
@@ -83,7 +83,7 @@ const StudentPicker = ({ c }) => {
           onChange={(e) => c.setFilter("semesterNumber", e.target.value)}
           className={selectCls}
         >
-          <option value="">All semesters</option>
+          <option value="">All sections</option>
           {c.semesterNumbers.map((n) => (
             <option key={n} value={n}>
               Semester {n}

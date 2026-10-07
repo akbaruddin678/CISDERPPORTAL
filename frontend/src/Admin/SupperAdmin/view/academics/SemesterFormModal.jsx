@@ -66,7 +66,7 @@ export const SemesterFormModal = ({
             label="Stage Name"
             control={control}
             errors={errors}
-            placeholder="e.g. Semester 1, Part 1, First Year"
+            placeholder="e.g. Section 1, Part 1, First Year"
           />
 
           <Box sx={{ mt: 3 }}>
@@ -74,12 +74,12 @@ export const SemesterFormModal = ({
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <CircularProgress size={16} />
                 <Typography variant="body2" color="text.secondary">
-                  Checking students and activity in this semester…
+                  Checking students and activity in this section…
                 </Typography>
               </Box>
             ) : canDelete ? (
               <Alert severity="success">
-                No students or other activity are linked to this semester, so
+                No students or other activity are linked to this section, so
                 it can be deleted.
               </Alert>
             ) : (
@@ -138,7 +138,7 @@ export const SemesterFormModal = ({
             disabled={isLoading || checking || !canDelete || confirming}
             sx={{ mr: "auto" }}
           >
-            Delete Semester
+            Delete Section
           </Button>
           <Button onClick={onClose} color="inherit" disabled={isLoading}>
             Cancel

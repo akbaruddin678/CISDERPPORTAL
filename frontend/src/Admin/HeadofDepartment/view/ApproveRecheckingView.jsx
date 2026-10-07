@@ -94,7 +94,7 @@ const ApproveRecheckingView = ({
             Approve Rechecking
           </Typography>
           <Typography variant="body2" color="#64748b" mt={0.25}>
-            Review student re-evaluation appeals for your department and record the outcome.
+            Review student re-evaluation appeals for your class and record the outcome.
           </Typography>
         </Box>
 

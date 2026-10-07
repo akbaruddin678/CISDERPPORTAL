@@ -110,7 +110,7 @@ const ExamAttendanceView = ({
           Exam Attendance
         </Typography>
         <Typography variant="body2" color="#64748b" mt={0.25}>
-          Record attendance for one exam sitting, then submit to your HOD for department sign-off.
+          Record attendance for one exam sitting, then submit to your HOD for class sign-off.
         </Typography>
       </Box>
 
@@ -122,13 +122,13 @@ const ExamAttendanceView = ({
           <TextField select fullWidth size="small" label="Session" value={filters.termId} onChange={(e) => handleFilterChange("termId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             {terms.map((t) => (<MenuItem key={t._id} value={t._id} sx={{ fontSize: 13 }}>{t.name}</MenuItem>))}
           </TextField>
-          <TextField select fullWidth size="small" label="Department" value={filters.departmentId} onChange={(e) => handleFilterChange("departmentId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
+          <TextField select fullWidth size="small" label="Class" value={filters.departmentId} onChange={(e) => handleFilterChange("departmentId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             {departments.map((d) => (<MenuItem key={d._id} value={d._id} sx={{ fontSize: 13 }}>{d.name}</MenuItem>))}
           </TextField>
           <TextField select fullWidth size="small" label="Program" disabled={!filters.departmentId} value={filters.programId} onChange={(e) => handleFilterChange("programId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
-          <TextField select fullWidth size="small" label="Semester" disabled={!filters.programId} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
+          <TextField select fullWidth size="small" label="Section" disabled={!filters.programId} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
           </TextField>
           <TextField

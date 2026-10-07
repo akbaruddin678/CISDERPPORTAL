@@ -129,7 +129,7 @@ const StudentDetailsModal = ({ student, onClose }) => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-3 text-slate-600">
                   <Building size={15} className="text-slate-400" />
-                  <span className="w-24 text-slate-500">Department</span>
+                  <span className="w-24 text-slate-500">Class</span>
                   <span className="font-medium text-slate-900">
                     {student.departmentId?.name || "N/A"}
                   </span>
@@ -247,7 +247,7 @@ const StudentAdmissionView = (props) => {
             <div>
               <h1 className="text-xl font-semibold text-slate-900">New Admissions</h1>
               <p className="text-sm text-slate-500 mt-0.5">
-                Semester 1 enrollments from the Admission Process
+                Section 1 enrollments from the Admission Process
               </p>
             </div>
           </div>
@@ -276,7 +276,7 @@ const StudentAdmissionView = (props) => {
               value={filters.departmentId}
               onChange={(e) => handleFilterChange("departmentId", e.target.value)}
             >
-              <option value="">All Departments</option>
+              <option value="">All Classes</option>
               {departments.map((d) => (
                 <option key={d._id} value={d._id}>{d.name}</option>
               ))}

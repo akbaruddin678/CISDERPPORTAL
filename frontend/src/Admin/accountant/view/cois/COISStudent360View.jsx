@@ -193,7 +193,7 @@ export default function COISStudent360View({ studentId, onBack }) {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase">
-                  Department
+                  Class
                 </p>
                 <p className="text-sm font-medium text-slate-800">
                   {student?.departmentId?.name || "College Division"}

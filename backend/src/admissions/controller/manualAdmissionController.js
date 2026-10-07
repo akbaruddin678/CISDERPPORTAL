@@ -30,15 +30,14 @@ const GUARDIAN_STATUS_VALUES = ["alive", "deceased", "other"];
 
 // ============================================================================
 // MANUAL ADMISSION — an admission-office staff member registers a walk-in
-// student directly: creates the login (User), the unified Person record, a
-// fully-submitted Admission application, AND (unlike the self-service flow)
-// immediately accepts it — creating the real StudentProfile/PersonalInfo/
-// FamilyInfo/EducationHistory/StudentDocuments/Enrollment/LMS-auth records
-// in the same transaction, via the same `promoteAdmissionToStudent` shared
-// service the normal "Accept Application" button uses. A staff member
-// keying this in has already vetted the walk-in student in person, so
-// there's no separate review step to wait for — see
-// student/services/promotionService.js.
+// student directly: creates the login (User), the unified Person record and
+// the real StudentProfile/PersonalInfo/FamilyInfo/EducationHistory/
+// StudentDocuments/Enrollment/LMS-auth records in one transaction, via the
+// `promoteAdmissionToStudent` shared service. NO Admission application
+// record is created, so these students do not appear in the Admission
+// lists — they are plain students from the start. A staff member keying
+// this in has already vetted the walk-in student in person, so there is no
+// review step — see student/services/promotionService.js.
 //
 // `status:"active", emailVerified:true` on the User are set directly at
 // creation, the exact same proven pattern completeRegistration/
@@ -168,11 +167,12 @@ export const createManualAdmission = async (req, res) => {
       // than silently leaving the application unaccepted.
       const semesterOne = await Semester.findOne({
         programId: applyingForProgram,
-        number: 1,
-      }).session(session);
+      })
+        .sort({ number: 1 })
+        .session(session);
       if (!semesterOne) {
         throw new Error(
-          "No Semester 1 is configured for this program yet — set one up before registering walk-in students for it.",
+          "This class has no section yet — add a section in Academic Management before registering students for it.",
         );
       }
 
@@ -203,50 +203,42 @@ export const createManualAdmission = async (req, res) => {
 
       await Person.create([{ userId, name: fullName.trim() }], { session });
 
-      const admission = (
-        await Admission.create(
-          [
-            {
-              userId,
-              currentStep: 4,
-              fullName: fullName.trim(),
-              dob: dob || null,
-              gender: gender || undefined,
-              cnic,
-              phone,
-              currentAddress,
-              currentDistrict,
-              currentProvince,
-              currentCountry,
-              permanentAddress,
-              permanentDistrict,
-              permanentProvince,
-              permanentCountry,
-              fatherName,
-              fathernic,
-              motherName,
-              motherCnic,
-              guardianStatus,
-              guardianPhone,
-              fathersProfession,
-              guardianDesignation,
-              incomeBracket,
-              academicDepartment: sanitizeId(academicDepartment),
-              applyingForProgram: sanitizeId(applyingForProgram),
-              applyingSession: sanitizeId(applyingSession),
-              educationDetails: Array.isArray(educationDetails) ? educationDetails : [],
-              agreeDeclaration: true,
-              status: "submitted",
-              remark: remark || "",
-              entryMethod: "manual",
-              createdBy: req.user._id,
-            },
-          ],
-          { session },
-        )
-      )[0];
+      // The student is created directly — no Admission application record
+      // is saved, so the student never shows up in the Admission lists.
+      // These are the same details an application would hold, passed as
+      // plain data for the shared student-creation service below.
+      const applicantData = {
+        _id: null,
+        userId,
+        fullName: fullName.trim(),
+        dob: dob || null,
+        gender: gender || undefined,
+        cnic,
+        phone,
+        currentAddress,
+        currentDistrict,
+        currentProvince,
+        currentCountry,
+        permanentAddress,
+        permanentDistrict,
+        permanentProvince,
+        permanentCountry,
+        fatherName,
+        fathernic,
+        motherName,
+        motherCnic,
+        guardianStatus,
+        guardianPhone,
+        fathersProfession,
+        guardianDesignation,
+        incomeBracket,
+        academicDepartment: sanitizeId(academicDepartment),
+        applyingForProgram: sanitizeId(applyingForProgram),
+        applyingSession: sanitizeId(applyingSession),
+        educationDetails: Array.isArray(educationDetails) ? educationDetails : [],
+      };
 
-      const { studentProfile } = await promoteAdmissionToStudent(admission, {
+      const { studentProfile } = await promoteAdmissionToStudent(applicantData, {
         departmentId: sanitizeId(academicDepartment),
         programId: sanitizeId(applyingForProgram),
         semesterId: semesterOne._id,
@@ -262,15 +254,8 @@ export const createManualAdmission = async (req, res) => {
         knownEmail: emailNorm,
       });
 
-      const populated = await Admission.findById(admission._id)
-        .populate("userId", "email status emailVerified")
-        .populate("academicDepartment")
-        .populate("applyingForProgram")
-        .populate("applyingSession")
-        .session(session);
-
       created = {
-        admission: populated,
+        student: { fullName: fullName.trim(), email: emailNorm },
         tempPassword,
         emailNorm,
         resetToken,
@@ -285,9 +270,9 @@ export const createManualAdmission = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Admission registered and accepted.",
+      message: "Student registered.",
       data: {
-        admission: created.admission,
+        student: created.student,
         tempPassword: created.tempPassword,
         studentProfile: created.studentProfile,
       },

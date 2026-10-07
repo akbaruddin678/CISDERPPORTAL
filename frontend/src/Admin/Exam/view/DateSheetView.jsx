@@ -278,7 +278,7 @@ const DateSheetView = ({
               Master Date Sheet
             </Typography>
             <Typography variant="body2" color="#64748b" mt={0.25} fontFamily="'Montserrat', sans-serif">
-              Official, published exam schedules — organized by department, program, semester and exam type.
+              Official, published exam schedules — organized by class, program, section and exam type.
             </Typography>
           </Box>
           <Box display="flex" gap={1.5} flexWrap="wrap">
@@ -337,7 +337,7 @@ const DateSheetView = ({
 
         {/* Stat cards */}
         <Box display="flex" gap={2} mb={3} flexWrap="wrap">
-          <StatCard icon={Business} label="Departments" value={stats.departments} color="#1d4ed8" bg="#eff6ff" />
+          <StatCard icon={Business} label="Classes" value={stats.departments} color="#1d4ed8" bg="#eff6ff" />
           <StatCard icon={School} label="Programs" value={stats.programs} color="#7c3aed" bg="#f5f3ff" />
           <StatCard icon={EventNote} label="Published Exams" value={stats.exams} color="#0891b2" bg="#ecfeff" />
           <StatCard icon={CalendarMonthOutlined} label="Session" value={activeTermName} color="#15803d" bg="#f0fdf4" />
@@ -359,12 +359,12 @@ const DateSheetView = ({
               {terms.map((t) => (<MenuItem key={t._id} value={t._id} sx={{ fontSize: 13 }}>{t.name}</MenuItem>))}
             </TextField>
             <TextField
-              select fullWidth size="small" label="Department"
+              select fullWidth size="small" label="Class"
               value={filters.departmentId}
               onChange={(e) => handleFilterChange("departmentId", e.target.value)}
               sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
             >
-              <MenuItem value="all" sx={{ fontStyle: "italic", fontSize: 13 }}>All Departments</MenuItem>
+              <MenuItem value="all" sx={{ fontStyle: "italic", fontSize: 13 }}>All Classes</MenuItem>
               {departments.map((d) => (<MenuItem key={d._id} value={d._id} sx={{ fontSize: 13 }}>{d.name}</MenuItem>))}
             </TextField>
             <TextField
@@ -378,13 +378,13 @@ const DateSheetView = ({
               {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
             </TextField>
             <TextField
-              select fullWidth size="small" label="Semester"
+              select fullWidth size="small" label="Section"
               disabled={filters.programId === "all"}
               value={filters.semesterId}
               onChange={(e) => handleFilterChange("semesterId", e.target.value)}
               sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
             >
-              <MenuItem value="all" sx={{ fontStyle: "italic", fontSize: 13 }}>All Semesters</MenuItem>
+              <MenuItem value="all" sx={{ fontStyle: "italic", fontSize: 13 }}>All Sections</MenuItem>
               {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
             </TextField>
           </Box>

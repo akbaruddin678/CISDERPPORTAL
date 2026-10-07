@@ -52,7 +52,7 @@ const HodCourseAllocationContainer = () => {
           </Typography>
           <Typography color="text.secondary">
             Only the Head of Department or System Admin can allocate courses to
-            a semester.
+            a section.
           </Typography>
         </Paper>
       </Box>
@@ -72,10 +72,10 @@ const HodCourseAllocationContainer = () => {
             style={{ margin: "0 auto 16px" }}
           />
           <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Missing Department ID
+            Missing Class ID
           </Typography>
           <Typography color="text.secondary">
-            Your profile is not linked to a specific department. Please contact
+            Your profile is not linked to a specific class. Please contact
             HR to update your record.
           </Typography>
         </Paper>

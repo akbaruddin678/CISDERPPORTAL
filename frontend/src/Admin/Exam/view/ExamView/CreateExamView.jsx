@@ -245,7 +245,7 @@ const CreateExamView = ({
             Create Exam
           </Typography>
           <Typography variant="body2" color="#64748b" mt={0.25} fontFamily="'Montserrat', sans-serif">
-            Pick a Department, Program, Session, and Semester — then create each
+            Pick a Class, Program, Session, and Section — then create each
             subject's Mid Term, Final Exam, or Sessional in one click.
           </Typography>
         </Box>
@@ -270,7 +270,7 @@ const CreateExamView = ({
             <TextField
               select
               size="small"
-              label="1. Department"
+              label="1. Class"
               value={filters.departmentId}
               onChange={(e) => handleFilterChange("departmentId", e.target.value)}
               disabled={isFetchingDepartments}
@@ -327,7 +327,7 @@ const CreateExamView = ({
             letterSpacing="0.05em"
             mb={1}
           >
-            4. Semester
+            4. Section
           </Typography>
           <Box display="flex" gap={1} flexWrap="wrap" alignItems="center">
             {semesters.map((s) => {
@@ -355,7 +355,7 @@ const CreateExamView = ({
               // also blocks its own Tooltip from showing — wrapping in a
               // plain span keeps the "why" visible on hover.
               return isEmpty ? (
-                <Tooltip key={s._id} title="No active students in this semester">
+                <Tooltip key={s._id} title="No active students in this section">
                   <span>{chip}</span>
                 </Tooltip>
               ) : (
@@ -370,7 +370,7 @@ const CreateExamView = ({
                 fontStyle="italic"
                 sx={{ alignSelf: "center" }}
               >
-                No semesters found for this program.
+                No sections found for this program.
               </Typography>
             )}
           </Box>
@@ -393,7 +393,7 @@ const CreateExamView = ({
                 px: 2,
               }}
             >
-              Bulk Create — This Semester
+              Bulk Create — This Section
             </Button>
             <Button
               size="small"
@@ -421,7 +421,7 @@ const CreateExamView = ({
           <Box py={8} textAlign="center" color="#94a3b8">
             <LayersOutlined sx={{ fontSize: 44, opacity: 0.25, mb: 1.5 }} />
             <Typography fontSize={14} fontWeight={700} color="#64748b">
-              Select Department, Program, Session, and Semester above to see
+              Select Class, Program, Session, and Section above to see
               subjects.
             </Typography>
           </Box>
@@ -433,7 +433,7 @@ const CreateExamView = ({
           <Box py={8} textAlign="center" color="#94a3b8">
             <SchoolOutlined sx={{ fontSize: 44, opacity: 0.25, mb: 1.5 }} />
             <Typography fontSize={14} fontWeight={700} color="#64748b">
-              No subjects are offered in this session for this semester yet.
+              No subjects are offered in this session for this section yet.
             </Typography>
           </Box>
         ) : (

@@ -345,7 +345,7 @@ const useCreateExamController = () => {
   // --- Bulk Create (whole Semester or whole Program at once) ---
   const handleOpenBulkCreate = (scope) => {
     if (scope === "semester" && !filters.semesterId) {
-      return openAlert({ message: "Select a Semester first.", severity: "warning" });
+      return openAlert({ message: "Select a Section first.", severity: "warning" });
     }
     if (scope === "program" && (!filters.programId || !filters.termId)) {
       return openAlert({

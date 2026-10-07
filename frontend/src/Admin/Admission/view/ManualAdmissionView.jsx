@@ -94,9 +94,9 @@ const ManualAdmissionView = ({
             <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 size={28} />
             </div>
-            <h2 className="text-xl font-extrabold text-slate-900 mt-4">Admission registered &amp; accepted</h2>
+            <h2 className="text-xl font-extrabold text-slate-900 mt-4">Student registered</h2>
             <p className="text-sm text-slate-500 mt-1">
-              {result.admission?.fullName} is now an enrolled student — no separate acceptance step needed.
+              {result.student?.fullName} is now an enrolled student.
             </p>
           </div>
 
@@ -113,7 +113,7 @@ const ManualAdmissionView = ({
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Temporary login</p>
             <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-slate-500">Email</span>
-              <span className="font-semibold text-slate-800 truncate">{result.admission?.userId?.email || formData.email}</span>
+              <span className="font-semibold text-slate-800 truncate">{result.student?.email || formData.email}</span>
             </div>
             <div className="flex items-center justify-between gap-3 text-sm">
               <span className="text-slate-500">Password</span>
@@ -145,7 +145,7 @@ const ManualAdmissionView = ({
               onClick={goToAdmissionDetail}
               className="px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-900 text-white hover:bg-slate-800"
             >
-              Open admission
+              Open students
             </button>
           </div>
         </div>
@@ -339,9 +339,9 @@ const ManualAdmissionView = ({
 
           <Section id="program" number="04" icon={GraduationCap} title="Program & session">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Field label="Department" required>
+              <Field label="Class" required>
                 <select name="academicDepartment" value={formData.academicDepartment} onChange={handleChange} className={inputCls} required>
-                  <option value="">Select department</option>
+                  <option value="">Select class</option>
                   {departments.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
                 </select>
               </Field>

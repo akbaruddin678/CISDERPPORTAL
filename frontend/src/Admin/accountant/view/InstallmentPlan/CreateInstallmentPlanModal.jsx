@@ -228,7 +228,7 @@ const CreateInstallmentPlanModal = ({ isOpen, onClose, controllerData }) => {
                     className={`w-full p-2.5 bg-slate-50 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all ${
                       errors.name ? "border-red-300" : "border-slate-200"
                     }`}
-                    placeholder="e.g. Semester Spring 2026 Plan"
+                    placeholder="e.g. Section Spring 2026 Plan"
                   />
                 </div>
                 <div className="md:col-span-3">

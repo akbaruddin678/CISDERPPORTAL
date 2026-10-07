@@ -119,7 +119,7 @@ export function generateAdmissionLetterPdfBuffer({
 
       doc.moveDown(1);
       doc.text(
-        `You have been admitted to the ${programName} program under the ${departmentName} department, for the ${sessionName} session.`,
+        `You have been admitted in class ${departmentName}, for the ${sessionName} session.`,
         contentX,
         doc.y,
         { width: contentWidth, align: "justify", lineGap: 4 },

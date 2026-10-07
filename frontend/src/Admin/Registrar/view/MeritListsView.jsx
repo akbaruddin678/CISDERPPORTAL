@@ -67,7 +67,7 @@ const MeritListsView = ({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Merit Lists &amp; Enrollment</h1>
-            <p className="text-sm text-slate-500 mt-1">Real submitted admission applications, by department and program.</p>
+            <p className="text-sm text-slate-500 mt-1">Real submitted admission applications, by class and program.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
@@ -110,7 +110,7 @@ const MeritListsView = ({
                 <tr>
                   <th className="px-6 py-4 font-semibold">Applicant</th>
                   <th className="px-6 py-4 font-semibold">Program</th>
-                  <th className="px-6 py-4 font-semibold">Department</th>
+                  <th className="px-6 py-4 font-semibold">Class</th>
                   <th className="px-6 py-4 font-semibold">Session</th>
                   <th className="px-6 py-4 font-semibold">Applied</th>
                   <th className="px-6 py-4 font-semibold">Status</th>

@@ -393,7 +393,7 @@ const DailyInvoiceView = ({ scope = "college" }) => {
               <tr>
                 <th>ID</th>
                 <th>Reg No</th>
-                <th>One Bill Invoice No</th>
+                <th>Challan No</th>
                 <th>Name</th>
                 <th>Due Date</th>
                 <th>Amount</th>
@@ -424,7 +424,7 @@ const DailyInvoiceView = ({ scope = "college" }) => {
                   <tr key={r._id}>
                     <td className="di-mono">{(page - 1) * limit + idx + 1}</td>
                     <td className="di-mono">{r.regNo}</td>
-                    <td className="di-mono">{r.oneBillInvoiceNo || "—"}</td>
+                    <td className="di-mono">{r.challanNo || "—"}</td>
                     <td>{r.name}</td>
                     <td>{fmtDate(r.dueDate)}</td>
                     <td>{fmtMoney(r.amount)}</td>

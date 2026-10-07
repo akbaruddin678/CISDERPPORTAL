@@ -58,6 +58,8 @@ const userSchema = new mongoose.Schema(
     resetTokenExpires: Date,
     lastLoginAt: Date,
     campusId: { type: mongoose.Schema.Types.ObjectId, ref: "School", default: null, index: true },
+    // Accountant / Admission logins that can see every campus instead of one.
+    allCampuses: { type: Boolean, default: false },
     // Stamped whenever the password changes (self-service or admin reset) —
     // paired with UserSession revocation at that same moment so every
     // session the user had open is force-logged-out, not just recorded.

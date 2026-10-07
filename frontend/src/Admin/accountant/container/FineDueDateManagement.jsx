@@ -820,7 +820,7 @@ const FineDueDateManagement = () => {
       });
       setInvoiceSheetOpen(false);
       // Invoice Number is built from paymentReference (set only once a
-      // challan has been synced to EzPay) — anything selected without one
+      // challan has been generated) — anything selected without one
       // yet can't get a valid invoice number, so it's left out and reported
       // rather than silently dropped or given a malformed number.
       if (skipped.length > 0) {
@@ -1019,7 +1019,7 @@ const FineDueDateManagement = () => {
                 setFilters({ ...filters, departmentId: e.target.value })
               }
             >
-              <option value="">All Departments</option>
+              <option value="">All Classes</option>
               {departments.map((d) => (
                 <option key={d._id} value={d._id}>
                   {d.name}

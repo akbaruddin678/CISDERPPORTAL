@@ -7,6 +7,7 @@ router.get("/", SemesterCtrl.getAllSemesters);
 router.get("/program/:programId", SemesterCtrl.getSemestersByProgram);
 router.get("/:id/usage", SemesterCtrl.getSemesterUsage);
 router.get("/:id", SemesterCtrl.getSemesterById);
+router.post("/by-class", SemesterCtrl.createSectionForClass);
 router.post("/", SemesterCtrl.createSemester);
 router.put("/:id", SemesterCtrl.updateSemester);
 router.patch("/:id/toggle-status", SemesterCtrl.toggleSemesterStatus);

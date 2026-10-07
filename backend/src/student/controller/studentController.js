@@ -9,6 +9,7 @@ import EducationHistory from "../models/EducationHistory.js";
 import { uploadToR2 } from "../../core/utils/cloudflareR2.js";
 import Department from "../../catalog/model/Department.js";
 import Program from "../../catalog/model/Program.js";
+import Semester from "../../catalog/model/Semester.js";
 import Admission from "../../admissions/model/Admission.js";
 import { sendAdmissionEmailForStudent } from "../../accountant/services/admissionEmailService.js";
 // ============================================================================
@@ -134,7 +135,7 @@ export const getAllStudents = asyncHandler(async (req, res) => {
     )
     .populate("departmentId", "name code")
     .populate("programId", "name code")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name startDate")
     .sort({ createdAt: -1 })
     .skip(skip)
@@ -207,7 +208,7 @@ export const getStudentDetails = asyncHandler(async (req, res) => {
   const student = await StudentProfile.findById(studentId)
     .populate("departmentId", "name code")
     .populate("programId", "name code")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name startDate")
     .lean();
 
@@ -460,22 +461,76 @@ export const updateStudent = asyncHandler(async (req, res) => {
       // --- E. Academic Info ---
       if (section === "Academic Information") {
         const profileUpdates = {};
-        
-        // ✅ THE FIX: Map all academic fields, including ID conversions
+
         if (parsedData.status) profileUpdates.status = parsedData.status;
-        if (parsedData.departmentId) profileUpdates.departmentId = parsedData.departmentId;
-        if (parsedData.programId) profileUpdates.programId = parsedData.programId;
-        if (parsedData.semesterId) profileUpdates.semesterId = parsedData.semesterId;
-        
+
         // Frontend sends "sessionId", backend schema calls it "termId"
         if (parsedData.sessionId) profileUpdates.termId = parsedData.sessionId;
 
+        // Class / Program / Section always have to agree with each other, so
+        // when a section is chosen it decides the other two: the section
+        // belongs to one program, and that program to one class. This keeps
+        // the student from ending up in a class that does not own their
+        // section (e.g. 10th class with a 9th class section).
+        let academicMoved = false;
+        if (parsedData.semesterId) {
+          const targetSemester = await Semester.findById(parsedData.semesterId).session(session);
+          if (!targetSemester) throw new Error("Selected section was not found.");
+          const targetProgram = await Program.findById(targetSemester.programId)
+            .select("departmentId")
+            .session(session);
+          if (!targetProgram) throw new Error("The selected section has no class set up.");
+          profileUpdates.semesterId = targetSemester._id;
+          profileUpdates.programId = targetSemester.programId;
+          profileUpdates.departmentId = targetProgram.departmentId;
+          academicMoved = true;
+        } else if (parsedData.departmentId || parsedData.programId) {
+          const current = await StudentProfile.findById(studentId)
+            .select("departmentId programId")
+            .session(session);
+          const classChanged =
+            (parsedData.departmentId && String(current?.departmentId || "") !== String(parsedData.departmentId)) ||
+            (parsedData.programId && String(current?.programId || "") !== String(parsedData.programId));
+          if (classChanged) {
+            throw new Error("Choose a section to change the class or program.");
+          }
+        }
+
         if (Object.keys(profileUpdates).length > 0) {
+          const before = await StudentProfile.findById(studentId)
+            .select("semesterId termId")
+            .session(session);
           await StudentProfile.findByIdAndUpdate(
-            studentId, 
-            { $set: profileUpdates }, 
+            studentId,
+            { $set: profileUpdates },
             { session, new: true }
           );
+
+          // A change of section or session is kept as history, the same as a
+          // promotion, so the student's earlier class stays on record.
+          const sectionChanged =
+            academicMoved && String(before?.semesterId || "") !== String(profileUpdates.semesterId);
+          const sessionChanged =
+            profileUpdates.termId && String(before?.termId || "") !== String(profileUpdates.termId);
+          if (sectionChanged || sessionChanged) {
+            const current = await StudentProfile.findById(studentId).session(session);
+            await Enrollment.create(
+              [
+                {
+                  studentId,
+                  programId: current.programId,
+                  departmentId: current.departmentId,
+                  semesterId: current.semesterId,
+                  termId: current.termId,
+                  status: "enrolled",
+                  enrollmentDate: new Date(),
+                  academicYear: new Date().getFullYear(),
+                  remarks: "Class/section updated from student details",
+                },
+              ],
+              { session },
+            );
+          }
         }
       }
     });

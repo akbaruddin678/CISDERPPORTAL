@@ -151,7 +151,7 @@ export const CardFront = React.forwardRef(({ model }, ref) => (
     >
       <Detail label="Father's name" value={model.fatherName} />
       <Detail label="CNIC" value={model.cnic} />
-      <Detail label="Department" value={model.departmentName} wide />
+      <Detail label="Class" value={model.departmentName} wide />
       <Detail label="Session" value={`${model.issueTerm || "—"} – ${model.endTerm || "—"}`} wide />
     </div>
 

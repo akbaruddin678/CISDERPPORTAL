@@ -21,6 +21,16 @@ export const semesterEndpoints = (builder) => ({
     }),
     invalidatesTags: ["Semesters"],
   }),
+  // Class -> Section: the backend attaches the section to the class's hidden
+  // default program, creating it on first use.
+  createSectionForClass: builder.mutation({
+    query: (data) => ({
+      url: "/catalog/semesters/by-class",
+      method: "POST",
+      body: data,
+    }),
+    invalidatesTags: ["Semesters", "Programs"],
+  }),
   updateSemester: builder.mutation({
     query: ({ id, ...data }) => ({
       url: `/catalog/semesters/${id}`,

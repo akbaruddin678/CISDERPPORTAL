@@ -25,7 +25,7 @@ const AdmissionStatusCard = ({ admissionData }) => {
 
       {/* 3. Department Name (Protected) */}
       <InfoCard
-        label="Department"
+        label="Class"
         value={getName(admissionData.academicDepartment)}
       />
 

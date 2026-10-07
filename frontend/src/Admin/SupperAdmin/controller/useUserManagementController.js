@@ -87,6 +87,7 @@ export const useUserManagementController = () => {
       roles: item.user.roles || [],
       status: item.user.status || "active",
       campusId: item.user.campusId || "",
+      allCampuses: item.user.allCampuses === true,
     })) || [];
 
   const paginationParams = usersResponse?.pagination || {
@@ -145,6 +146,7 @@ export const useUserManagementController = () => {
       password: "",
       confirmPassword: "",
       campusId: "",
+      allCampuses: false,
     });
     setIsModalOpen(true);
   };
@@ -158,6 +160,7 @@ export const useUserManagementController = () => {
       password: "",
       confirmPassword: "",
       campusId: user.campusId || "",
+      allCampuses: user.allCampuses === true,
     });
     setIsModalOpen(true);
   };
@@ -170,7 +173,15 @@ export const useUserManagementController = () => {
 
   const handleFormSubmit = async (data) => {
     try {
-      const payload = { name: data.name, email: data.email, role: data.role, campusId: data.role === "headofaccount" ? "" : (data.campusId || "") };
+      // "All campuses" only applies to Accountant / Admission logins.
+      const allCampuses = ["accountant", "admission"].includes(data.role) && data.allCampuses === true;
+      const payload = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        allCampuses,
+        campusId: data.role === "headofaccount" || allCampuses ? "" : (data.campusId || ""),
+      };
       if (data.password && data.password.trim() !== "") {
         payload.password = data.password;
         payload.confirmPassword = data.confirmPassword;

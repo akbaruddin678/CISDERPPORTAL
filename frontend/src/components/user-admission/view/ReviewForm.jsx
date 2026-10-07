@@ -143,7 +143,7 @@ const ReviewForm = ({
                 value: displayValue(personalInfo?.applyingSession), // Using safe helper
               },
               {
-                label: "Applying For Department",
+                label: "Applying For Class",
                 value: displayValue(personalInfo?.applyingForDepartment), // Using safe helper
               },
             ].map((item, idx) => (

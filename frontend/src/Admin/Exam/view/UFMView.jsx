@@ -134,7 +134,7 @@ const UFMView = ({
                   select
                   fullWidth
                   size="small"
-                  label="Department"
+                  label="Class"
                   value={filters.departmentId || ""}
                   onChange={(e) =>
                     handleFilterChange("departmentId", e.target.value)
@@ -177,7 +177,7 @@ const UFMView = ({
                   select
                   fullWidth
                   size="small"
-                  label="Semester"
+                  label="Section"
                   disabled={!filters.programId}
                   value={filters.semesterId || ""}
                   onChange={(e) =>

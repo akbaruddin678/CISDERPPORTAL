@@ -648,7 +648,7 @@ const StudentAcademicHistoryView = () => {
             </Select>
           </FieldCard>
 
-          <FieldCard icon={AccountBalance} label="Department" accent="#7c3aed" disabled={!filters.termId}>
+          <FieldCard icon={AccountBalance} label="Class" accent="#7c3aed" disabled={!filters.termId}>
             <Select
               fullWidth
               variant="standard"
@@ -658,10 +658,10 @@ const StudentAcademicHistoryView = () => {
               value={filters.departmentId || ""}
               onChange={(e) => handleFilterChange("departmentId", e.target.value)}
               sx={fieldSelectSx}
-              renderValue={(v) => (v ? departments.find((d) => d._id === v)?.name : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>All Departments</em>)}
+              renderValue={(v) => (v ? departments.find((d) => d._id === v)?.name : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>All Classes</em>)}
             >
               <MenuItem value="" sx={{ fontSize: 13 }}>
-                <em>All Departments</em>
+                <em>All Classes</em>
               </MenuItem>
               {departments.map((d) => (
                 <MenuItem key={d._id} value={d._id} sx={{ fontSize: 13 }}>
@@ -691,7 +691,7 @@ const StudentAcademicHistoryView = () => {
             </Select>
           </FieldCard>
 
-          <FieldCard icon={Layers} label="Semester" accent="#c2410c" disabled={!filters.programId}>
+          <FieldCard icon={Layers} label="Section" accent="#c2410c" disabled={!filters.programId}>
             <Select
               fullWidth
               variant="standard"
@@ -701,7 +701,7 @@ const StudentAcademicHistoryView = () => {
               value={filters.semesterId || ""}
               onChange={(e) => handleFilterChange("semesterId", e.target.value)}
               sx={fieldSelectSx}
-              renderValue={(v) => (v ? (semesters.find((s) => s._id === v)?.name || `Semester ${semesters.find((s) => s._id === v)?.number}`) : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>Select Semester</em>)}
+              renderValue={(v) => (v ? (semesters.find((s) => s._id === v)?.name || `Semester ${semesters.find((s) => s._id === v)?.number}`) : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>Select Section</em>)}
             >
               {semesters.map((s) => (
                 <MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>
@@ -944,7 +944,7 @@ const StudentAcademicHistoryView = () => {
             <Grid container spacing={2.5} mb={2.5} alignItems="stretch">
               {/* --- Fee Status (current semester) --- */}
               <Grid item xs={12} md={4}>
-                <SectionCard title="Fee Status — Current Semester" icon={Payments} accent="#059669">
+                <SectionCard title="Fee Status — Current Section" icon={Payments} accent="#059669">
                   {isFetchingChallans ? (
                     <Skeleton variant="rounded" height={140} />
                   ) : (
@@ -1133,7 +1133,7 @@ const StudentAcademicHistoryView = () => {
           <Box>
             <Typography fontSize={13} fontWeight={800} color="#0f172a" textTransform="uppercase" letterSpacing="0.04em" mb={1.5} display="flex" alignItems="center" gap={1}>
               <School sx={{ fontSize: 18, color: "#2563eb" }} />
-              Academic History — Semester Wise
+              Academic History — Section Wise
             </Typography>
 
             {isFetchingHistory ? (

@@ -335,7 +335,7 @@ const TeacherDashboard = () => {
               iconPosition="start" 
               label={
                 <Badge badgeContent={surveys.length} color="primary" max={99}>
-                  Department Surveys
+                  Class Surveys
                 </Badge>
               } 
             />
@@ -367,7 +367,7 @@ const TeacherDashboard = () => {
         {tab === 0 && (
           <Box>
             <Typography variant="h5" fontWeight={700} color="primary" gutterBottom>
-              Department Surveys
+              Class Surveys
             </Typography>
             <Typography variant="body1" color="text.secondary" mb={3}>
               Surveys assigned to {teacherInfo?.department} department for teacher review.
@@ -380,7 +380,7 @@ const TeacherDashboard = () => {
                   No Surveys Available
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  No surveys have been assigned to your department yet.
+                  No surveys have been assigned to your class yet.
                 </Typography>
               </Card>
             ) : (
@@ -480,7 +480,7 @@ const TeacherDashboard = () => {
         {tab === 1 && (
           <Box>
             <Typography variant="h5" fontWeight={700} color="primary" gutterBottom>
-              Department Students
+              Class Students
             </Typography>
             <Typography variant="body1" color="text.secondary" mb={3}>
               Students enrolled in the {teacherInfo?.department} department.
@@ -493,7 +493,7 @@ const TeacherDashboard = () => {
                   No Students Found
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  No students are currently enrolled in your department.
+                  No students are currently enrolled in your class.
                 </Typography>
               </Card>
             ) : (
@@ -542,7 +542,7 @@ const TeacherDashboard = () => {
               Survey Analytics
             </Typography>
             <Typography variant="body1" color="text.secondary" mb={3}>
-              Insights and statistics for your department surveys.
+              Insights and statistics for your class surveys.
             </Typography>
 
             <Grid container spacing={3}>
@@ -591,7 +591,7 @@ const TeacherDashboard = () => {
                       <Group sx={{ fontSize: 40, opacity: 0.8 }} />
                     </Box>
                     <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-                      Students in your department
+                      Students in your class
                     </Typography>
                   </CardContent>
                 </Card>
@@ -616,7 +616,7 @@ const TeacherDashboard = () => {
                       <Analytics sx={{ fontSize: 40, opacity: 0.8 }} />
                     </Box>
                     <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-                      Across all department surveys
+                      Across all class surveys
                     </Typography>
                   </CardContent>
                 </Card>
@@ -641,7 +641,7 @@ const TeacherDashboard = () => {
                       <Assignment sx={{ fontSize: 40, opacity: 0.8 }} />
                     </Box>
                     <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-                      Currently active in your department
+                      Currently active in your class
                     </Typography>
                   </CardContent>
                 </Card>

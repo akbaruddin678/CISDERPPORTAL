@@ -209,7 +209,7 @@ const ProfilePDFTemplate = React.forwardRef(
                 {admissionData?.applyingSession || "N/A"}
               </div>
               <div>
-                <strong>Department:</strong>{" "}
+                <strong>Class:</strong>{" "}
                 {admissionData?.academicDepartment || "N/A"}
               </div>
             </div>
@@ -458,7 +458,7 @@ const ProfilePDFTemplate = React.forwardRef(
               }}
             >
               <div style={{ ...styles.infoLabel, fontSize: "10px" }}>
-                Academic Department
+                Academic Class
               </div>
               <div
                 style={{

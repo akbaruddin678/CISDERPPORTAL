@@ -209,7 +209,7 @@ const HodStudentsView = ({
               <DirectoryStat icon={Users} label={departmentName === "All departments" ? "Students university-wide" : "Students in department"} value={departmentTotal} />
               <DirectoryStat icon={BookOpen} label="Academic programs" value={programs.length} />
               <DirectoryStat icon={GraduationCap} label="Selected program" value={totalStudents} />
-              <DirectoryStat icon={Layers} label="Semesters in use" value={semesterOptions.length} />
+              <DirectoryStat icon={Layers} label="Sections in use" value={semesterOptions.length} />
             </section>
           )
         ) : (
@@ -250,7 +250,7 @@ const HodStudentsView = ({
                   label="In this program"
                   value={totalStudents}
                 />
-                <HeroStat icon={Layers} label="Semesters in use" value={semesterGroups.length} />
+                <HeroStat icon={Layers} label="Sections in use" value={semesterGroups.length} />
               </div>
             )}
           </div>
@@ -270,7 +270,7 @@ const HodStudentsView = ({
             <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
               <BookOpen size={24} />
             </div>
-            <p className="font-bold text-slate-700">No programs found for your department</p>
+            <p className="font-bold text-slate-700">No programs found for your class</p>
           </div>
         ) : (
           <>
@@ -278,9 +278,9 @@ const HodStudentsView = ({
             {minimalHeader ? (
               <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 md:grid-cols-2">
                 <div>
-                  <label htmlFor="vc-student-department" className="mb-2 block text-xs font-semibold text-slate-600">Department</label>
+                  <label htmlFor="vc-student-department" className="mb-2 block text-xs font-semibold text-slate-600">Class</label>
                   <select id="vc-student-department" value={selectedDepartmentId} onChange={(event) => selectDepartment(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
-                    <option value="all">All departments</option>
+                    <option value="all">All classes</option>
                     {departments.map((department) => <option key={department._id} value={department._id}>{department.name}</option>)}
                   </select>
                 </div>
@@ -403,7 +403,7 @@ const HodStudentsView = ({
               {/* Semester chips */}
               {minimalHeader && semesterOptions.length > 0 ? (
                 <div className="max-w-sm">
-                  <label htmlFor="vc-student-semester" className="mb-2 block text-xs font-semibold text-slate-600">Semester</label>
+                  <label htmlFor="vc-student-semester" className="mb-2 block text-xs font-semibold text-slate-600">Section</label>
                   <select id="vc-student-semester" value={activeSemesterKey} onChange={(event) => selectSemester(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100">
                     <option value="all">All semesters ({totalStudents})</option>
                     {semesterOptions.map((semester) => <option key={semester._id} value={semester._id}>{semester.label} ({semester.count})</option>)}
@@ -414,7 +414,7 @@ const HodStudentsView = ({
                   {[
                     {
                       key: "all",
-                      label: "All semesters",
+                      label: "All sections",
                       count: semesterGroups.reduce((n, g) => n + g.students.length, 0),
                     },
                     ...semesterGroups.map((g) => ({

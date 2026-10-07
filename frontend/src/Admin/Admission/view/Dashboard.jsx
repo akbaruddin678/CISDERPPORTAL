@@ -688,7 +688,7 @@ const Dashboard = () => {
               letterSpacing: "-0.3px",
             }}
           >
-            By Department
+            By Class
           </h2>
           <p
             style={{

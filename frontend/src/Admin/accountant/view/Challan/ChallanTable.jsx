@@ -69,7 +69,7 @@ const ChallanTable = ({ challans, actions, onRowClick }) => {
               <th className="p-4">Ref #</th>
               <th className="p-4">Type</th>
               <th className="p-4">Remark</th>
-              <th className="p-4">Semester</th>
+              <th className="p-4">Section</th>
               <th className="p-4">Due Date</th>
               <th className="p-4">Fine</th>
               <th className="p-4">Net Payable</th>

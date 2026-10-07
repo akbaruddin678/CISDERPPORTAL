@@ -170,7 +170,7 @@ const StudentCourseRegistrationView = ({
           Course Assignment
         </Typography>
         <Typography variant="body2" color="text.secondary" mt={0.5}>
-          Set up semester courses and manage the students enrolled in each course.
+          Set up section courses and manage the students enrolled in each course.
         </Typography>
       </Box>
 
@@ -239,7 +239,7 @@ const StudentCourseRegistrationView = ({
                 }}
               >
                 <Typography variant="h6" fontWeight="bold">
-                  Courses assigned to this Semester
+                  Courses assigned to this Section
                 </Typography>
                 <Button
                   variant="contained"
@@ -259,7 +259,7 @@ const StudentCourseRegistrationView = ({
                 <Box py={10} textAlign="center" color="text.secondary">
                   <LibraryBooks sx={{ fontSize: 50, opacity: 0.2, mb: 1 }} />
                   <Typography>
-                    No courses have been added to this semester yet.
+                    No courses have been added to this section yet.
                   </Typography>
                 </Box>
               ) : (
@@ -605,7 +605,7 @@ const StudentCourseRegistrationView = ({
                   }}
                 >
                   <Typography variant="body2">
-                    No courses assigned to this semester yet.
+                    No courses assigned to this section yet.
                   </Typography>
                 </Box>
               ) : (
@@ -695,8 +695,8 @@ const StudentCourseRegistrationView = ({
                   sx={{ border: "1px dashed #cbd5e1", borderRadius: 2 }}
                 >
                   <Typography variant="body2">
-                    Every catalog course for this department is already
-                    assigned to this semester.
+                    Every catalog course for this class is already
+                    assigned to this section.
                   </Typography>
                 </Box>
               ) : (
@@ -737,7 +737,7 @@ const StudentCourseRegistrationView = ({
                         onClick={() => handleQuickAssignCourse(course)}
                         sx={{ mt: "auto", textTransform: "none" }}
                       >
-                        Assign to Semester
+                        Assign to Section
                       </Button>
                     </Paper>
                   ))}
@@ -749,7 +749,7 @@ const StudentCourseRegistrationView = ({
       ) : (
         <Box py={10} textAlign="center" color="text.secondary">
           <Typography>
-            Please select a Term, Program, and Semester to proceed.
+            Please select a Term, Program, and Section to proceed.
           </Typography>
         </Box>
       )}
@@ -775,7 +775,7 @@ const StudentCourseRegistrationView = ({
         >
           <Box>
             <Typography variant="h6" fontWeight="bold">
-              Add Courses to Semester
+              Add Courses to Section
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.8 }}>
               Assign multiple catalog courses at once.
@@ -862,7 +862,7 @@ const StudentCourseRegistrationView = ({
 
           {filteredCatalog.length === 0 ? (
             <Typography align="center" color="text.secondary" py={4}>
-              No courses match your search or department filter.
+              No courses match your search or class filter.
             </Typography>
           ) : (
             <>
@@ -982,7 +982,7 @@ const StudentCourseRegistrationView = ({
             <Box py={10} textAlign="center" color="text.secondary">
               <LibraryBooks sx={{ fontSize: 60, opacity: 0.2, mb: 1 }} />
               <Typography>
-                No courses have been added to this semester yet.
+                No courses have been added to this section yet.
               </Typography>
               <Button
                 sx={{ mt: 2 }}
@@ -1077,7 +1077,7 @@ const StudentCourseRegistrationView = ({
                   color="text.secondary"
                   fontWeight="bold"
                 >
-                  SEMESTER CURRICULUM
+                  SECTION CURRICULUM
                 </Typography>
                 <Button size="small" onClick={handleSelectAllCourses}>
                   {selectedCourseIds.length === drawerCurriculum.length
@@ -1290,7 +1290,7 @@ const StudentCourseRegistrationView = ({
         <DialogTitle fontWeight="bold">Grant Credit Override</DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" color="text.secondary" mb={2}>
-            Raises this student's credit limit for the current semester only.
+            Raises this student's credit limit for the current section only.
           </Typography>
           <TextField
             fullWidth

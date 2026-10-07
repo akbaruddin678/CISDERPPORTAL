@@ -264,7 +264,7 @@ const LeftCasesView = ({
                   onChange={(e) => setSelectedDept(e.target.value)}
                   className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 outline-none text-slate-700"
                 >
-                  <option value="">All Departments</option>
+                  <option value="">All Classes</option>
                   {departments.map((d) => (
                     <option key={d._id} value={d._id}>
                       {d.title || d.name}

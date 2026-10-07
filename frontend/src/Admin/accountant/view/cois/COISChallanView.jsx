@@ -443,7 +443,7 @@ const DossierModal = ({ challan, onClose, onPrint }) => {
                 },
                 {
                   icon: <Layers size={13} />,
-                  label: "Semester",
+                  label: "Section",
                   value: challan.semesterId?.number
                     ? `Semester ${challan.semesterId.number}`
                     : "—",
@@ -1055,7 +1055,7 @@ export default function COISChallanView() {
             </div>
             <div>
               <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">
-                Semester / Part
+                Section / Part
               </label>
               <select
                 disabled={!selectedProg}

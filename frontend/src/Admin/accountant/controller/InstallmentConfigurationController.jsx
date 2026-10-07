@@ -15,6 +15,29 @@ import { useGetStudentFeesQuery } from "../api/feeStructureApi";
 
 const LIMIT = 40;
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+// Equal shares of 100 that add up to exactly 100 (last part takes the rest).
+const equalParts = (n) => {
+  const base = Number((100 / n).toFixed(6));
+  const parts = Array(n).fill(base);
+  parts[n - 1] = Number((100 - base * (n - 1)).toFixed(6));
+  return parts;
+};
+
 const InstallmentConfigurationController = ({ children }) => {
   const [showSetupPage, setShowSetupPage] = useState(false);
   const [filters, setFilters] = useState({
@@ -48,6 +71,16 @@ const InstallmentConfigurationController = ({ children }) => {
 
   // Track the assigned month for each installment
   const [customMonths, setCustomMonths] = useState([""]);
+
+  // "total": the fee set up is ONE amount split into installments (the
+  // original behaviour). "monthly": the fee set up is the fee for ONE month
+  // (school fee) and the plan covers several months, each month optionally
+  // split into parts. Same options for one student or a whole selection.
+  const [feeBasis, setFeeBasis] = useState("total");
+  const [planStartMonth, setPlanStartMonth] = useState("April");
+  const [planMonths, setPlanMonths] = useState(12);
+  const [perMonth, setPerMonth] = useState(1);
+  const [partPercents, setPartPercents] = useState([100]);
 
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -277,10 +310,61 @@ const InstallmentConfigurationController = ({ children }) => {
   // actually configuring) into the form — reactive rather than done once in
   // proceedToSetup, so it also stays correct if the fetch resolves after
   // the setup page is already open.
+  // Monthly plan -> the flat installment arrays the rest of the screen (and
+  // the save request) already use: one entry per part per month.
+  useEffect(() => {
+    if (feeBasis !== "monthly") return;
+    const startIdx = Math.max(0, MONTH_NAMES.indexOf(planStartMonth));
+    const months = [];
+    const pcts = [];
+    for (let m = 0; m < planMonths; m++) {
+      const name = MONTH_NAMES[(startIdx + m) % 12];
+      for (let p = 0; p < perMonth; p++) {
+        months.push(name);
+        pcts.push(Number(partPercents[p] ?? 0));
+      }
+    }
+    setInstallmentCount(months.length);
+    setCustomMonths(months);
+    setCustomPercentages(pcts);
+  }, [feeBasis, planStartMonth, planMonths, perMonth, partPercents]);
+
+  const handleFeeBasisChange = (basis) => {
+    setFeeBasis(basis);
+    if (basis === "total") {
+      setInstallmentCount(1);
+      setCustomPercentages([100]);
+      setCustomMonths([""]);
+    }
+  };
+
+  const handlePerMonthChange = (n) => {
+    const count = Math.min(4, Math.max(1, n));
+    setPerMonth(count);
+    setPartPercents(equalParts(count));
+  };
+
+  const handlePartPercentChange = (index, val) => {
+    setPartPercents((prev) => prev.map((p, i) => (i === index ? Number(val) : p)));
+  };
+
   useEffect(() => {
     if (!singleStudentId) return;
-    if (existingPreference && existingPreference.defaultInstallments) {
+    if (existingPreference && existingPreference.feeBasis === "monthly") {
+      const per = existingPreference.installmentsPerMonth || 1;
+      const months = existingPreference.customMonths || [];
+      setFeeBasis("monthly");
+      setPerMonth(per);
+      setPlanMonths(Math.max(1, Math.round((existingPreference.defaultInstallments || per) / per)));
+      setPlanStartMonth(months[0] || "April");
+      setPartPercents(
+        (existingPreference.customPercentages || []).slice(0, per).map(Number).length === per
+          ? existingPreference.customPercentages.slice(0, per).map(Number)
+          : equalParts(per),
+      );
+    } else if (existingPreference && existingPreference.defaultInstallments) {
       const n = existingPreference.defaultInstallments;
+      setFeeBasis("total");
       setInstallmentCount(n);
       if (n === 1) {
         setCustomPercentages([100]);
@@ -308,6 +392,7 @@ const InstallmentConfigurationController = ({ children }) => {
         setCustomMonths(Array(n).fill(""));
       }
     } else if (!loadingPreference) {
+      setFeeBasis("total");
       setInstallmentCount(1);
       setCustomPercentages([100]);
       setCustomMonths([""]);
@@ -363,6 +448,7 @@ const InstallmentConfigurationController = ({ children }) => {
     // no single existing record to inherit from, so it always starts blank
     // rather than guessing off one arbitrary selected student's own plan.
     if (selectedStudents.length > 1) {
+      setFeeBasis("total");
       setInstallmentCount(1);
       setCustomPercentages([100]);
       setCustomMonths([""]);
@@ -521,13 +607,22 @@ const InstallmentConfigurationController = ({ children }) => {
     }
 
     const strictPercentages = customPercentages.map(Number);
-    const totalPct = strictPercentages.reduce((a, b) => a + b, 0);
-    const diff = 100 - totalPct;
+    if (feeBasis === "monthly") {
+      const partsTotal = partPercents.reduce((a, b) => a + Number(b), 0);
+      if (Math.abs(100 - partsTotal) > 0.0001) {
+        return alert(
+          `The parts of one month add up to ${partsTotal}%. They must add up to exactly 100%.`,
+        );
+      }
+    } else {
+      const totalPct = strictPercentages.reduce((a, b) => a + b, 0);
+      const diff = 100 - totalPct;
 
-    if (Math.abs(diff) > 0.0000001) {
-      return alert(
-        `Math error: Percentages sum to ${totalPct}%. Please click Auto-Balance.`,
-      );
+      if (Math.abs(diff) > 0.0000001) {
+        return alert(
+          `Math error: Percentages sum to ${totalPct}%. Please click Auto-Balance.`,
+        );
+      }
     }
 
     try {
@@ -537,6 +632,8 @@ const InstallmentConfigurationController = ({ children }) => {
         numberOfInstallments: parseInt(installmentCount),
         customPercentages: strictPercentages,
         customMonths: customMonths,
+        feeBasis,
+        installmentsPerMonth: feeBasis === "monthly" ? perMonth : 1,
       }).unwrap();
 
       setSaveSuccess(true);
@@ -546,6 +643,7 @@ const InstallmentConfigurationController = ({ children }) => {
         setInstallmentCount(1);
         setCustomPercentages([100]);
         setCustomMonths([""]);
+        setFeeBasis("total");
         setShowSetupPage(false);
         refetch();
       }, 1800);
@@ -620,6 +718,16 @@ const InstallmentConfigurationController = ({ children }) => {
     isSaving,
     saveSuccess,
     handleSaveConfiguration,
+    feeBasis,
+    handleFeeBasisChange,
+    planStartMonth,
+    setPlanStartMonth,
+    planMonths,
+    setPlanMonths,
+    perMonth,
+    handlePerMonthChange,
+    partPercents,
+    handlePartPercentChange,
   });
 };
 

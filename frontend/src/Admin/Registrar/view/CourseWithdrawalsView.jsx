@@ -81,7 +81,7 @@ const CourseWithdrawalsView = ({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Course Withdrawals Register</h1>
-            <p className="text-sm text-slate-500 mt-1">Read-only record of withdrawals processed by Heads of Department.</p>
+            <p className="text-sm text-slate-500 mt-1">Read-only record of withdrawals processed by Heads of Class.</p>
           </div>
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">

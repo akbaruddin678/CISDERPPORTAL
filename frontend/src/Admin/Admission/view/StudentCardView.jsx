@@ -140,7 +140,7 @@ const IssuePanel = ({ c }) => {
                 </Field>
               </div>
               <p className="text-[11px] font-medium text-slate-400 mt-3">
-                Suggested from the student's program and current semester — change anything that differs.
+                Suggested from the student's program and current section — change anything that differs.
               </p>
             </Panel>
 

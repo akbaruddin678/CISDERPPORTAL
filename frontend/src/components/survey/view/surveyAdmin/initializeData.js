@@ -135,7 +135,7 @@ export const initializeSampleData = () => {
   const sampleSurveys = [
     {
       title: 'Course Feedback Survey',
-      description: 'Please provide feedback about your course experience this semester.',
+      description: 'Please provide feedback about your course experience this section.',
       questions: [
         {
           id: 'q1',

@@ -211,10 +211,9 @@ export const useManualAdmissionController = () => {
     setResult(null);
   };
 
+  // The student has no admission record — send staff to the student list.
   const goToAdmissionDetail = () => {
-    if (result?.admission?._id) {
-      navigate(`/admission-office/admission-detail/${result.admission._id}`);
-    }
+    navigate("/admission-office/admission-management");
   };
 
   return {

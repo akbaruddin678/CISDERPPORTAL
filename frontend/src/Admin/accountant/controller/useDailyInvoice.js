@@ -24,7 +24,7 @@ const EXPORT_PAGE_LIMIT = 5000;
 
 const EXPORT_COLUMNS = [
   { header: "Reg No", value: (r) => r.regNo },
-  { header: "One Bill Invoice No", value: (r) => r.oneBillInvoiceNo || "N/A" },
+  
   { header: "Name", value: (r) => r.name },
   { header: "Due Date", value: (r) => (r.dueDate ? new Date(r.dueDate).toLocaleDateString() : "N/A") },
   { header: "Amount", value: (r) => r.amount },

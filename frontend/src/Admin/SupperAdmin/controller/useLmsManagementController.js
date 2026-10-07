@@ -24,9 +24,9 @@ const EXPORT_COLUMNS = [
   { header: "Roll No", value: (a) => a.rollNumber },
   { header: "LMS Email", value: (a) => a.email },
   { header: "Program", value: (a) => a.program?.name },
-  { header: "Department", value: (a) => a.department },
+  { header: "Class", value: (a) => a.department },
   { header: "Session", value: (a) => a.session },
-  { header: "Semester", value: (a) => (a.semester ? `Semester ${a.semester}` : "N/A") },
+  { header: "Section", value: (a) => (a.semester ? `Semester ${a.semester}` : "N/A") },
   { header: "LMS Status", value: (a) => a.status },
   { header: "Fee Status", value: (a) => (a.feePendingForSemester ? "Pending" : "Paid") },
   {

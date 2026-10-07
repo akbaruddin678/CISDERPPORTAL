@@ -248,7 +248,7 @@ const buildChallanCard = (challan, copyTitle) => {
         <table class="info-table">
           <tr><td class="info-label">Due Date</td><td class="info-value">${fmtDate(challan.dueDate)}</td><td class="info-label">Reg ID</td><td class="info-value">${student.studentId || "N/A"}</td></tr>
           <tr><td class="info-label">Name</td><td class="info-value">${personal.fullName || "N/A"}</td><td class="info-label">Father Name</td><td class="info-value">${fatherName}</td></tr>
-          <tr><td class="info-label">Program</td><td class="info-value">${programName}</td><td class="info-label">Semester</td><td class="info-value">${semesterNum}</td></tr>
+          <tr><td class="info-label">Program</td><td class="info-value">${programName}</td><td class="info-label">Section</td><td class="info-value">${semesterNum}</td></tr>
           <tr><td class="info-label">Session</td><td class="info-value">${sessionName}</td><td class="info-label">Type</td><td class="info-value">${challanTypeLabel}</td></tr>
           <tr><td class="info-label">Challan No.</td><td class="info-value" colspan="3">${challan.challanNo}</td></tr>
         </table>

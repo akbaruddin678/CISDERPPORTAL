@@ -190,7 +190,7 @@ const DashboardView = ({ data }) => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                  Department
+                  Class
                 </label>
                 <select
                   className="w-full p-2.5 text-sm border border-slate-200 rounded-lg bg-white outline-none focus:border-indigo-500 focus:ring-2 transition-all font-medium text-slate-700"
@@ -199,7 +199,7 @@ const DashboardView = ({ data }) => {
                     updateFilters("departmentId", e.target.value)
                   }
                 >
-                  <option value="">All Departments</option>
+                  <option value="">All Classes</option>
                   {/* ✅ Using Filtered Departments */}
                   {universityDepartments.map((d) => (
                     <option key={d._id} value={d._id}>
@@ -229,7 +229,7 @@ const DashboardView = ({ data }) => {
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                  Semester
+                  Section
                 </label>
                 <select
                   className="w-full p-2.5 text-sm border border-slate-200 rounded-lg disabled:bg-slate-50 outline-none focus:border-indigo-500 focus:ring-2 transition-all font-medium text-slate-700"
@@ -237,7 +237,7 @@ const DashboardView = ({ data }) => {
                   disabled={!filters.programId}
                   onChange={(e) => updateFilters("semesterId", e.target.value)}
                 >
-                  <option value="">All Semesters</option>
+                  <option value="">All Sections</option>
                   {semesters.map((s) => (
                     <option key={s._id} value={s._id}>
                       {s.name || `Semester ${s.number}`}

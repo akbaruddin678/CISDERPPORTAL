@@ -1,10 +1,53 @@
 import { asyncHandler } from "../../core/utils/asyncHandler.js";
 import Semester from "../model/Semester.js";
 import Program from "../model/Program.js";
+import Department from "../model/Department.js";
 import { describeSemesterUsage } from "../utils/semesterUsage.js";
 
+const DEFAULT_PROGRAM_PREFIX = "CLS-";
+
+// Schools/colleges have Class -> Section only. Sections still hang off a
+// Program in the data model, so each class gets one hidden default program.
+const ensureDefaultProgram = async (department) => {
+  const existing = await Program.findOne({ departmentId: department._id }).sort({ createdAt: 1 });
+  if (existing) return existing;
+  return Program.create({
+    code: `${DEFAULT_PROGRAM_PREFIX}${department.code}`.toUpperCase(),
+    name: department.name,
+    level: "UG",
+    durationStages: 1,
+    departmentId: department._id,
+  });
+};
+
+export const createSectionForClass = asyncHandler(async (req, res) => {
+  const { departmentId, name } = req.body;
+  if (!departmentId || !name?.trim()) {
+    return res.status(400).json({ success: false, error: "Class and section name are required." });
+  }
+  const department = await Department.findById(departmentId);
+  if (!department) {
+    return res.status(404).json({ success: false, error: "Class not found" });
+  }
+  const program = await ensureDefaultProgram(department);
+  const wanted = name.trim().toLowerCase();
+  const siblings = await Semester.find({ programId: program._id }).select("name").lean();
+  const dup = siblings.some((x) => String(x.name).trim().toLowerCase() === wanted);
+  if (dup) {
+    return res.status(409).json({ success: false, error: `Section "${name.trim()}" already exists in this class.` });
+  }
+  const last = await Semester.findOne({ programId: program._id }).sort({ number: -1 }).select("number").lean();
+  const section = await Semester.create({
+    programId: program._id,
+    name: name.trim(),
+    number: (last?.number || 0) + 1,
+  });
+  await Program.updateOne({ _id: program._id }, { $set: { durationStages: section.number } });
+  res.status(201).json({ success: true, message: "Section created", data: section });
+});
+
 export const getAllSemesters = asyncHandler(async (req, res) => {
-  const items = await Semester.find().populate("programId", "name code").lean();
+  const items = await Semester.find().populate("programId", "name code departmentId").lean();
   res.status(200).json({ success: true, count: items.length, data: items });
 });
 
@@ -97,7 +140,11 @@ const checkDeletable = async (semester) => {
       number: { $gt: semester.number },
     }),
   ]);
-  if (!isDuplicate && hasLater) {
+  const program = await Program.findById(semester.programId).select("code").lean();
+  // Sections of a class (default "CLS-" program) are independent (A, B, C...),
+  // not a promotion sequence, so deleting a middle one leaves no hole.
+  const isClassSection = String(program?.code || "").startsWith(DEFAULT_PROGRAM_PREFIX);
+  if (!isClassSection && !isDuplicate && hasLater) {
     return {
       canDelete: false,
       blockers: [],

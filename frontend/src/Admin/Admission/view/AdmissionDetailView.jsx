@@ -727,7 +727,7 @@ const AdmissionDetailView = ({
               <Fade in={!loadingCatalog}>
                 <Box>
                   <PromotionStep
-                    label="Department"
+                    label="Class"
                     value={selectedDepartment}
                     onChange={(e) => handleDepartmentChange(e.target.value)}
                     options={departments}
@@ -746,7 +746,7 @@ const AdmissionDetailView = ({
                     }
                   />
                   <PromotionStep
-                    label="Semester"
+                    label="Section"
                     value={selectedSemester}
                     onChange={(e) => setSelectedSemester(e.target.value)}
                     options={filteredSemesters}
@@ -910,7 +910,7 @@ const AdmissionDetailView = ({
             <Grid container spacing={6}>
               <Grid item xs={12} sm={6} md={3}>
                 <DetailItem
-                  label="Department"
+                  label="Class"
                   value={admission.academic?.department?.name}
                 />
               </Grid>

@@ -66,7 +66,7 @@ export const HODLink = () => {
       accent: "bg-amber-600",
     },
     {
-      title: "Department Reports",
+      title: "Class Reports",
       description:
         "View analytics on student performance, passing ratios, and KPIs.",
       path: "/hod/reports",
@@ -85,7 +85,7 @@ export const HODLink = () => {
       accent: "bg-orange-600",
     },
     {
-      title: "Department Students",
+      title: "Class Students",
       description:
         "Browse your department's students by program and semester, with full profiles.",
       path: "/hod/students",
@@ -105,7 +105,7 @@ export const HODLink = () => {
       accent: "bg-emerald-600",
     },
     {
-      title: "Department Courses",
+      title: "Class Courses",
       description: "Browse your department's course catalog.",
       path: "/hod/course/management",
       icon: <BookOpen size={22} strokeWidth={2.5} />,
@@ -114,7 +114,7 @@ export const HODLink = () => {
       accent: "bg-violet-600",
     },
     {
-      title: "Department Timetable",
+      title: "Class Timetable",
       description: "Create and manage your department's weekly class timetable.",
       path: "/hod/timetable",
       icon: <CalendarClock size={22} strokeWidth={2.5} />,
@@ -124,7 +124,7 @@ export const HODLink = () => {
     },
     {
       title: "Course Allocation",
-      description: "Allocate courses to sessions, semesters, and instructors.",
+      description: "Allocate courses to sessions, sections, and instructors.",
       path: "/hod/course/allocation",
       icon: <ClipboardList size={22} strokeWidth={2.5} />,
       color: "text-cyan-600",
@@ -133,7 +133,7 @@ export const HODLink = () => {
     },
     {
       title: "Course Withdrawals",
-      description: "Withdraw a student from a course in your department.",
+      description: "Withdraw a student from a course in your class.",
       path: "/hod/course/withdrawals",
       icon: <UserMinus size={22} strokeWidth={2.5} />,
       color: "text-rose-600",
@@ -142,7 +142,7 @@ export const HODLink = () => {
     },
     {
       title: "Leave Requests",
-      description: "Review and approve staff leave requests in your department.",
+      description: "Review and approve staff leave requests in your class.",
       path: "/hod/leaves",
       icon: <CalendarCheck size={22} strokeWidth={2.5} />,
       color: "text-blue-600",

@@ -53,7 +53,7 @@ const HodLeavesView = ({
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Leave Requests</h1>
           <p className="text-gray-600 mt-1">
-            Review leave requests from staff in your department — approved requests are forwarded to HR for final sign-off.
+            Review leave requests from staff in your class — approved requests are forwarded to HR for final sign-off.
           </p>
         </div>
 

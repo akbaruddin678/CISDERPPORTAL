@@ -31,9 +31,9 @@ const CATEGORY_COLORS = {
 };
 
 const LEVEL_META = {
-  department: { icon: Building2, label: "Department", next: "Programs" },
+  department: { icon: Building2, label: "Class", next: "Programs" },
   program: { icon: GraduationCap, label: "Program", next: "Semesters" },
-  semester: { icon: Layers, label: "Semester", next: "Students" },
+  semester: { icon: Layers, label: "Section", next: "Students" },
 };
 
 const CategoryChips = ({ categories }) => {
@@ -172,7 +172,7 @@ const StudentTable = ({ students, linkToStudent, readOnly }) => {
     return (
       <div className="bg-white rounded-xl border border-slate-100 flex flex-col items-center justify-center py-16 text-slate-400 gap-2">
         <Inbox size={32} className="opacity-30" />
-        <p className="text-sm font-semibold">No students in this semester</p>
+        <p className="text-sm font-semibold">No students in this section</p>
       </div>
     );
   }
@@ -350,7 +350,7 @@ const RevenueExplorerContainer = ({ readOnly = false } = {}) => {
           onClick={goToRoot}
           className={`flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-slate-100 transition-colors ${!department ? "text-indigo-600 bg-indigo-50" : "text-slate-500"}`}
         >
-          <Home size={12} /> All Departments
+          <Home size={12} /> All Classes
         </button>
         {department && (
           <>

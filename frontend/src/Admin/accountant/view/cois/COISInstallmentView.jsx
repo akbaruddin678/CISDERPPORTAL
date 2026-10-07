@@ -1001,7 +1001,7 @@ export default function COISInstallmentView() {
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">
-              Semester / Part
+              Section / Part
             </label>
             <select
               value={selectedPart}

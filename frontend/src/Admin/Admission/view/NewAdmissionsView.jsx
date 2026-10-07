@@ -167,7 +167,7 @@ const NewAdmissionsView = ({
                 onChange={(e) => onFilterChange("departmentId", e.target.value)}
                 className="w-full pl-3.5 pr-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none"
               >
-                <option value="">All Departments</option>
+                <option value="">All Classes</option>
                 {departments.map((d) => (
                   <option key={d._id} value={d._id}>
                     {d.name}

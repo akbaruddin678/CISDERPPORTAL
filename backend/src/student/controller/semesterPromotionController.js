@@ -10,6 +10,7 @@ import Admission from "../../admissions/model/Admission.js";
 import generateStudentId from "../../core/utils/studentIdGenerator.js";
 import StudentAuth from "../models/StudentAuth.js";
 import Semester from "../../catalog/model/Semester.js";
+import Program from "../../catalog/model/Program.js";
 import { uploadToR2 } from "../../core/utils/cloudflareR2.js";
 
 // ============================================================================
@@ -42,16 +43,29 @@ export const bulkSemesterPromotion = asyncHandler(async (req, res) => {
         throw new Error("Target Semester not found.");
       }
 
+      // Moving to another class (e.g. 9th -> 10th) changes the student's
+      // class too, not just the section: the target section knows which
+      // class it belongs to. Fee setup and installment plans are tied to the
+      // section, so the student now needs a fresh setup and the previous
+      // class's setup stays behind as history.
+      const targetProgram = await Program.findById(targetSemester.programId)
+        .select("departmentId")
+        .session(session);
+
+      const profileUpdate = {
+        semesterId: targetSemesterId,
+        termId: targetSessionId,
+        status: "active",
+      };
+      if (targetProgram) {
+        profileUpdate.programId = targetSemester.programId;
+        profileUpdate.departmentId = targetProgram.departmentId;
+      }
+
       // Update Student Profiles
       await StudentProfile.updateMany(
         { _id: { $in: studentIds } },
-        {
-          $set: {
-            semesterId: targetSemesterId,
-            termId: targetSessionId,
-            status: "active",
-          },
-        },
+        { $set: profileUpdate },
       ).session(session);
 
       // Create Enrollment Records

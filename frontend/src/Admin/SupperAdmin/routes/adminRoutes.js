@@ -88,9 +88,6 @@ const ReportGenerationContainer = lazy(
 const ChallanGenerationRequest = lazy(
   () => import("../../accountant/container/ChallanGenerationRequestContainer"),
 );
-const HostelFee = lazy(
-  () => import("../../accountant/container/HostelFeeContainer"),
-);
 const DepartmentChallan = lazy(
   () => import("../../accountant/container/DepartmentChallanContainer"),
 );
@@ -112,14 +109,11 @@ const StudentReportContainer = lazy(
 const FineDueDateManagement = lazy(
   () => import("../../accountant/container/FineDueDateManagement"),
 );
-const CollegeManagementContainer = lazy(
-  () => import("../../accountant/container/CollegeManagementContainer"),
+const LateFineSettings = lazy(
+  () => import("../../accountant/container/LateFineSettingsContainer"),
 );
 const LeftCaseContainer = lazy(
   () => import("../../accountant/container/LeftCasesContainer"),
-);
-const MisFeeContainer = lazy(
-  () => import("../../accountant/container/MisFeeContainer"),
 );
 
 // --- Core Exam Routes ---
@@ -516,12 +510,6 @@ const getAdminRoutes = () => {
       requiredRoles: ["accountant", "headofaccount"],
     },
     {
-      path: "/hostelfee",
-      element: HostelFee,
-      isProtected: true,
-      requiredRoles: ["accountant", "headofaccount"],
-    },
-    {
       path: "/department-challans",
       element: DepartmentChallan,
       isProtected: true,
@@ -530,6 +518,12 @@ const getAdminRoutes = () => {
     {
       path: "/monthly-challan-reports",
       element: MonthlyChallanReportContainer,
+      isProtected: true,
+      requiredRoles: ["accountant", "headofaccount"],
+    },
+    {
+      path: "/late-fine-settings",
+      element: LateFineSettings,
       isProtected: true,
       requiredRoles: ["accountant", "headofaccount"],
     },
@@ -552,20 +546,8 @@ const getAdminRoutes = () => {
       requiredRoles: ["accountant", "headofaccount"],
     },
     {
-      path: "/college-of-intermediate-studies",
-      element: CollegeManagementContainer,
-      isProtected: true,
-      requiredRoles: ["accountant", "headofaccount"],
-    },
-    {
       path: "/left-caseses",
       element: LeftCaseContainer,
-      isProtected: true,
-      requiredRoles: ["accountant", "headofaccount"],
-    },
-    {
-      path: "/miscellaneousfee",
-      element: MisFeeContainer,
       isProtected: true,
       requiredRoles: ["accountant", "headofaccount"],
     },
@@ -1012,7 +994,7 @@ const getAdminRoutes = () => {
       path: "/graduation-clearance",
       element: FinanceGraduationPage,
       isProtected: true,
-      requiredRoles: ["accountant", "admin"],
+      requiredRoles: ["admin"],
     },
     {
       path: "/clearance-desk",

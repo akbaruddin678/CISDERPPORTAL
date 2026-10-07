@@ -13,10 +13,10 @@ const extractArray = (obj) => (Array.isArray(obj?.data) ? obj.data : []);
 
 const FIELDS = [
   { key: "minTotalCredits", label: "Minimum total credits to graduate" },
-  { key: "minDurationSemesters", label: "Minimum duration (semesters)" },
-  { key: "maxDurationSemesters", label: "Maximum duration / time-bar (semesters)" },
-  { key: "minCreditsPerSemester", label: "Minimum credits per semester" },
-  { key: "maxCreditsPerSemester", label: "Maximum credits per semester" },
+  { key: "minDurationSemesters", label: "Minimum duration (sections)" },
+  { key: "maxDurationSemesters", label: "Maximum duration / time-bar (sections)" },
+  { key: "minCreditsPerSemester", label: "Minimum credits per section" },
+  { key: "maxCreditsPerSemester", label: "Maximum credits per section" },
   { key: "maxSummerCredits", label: "Maximum credits — summer/short term" },
 ];
 const EMPTY_FORM = Object.fromEntries(FIELDS.map((f) => [f.key, ""]));

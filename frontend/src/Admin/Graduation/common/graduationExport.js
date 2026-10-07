@@ -45,7 +45,7 @@ export async function exportGraduatesExcel(list, { scopeLabel = "All Graduates" 
     { header: "Student Name", key: "name", width: 26 },
     { header: "Reg No.", key: "regNo", width: 18 },
     { header: "CNIC", key: "cnic", width: 18 },
-    { header: "Department", key: "department", width: 26 },
+    { header: "Class", key: "department", width: 26 },
     { header: "Program", key: "program", width: 24 },
     { header: "CGPA", key: "cgpa", width: 10 },
     { header: "Credits", key: "credits", width: 10 },

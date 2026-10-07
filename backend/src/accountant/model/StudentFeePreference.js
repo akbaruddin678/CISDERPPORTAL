@@ -18,7 +18,24 @@ const StudentFeePreferenceSchema = new mongoose.Schema(
       type: Number,
       default: 1,
       min: 1,
-      max: 12,
+      max: 60,
+    },
+    // "total": the fee set up for the student is one amount that is split
+    // across the installments (percentages add up to 100). "monthly": the
+    // fee set up IS the fee for ONE month (school fee). The plan then covers
+    // several months, and each month's fee can itself be split into
+    // `installmentsPerMonth` parts. customPercentages are then shares of the
+    // monthly fee, and every month's parts add up to 100.
+    feeBasis: {
+      type: String,
+      enum: ["total", "monthly"],
+      default: "total",
+    },
+    installmentsPerMonth: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 4,
     },
     autoSplit: {
       type: Boolean,

@@ -105,7 +105,7 @@ const RenewOverdueChallans = ({
             value={filters.departmentId}
             onChange={(e) => handleFilterChange("departmentId", e.target.value)}
           >
-            <option value="">All Departments</option>
+            <option value="">All Classes</option>
             {departments?.map((d) => (
               <option key={d._id} value={d._id}>
                 {d.name}
@@ -131,7 +131,7 @@ const RenewOverdueChallans = ({
             disabled={!filters.programId}
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}
           >
-            <option value="">All Semesters</option>
+            <option value="">All Sections</option>
             {semesters.map((s) => (
               <option key={s._id} value={s._id}>
                 Sem {s.number}

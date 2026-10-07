@@ -12,7 +12,7 @@ import {
 export const DepartmentLink = () => {
   return [
     {
-      title: "My Department",
+      title: "My Class",
       description: "Overview of your department's structure and key metrics.",
       path: "/departments/mydepartments",
       icon: <Building size={22} strokeWidth={2.5} />,
@@ -21,7 +21,7 @@ export const DepartmentLink = () => {
       accent: "bg-cyan-600",
     },
     {
-      title: "Department Faculty",
+      title: "Class Faculty",
       description: "Manage teachers, assign roles, and view faculty schedules.",
       path: "/departments/teachers",
       icon: <Users size={22} strokeWidth={2.5} />,
@@ -30,7 +30,7 @@ export const DepartmentLink = () => {
       accent: "bg-blue-600",
     },
     {
-      title: "Department Students",
+      title: "Class Students",
       description: "View enrolled students, academic standing, and batches.",
       path: "/departments/students",
       icon: <GraduationCap size={22} strokeWidth={2.5} />,
@@ -40,7 +40,7 @@ export const DepartmentLink = () => {
     },
     {
       title: "Course Management",
-      description: "Manage programs, semesters, and active course offerings.",
+      description: "Manage programs, sections, and active course offerings.",
       path: "/departments/courses",
       icon: <BookOpenCheck size={22} strokeWidth={2.5} />,
       color: "text-indigo-600",
@@ -57,7 +57,7 @@ export const DepartmentLink = () => {
       accent: "bg-purple-600",
     },
     {
-      title: "Department Exams",
+      title: "Class Exams",
       description: "View upcoming departmental exams and invigilation duties.",
       path: "/departments/exams",
       icon: <ClipboardList size={22} strokeWidth={2.5} />,
@@ -67,7 +67,7 @@ export const DepartmentLink = () => {
     },
     {
       title: "Coordinators & HOD",
-      description: "Manage department coordinators and HOD assignments.",
+      description: "Manage class coordinators and HOD assignments.",
       path: "/departments/coordinators",
       icon: <UserCircle size={22} strokeWidth={2.5} />,
       color: "text-pink-600",

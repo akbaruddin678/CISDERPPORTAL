@@ -61,7 +61,7 @@ const ReportTab = (c) => (
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <select value={c.filters.departmentId} onChange={(e) => c.setFilter("departmentId", e.target.value)} className={selectCls}>
-        <option value="">All departments</option>
+        <option value="">All classes</option>
         {c.departments.map((d) => (
           <option key={d._id} value={d._id}>{d.name}</option>
         ))}
@@ -73,7 +73,7 @@ const ReportTab = (c) => (
         ))}
       </select>
       <select value={c.filters.semesterId} onChange={(e) => c.setFilter("semesterId", e.target.value)} className={selectCls}>
-        <option value="">All semesters</option>
+        <option value="">All sections</option>
         {c.semesters.map((s) => (
           <option key={s._id} value={s._id}>Semester {s.number}</option>
         ))}

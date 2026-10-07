@@ -52,7 +52,7 @@ const HODHomeView = ({ stats, actionItems, isLoading }) => {
             <StatTile icon={UserCheck} label="Attendance Pending" value={isLoading ? "—" : stats.pendingAttendanceCount} color="text-teal-600" bg="bg-teal-100" />
             <StatTile icon={AlertTriangle} label="Open UFM Cases" value={isLoading ? "—" : stats.pendingUfmCount} color="text-red-600" bg="bg-red-100" />
             <StatTile icon={FileSignature} label="Pending Appeals" value={isLoading ? "—" : stats.pendingReEvalCount} color="text-pink-600" bg="bg-pink-100" />
-            <StatTile icon={BookOpen} label="Department Courses" value={isLoading ? "—" : stats.departmentCourseCount} color="text-violet-600" bg="bg-violet-100" />
+            <StatTile icon={BookOpen} label="Class Courses" value={isLoading ? "—" : stats.departmentCourseCount} color="text-violet-600" bg="bg-violet-100" />
             <StatTile icon={Users} label="Active Students" value={isLoading ? "—" : stats.departmentStudentCount} color="text-blue-600" bg="bg-blue-100" />
           </div>
         </section>

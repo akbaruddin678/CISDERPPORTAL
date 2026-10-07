@@ -322,7 +322,7 @@ const HodCourseAllocationView = ({
             mt={0.25}
             fontFamily="'Montserrat', sans-serif"
           >
-            Pick a Semester, then a Session, then a Course to manage its
+            Pick a Section, then a Session, then a Course to manage its
             student roster.
           </Typography>
         </Box>
@@ -357,7 +357,7 @@ const HodCourseAllocationView = ({
             <TextField
               select
               size="small"
-              label="1. Department"
+              label="1. Class"
               value={filters.departmentId}
               onChange={(e) =>
                 handleFilterChange("departmentId", e.target.value)
@@ -413,7 +413,7 @@ const HodCourseAllocationView = ({
               letterSpacing="0.05em"
               mb={1}
             >
-              3. Semester
+              3. Section
             </Typography>
             <Box display="flex" gap={1} flexWrap="wrap">
               {semesters.map((s) => (
@@ -447,7 +447,7 @@ const HodCourseAllocationView = ({
                     fontStyle="italic"
                     sx={{ alignSelf: "center" }}
                   >
-                    No semesters found for this program.
+                    No sections found for this program.
                   </Typography>
                 )}
             </Box>
@@ -463,7 +463,7 @@ const HodCourseAllocationView = ({
               color="#64748b"
               fontFamily="'Montserrat', sans-serif"
             >
-              Select a Department and Program to view academic history.
+              Select a Class and Program to view academic history.
             </Typography>
           </Box>
         ) : !filters.semesterId ? (
@@ -475,7 +475,7 @@ const HodCourseAllocationView = ({
               color="#64748b"
               fontFamily="'Montserrat', sans-serif"
             >
-              Select a Semester above to see its sessions.
+              Select a Section above to see its sessions.
             </Typography>
           </Box>
         ) : (
@@ -667,7 +667,7 @@ const HodCourseAllocationView = ({
                 {sessionsWithCourses.length === 0 && !isFetchingAllocations && (
                   <Box py={5} textAlign="center" color="#94a3b8">
                     <Typography fontSize={13} fontWeight={700}>
-                      No sessions have courses in this semester yet — start one
+                      No sessions have courses in this section yet — start one
                       above.
                     </Typography>
                   </Box>

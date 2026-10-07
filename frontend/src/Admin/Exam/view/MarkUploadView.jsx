@@ -129,7 +129,7 @@ const MarkUploadView = ({
             {terms.map((t) => (<MenuItem key={t._id} value={t._id} sx={{ fontSize: 13 }}>{t.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="Department"
+            select fullWidth size="small" label="Class"
             value={filters.departmentId}
             onChange={(e) => handleFilterChange("departmentId", e.target.value)}
             sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
@@ -146,7 +146,7 @@ const MarkUploadView = ({
             {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="Semester"
+            select fullWidth size="small" label="Section"
             disabled={!filters.programId}
             value={filters.semesterId}
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}

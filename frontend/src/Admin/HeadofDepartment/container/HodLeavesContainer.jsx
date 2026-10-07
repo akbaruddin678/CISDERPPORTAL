@@ -43,9 +43,9 @@ const HodLeavesContainer = () => {
       <Box p={4} display="flex" justifyContent="center">
         <Paper sx={{ p: 5, textAlign: "center", borderRadius: 3, maxWidth: 500 }}>
           <ShieldAlert size={64} color="#f59e0b" style={{ margin: "0 auto 16px" }} />
-          <Typography variant="h5" fontWeight="bold" gutterBottom>Missing Department ID</Typography>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>Missing Class ID</Typography>
           <Typography color="text.secondary">
-            Your profile is not linked to a specific department. Please contact HR to update your record.
+            Your profile is not linked to a specific class. Please contact HR to update your record.
           </Typography>
         </Paper>
       </Box>

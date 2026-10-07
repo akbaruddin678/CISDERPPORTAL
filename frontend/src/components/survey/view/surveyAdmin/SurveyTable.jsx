@@ -37,7 +37,7 @@ const SurveyTable = ({ surveys, onToggle, onDelete, onViewReports, onView, onEdi
             <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Responses</TableCell>
             <TableCell sx={{ fontWeight: 700 }}>Created</TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Departments</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Classes</TableCell>
             <TableCell sx={{ fontWeight: 700 }} align="center">Actions</TableCell>
           </TableRow>
         </TableHead>

@@ -95,7 +95,7 @@ const ApproveUFMView = ({
             Approve UFM Cases
           </Typography>
           <Typography variant="body2" color="#64748b" mt={0.25}>
-            Review Unfair Means reports for your department and record the committee's decision.
+            Review Unfair Means reports for your class and record the committee's decision.
           </Typography>
         </Box>
 

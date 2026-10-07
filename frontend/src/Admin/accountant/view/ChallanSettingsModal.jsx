@@ -207,7 +207,7 @@ const ChallanSettingsModal = ({
                             {...field}
                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-100 outline-none font-semibold text-slate-700"
                           >
-                            <option value="SEMESTER">Semester</option>
+                            <option value="SEMESTER">Section</option>
                             <option value="YEAR">Year</option>
                           </select>
                         )}

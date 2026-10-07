@@ -128,7 +128,7 @@ const ExamResultView = ({
             {terms.map((t) => (<MenuItem key={t._id} value={t._id} sx={{ fontSize: 13 }}>{t.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="Department"
+            select fullWidth size="small" label="Class"
             value={filters.departmentId}
             onChange={(e) => handleFilterChange("departmentId", e.target.value)}
             sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
@@ -146,13 +146,13 @@ const ExamResultView = ({
             {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="Semester"
+            select fullWidth size="small" label="Section"
             disabled={!filters.departmentId}
             value={filters.semesterId}
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}
             sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
           >
-            <MenuItem value="all" sx={{ fontSize: 13 }}>All Semesters</MenuItem>
+            <MenuItem value="all" sx={{ fontSize: 13 }}>All Sections</MenuItem>
             {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
           </TextField>
         </Box>
@@ -172,7 +172,7 @@ const ExamResultView = ({
           <Box p={10} textAlign="center">
             <Search sx={{ fontSize: 48, opacity: 0.15, mb: 1.5 }} />
             <Typography fontSize={15} fontWeight={700} color="#64748b" fontFamily="'Aleo', serif">Awaiting Selection</Typography>
-            <Typography fontSize={13} color="#94a3b8" mt={0.5}>Select a Session and Department to load compiled results.</Typography>
+            <Typography fontSize={13} color="#94a3b8" mt={0.5}>Select a Session and Class to load compiled results.</Typography>
           </Box>
         ) : isFetching ? (
           <Box p={10} textAlign="center">
@@ -330,7 +330,7 @@ const ExamResultView = ({
                 </Paper>
               </Box>
               <Typography fontSize={11} color="#94a3b8" mt={1.5}>
-                * CGPA displayed currently reflects current semester data until complete historical term aggregation is processed.
+                * CGPA displayed currently reflects current section data until complete historical term aggregation is processed.
               </Typography>
             </Box>
           )}

@@ -266,7 +266,7 @@ const UserManagement = () => {
       if (!formData.department || !formData.program || !formData.semester) {
         setAlert({
           open: true,
-          message: "Please fill in department, program, and semester for student",
+          message: "Please fill in class, program, and section for student",
           severity: "error"
         });
         return;
@@ -277,7 +277,7 @@ const UserManagement = () => {
       if (!formData.department) {
         setAlert({
           open: true,
-          message: "Please select a department for teacher",
+          message: "Please select a class for teacher",
           severity: "error"
         });
         return;
@@ -412,7 +412,7 @@ const UserManagement = () => {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 600 }}>Teacher</TableCell>
-              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Department</TableCell>}
+              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>}
               <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
               <TableCell align="center" sx={{ fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
@@ -423,9 +423,9 @@ const UserManagement = () => {
           <TableHead>
             <TableRow>
               <TableCell sx={{ fontWeight: 600 }}>Student</TableCell>
-              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Department</TableCell>}
+              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Class</TableCell>}
               {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Program</TableCell>}
-              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Semester</TableCell>}
+              {!isMobile && <TableCell sx={{ fontWeight: 600 }}>Section</TableCell>}
               <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
               <TableCell align="center" sx={{ fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
@@ -791,12 +791,12 @@ const UserManagement = () => {
             {/* Department Field - Required for Students and Teachers */}
             <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
-                <InputLabel>Department</InputLabel>
+                <InputLabel>Class</InputLabel>
                 <Select
                   name="department"
                   value={formData.department}
                   onChange={handleInputChange}
-                  label="Department"
+                  label="Class"
                   required={formData.role === 'student' || formData.role === 'teacher'}
                 >
                   {departments.map((dept) => (
@@ -834,12 +834,12 @@ const UserManagement = () => {
             {formData.role === 'student' && (
               <Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel>Semester</InputLabel>
+                  <InputLabel>Section</InputLabel>
                   <Select
                     name="semester"
                     value={formData.semester}
                     onChange={handleInputChange}
-                    label="Semester"
+                    label="Section"
                     required
                   >
                     {semesters.map((semester) => (

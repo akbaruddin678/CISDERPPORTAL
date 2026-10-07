@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import cisdLogo from "../../../assets/cisd-logo.png";
 import { useVerifyUserEmailMutation } from "../api/userApi";
 
 const VerifyEmail = () => {
@@ -42,11 +43,14 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lime-50 via-white to-sky-50 p-4">
       <div className="bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden text-center">
         
         {/* Header */}
-        <div className="bg-blue-900 p-6">
+        <div className="bg-[#0b2a6b] p-6">
+          <div className="mx-auto mb-3 inline-flex rounded-xl bg-white p-2">
+            <img src={cisdLogo} alt="CISD logo" className="h-10 w-auto object-contain" />
+          </div>
           <h2 className="text-2xl font-bold text-white">Email Verification</h2>
         </div>
 
@@ -55,7 +59,7 @@ const VerifyEmail = () => {
           {/* 1. LOADING STATE */}
           {status === "loading" && (
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-900 rounded-full animate-spin mb-4"></div>
+              <div className="w-16 h-16 border-4 border-blue-200 border-t-[#0b2a6b] rounded-full animate-spin mb-4"></div>
               <p className="text-gray-600">Verifying your token...</p>
             </div>
           )}
@@ -74,7 +78,7 @@ const VerifyEmail = () => {
               {/* ✅ The Requested Button */}
               <button
                 onClick={() => navigate("/login")}
-                className="w-full py-3 px-4 bg-blue-900 hover:bg-blue-800 text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                className="w-full py-3 px-4 bg-[#0b2a6b] hover:bg-[#12388a] text-white rounded-full font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Go to Login
               </button>
@@ -97,13 +101,13 @@ const VerifyEmail = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => navigate("/signup")}
-                  className="w-full py-3 px-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                  className="w-full py-3 px-4 bg-white border-2 border-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-50 transition-colors"
                 >
                   Register Again
                 </button>
                 <button
                   onClick={() => navigate("/login")}
-                  className="block w-full text-sm text-blue-900 hover:underline"
+                  className="block w-full text-sm text-[#0b2a6b] hover:underline"
                 >
                   Back to Login
                 </button>

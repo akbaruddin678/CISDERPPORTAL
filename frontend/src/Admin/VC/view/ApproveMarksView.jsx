@@ -198,12 +198,12 @@ const ApproveMarksView = ({
             <TextField
               select
               size="small"
-              label="Semester"
+              label="Section"
               value={selectedSemester}
               onChange={(e) => setSelectedSemester(e.target.value)}
               sx={{ minWidth: 160, "& .MuiOutlinedInput-root": { fontSize: 13 } }}
             >
-              <MenuItem value="all" sx={{ fontSize: 13 }}>All Semesters</MenuItem>
+              <MenuItem value="all" sx={{ fontSize: 13 }}>All Sections</MenuItem>
               {availableSemesters.map((n) => (
                 <MenuItem key={n} value={n} sx={{ fontSize: 13 }}>
                   Semester {n}

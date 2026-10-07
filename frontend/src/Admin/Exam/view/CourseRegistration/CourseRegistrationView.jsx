@@ -99,11 +99,11 @@ const CourseRegistrationView = ({
             select
             size="small"
             fullWidth
-            label="Filter by Department"
+            label="Filter by Class"
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
           >
-            <MenuItem value="">All Departments</MenuItem>
+            <MenuItem value="">All Classes</MenuItem>
             {departments.map((d) => (
               <MenuItem key={d._id} value={d._id}>
                 {d.name}
@@ -156,7 +156,7 @@ const CourseRegistrationView = ({
                     <strong>Course Title & Code</strong>
                   </TableCell>
                   <TableCell>
-                    <strong>Department</strong>
+                    <strong>Class</strong>
                   </TableCell>
                   <TableCell>
                     <strong>Level</strong>
@@ -266,7 +266,7 @@ const CourseRegistrationView = ({
             <TextField
               select
               fullWidth
-              label="Owning Department"
+              label="Owning Class"
               value={singleForm.owningDepartmentId}
               onChange={(e) =>
                 setSingleForm({

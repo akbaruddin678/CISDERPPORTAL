@@ -155,7 +155,7 @@ export const ViewInvoiceModal = ({ isOpen, onClose, target }) => {
   const rows = [
     ["Invoice No", target.challanNo],
     ["Reg No", target.regNo],
-    ["One Bill Invoice No", target.oneBillInvoiceNo || "N/A"],
+    ["Challan No", target.challanNo || "N/A"],
     ["Name", target.name],
     ["Mobile", target.mobile],
     ["Due Date", fmtDate(target.dueDate)],

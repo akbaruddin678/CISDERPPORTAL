@@ -176,7 +176,7 @@ const DetailDrawer = ({ c }) => {
 
               <DetailSection title="Academic Program Applied For" icon={GraduationCap}>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <Field label="Department" value={d.academic.department?.name} />
+                  <Field label="Class" value={d.academic.department?.name} />
                   <Field label="Program" value={d.academic.program?.name} />
                   <Field label="Session" value={d.academic.session?.name} />
                 </div>

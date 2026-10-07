@@ -374,7 +374,7 @@ const BulkChallanManager = ({
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase">
-                Department <span className="text-rose-500">*</span>
+                Class <span className="text-rose-500">*</span>
               </label>
               <select
                 className="w-full p-2.5 text-sm border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
@@ -383,7 +383,7 @@ const BulkChallanManager = ({
                   handleFilterChange("departmentId", e.target.value)
                 }
               >
-                <option value="">Select Department...</option>
+                <option value="">Select Class...</option>
                 {departments?.map((d) => (
                   <option key={d._id} value={d._id}>
                     {d.name}
@@ -415,7 +415,7 @@ const BulkChallanManager = ({
               </div>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-slate-500 uppercase">
-                  Semester
+                  Section
                 </label>
                 <select
                   className="w-full p-2.5 text-sm border border-slate-200 rounded-lg disabled:bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
@@ -808,10 +808,10 @@ const BulkChallanManager = ({
             <div className="flex flex-col items-center justify-center h-full text-slate-400">
               <User size={48} className="mb-4 opacity-20 text-slate-500" />
               <p className="font-medium text-slate-600">
-                Select a Department to load students.
+                Select a Class to load students.
               </p>
               <p className="text-xs mt-1">
-                Bulk operations require department-level filtering to prevent
+                Bulk operations require class-level filtering to prevent
                 system overload.
               </p>
             </div>

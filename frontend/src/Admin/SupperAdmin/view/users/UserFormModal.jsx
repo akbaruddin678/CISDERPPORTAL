@@ -11,6 +11,8 @@ import {
   Typography,
   Box,
   Divider,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { Controller } from "react-hook-form";
 import InputField from "../../../../shared/InputField/UI/InputField";
@@ -63,7 +65,9 @@ export const UserFormModal = ({
 }) => {
   const [schools, setSchools] = useState([]);
   const selectedRole = useWatch({ control, name: "role" });
-  const needsCampus = ["accountant", "admission"].includes(selectedRole);
+  const canHaveAllCampuses = ["accountant", "admission"].includes(selectedRole);
+  const allCampuses = useWatch({ control, name: "allCampuses" }) === true;
+  const needsCampus = canHaveAllCampuses && !allCampuses;
 
   useEffect(() => {
     const token = getUserData()?.token;
@@ -142,13 +146,27 @@ export const UserFormModal = ({
                 name="campusId"
                 control={control}
                 render={({ field }) => (
-                  <TextField {...field} select label={needsCampus ? "Assigned School / Campus *" : "Assigned School / Campus"} fullWidth disabled={selectedRole === "headofaccount"} helperText={selectedRole === "headofaccount" ? "The Head of Accounts can access and filter all campuses." : "Accounts and Admission logins are restricted to this campus."}>
+                  <TextField {...field} select label={needsCampus ? "Assigned School / Campus *" : "Assigned School / Campus"} fullWidth disabled={selectedRole === "headofaccount" || (canHaveAllCampuses && allCampuses)} helperText={selectedRole === "headofaccount" ? "The Head of Accounts can access and filter all campuses." : (canHaveAllCampuses && allCampuses) ? "This login can view every campus." : "Accounts and Admission logins are restricted to this campus."}>
                     <MenuItem value=""><em>{needsCampus ? "Select a campus" : "No campus / central office"}</em></MenuItem>
                     {schools.map((school) => <MenuItem key={school.id} value={school.id}>{school.name} ({school.code})</MenuItem>)}
                   </TextField>
                 )}
               />
             </Grid>
+            {canHaveAllCampuses && (
+              <Grid item xs={12}>
+                <Controller
+                  name="allCampuses"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControlLabel
+                      control={<Checkbox checked={field.value === true} onChange={(e) => field.onChange(e.target.checked)} />}
+                      label="Can view all campuses (instead of one assigned campus)"
+                    />
+                  )}
+                />
+              </Grid>
+            )}
           </Grid>
 
           <Divider />

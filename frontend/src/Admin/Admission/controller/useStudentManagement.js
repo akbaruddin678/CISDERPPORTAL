@@ -200,6 +200,19 @@ export const useStudentManagement = () => {
     [nonCollegeDepartments, filteredPrograms, filteredSemesters, rawCatalogData.sessions],
   );
 
+  // Every class / program / section / session, NOT narrowed by the current
+  // source filters — the promotion screen needs these for its "Move to"
+  // pickers, which can point at a different class than the one being viewed.
+  const fullCatalog = useMemo(
+    () => ({
+      departments: nonCollegeDepartments,
+      programs: nonCollegePrograms,
+      semesters: nonCollegeSemesters,
+      sessions: rawCatalogData.sessions,
+    }),
+    [nonCollegeDepartments, nonCollegePrograms, nonCollegeSemesters, rawCatalogData.sessions],
+  );
+
   const searchStudents = useCallback((searchTerm) => {
     setFilters((prev) => ({ ...prev, search: searchTerm, page: 1 }));
   }, []);
@@ -488,6 +501,7 @@ export const useStudentManagement = () => {
     filters,
     pagination,
     catalogData,
+    fullCatalog,
     stats,
     setFilters: updateFilters,
     searchStudents,

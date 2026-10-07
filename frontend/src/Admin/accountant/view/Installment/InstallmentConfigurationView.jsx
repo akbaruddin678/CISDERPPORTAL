@@ -330,6 +330,16 @@ const SetupPage = ({ data }) => {
     isSaving,
     saveSuccess,
     handleSaveConfiguration,
+    feeBasis,
+    handleFeeBasisChange,
+    planStartMonth,
+    setPlanStartMonth,
+    planMonths,
+    setPlanMonths,
+    perMonth,
+    handlePerMonthChange,
+    partPercents,
+    handlePartPercentChange,
     applyPreset,
     autoCorrectRest,
     fetchedTotalFee,
@@ -359,7 +369,11 @@ const SetupPage = ({ data }) => {
 
   const count = parseInt(installmentCount) || 1;
   const rawTotal = customPercentages.reduce((a, b) => a + Number(b), 0);
-  const isTotalValid = Math.abs(100 - rawTotal) < 0.0000001;
+  const isMonthly = feeBasis === "monthly";
+  const partsTotal = partPercents.reduce((a, b) => a + Number(b), 0);
+  const isTotalValid = isMonthly
+    ? Math.abs(100 - partsTotal) < 0.0001
+    : Math.abs(100 - rawTotal) < 0.0000001;
   const isSingleStudent = selectedStudents.length === 1;
   // Installments are a split of the Tuition fee — without one there's
   // nothing to split, so block the configurator entirely rather than let
@@ -424,7 +438,7 @@ const SetupPage = ({ data }) => {
                 : `No installment plan set yet for Semester ${activeSemesterNumber ?? "—"} — saving will create one.`}
               {isLegacyUntaggedPreference && (
                 <span className="block text-xs font-normal text-emerald-700 mt-0.5">
-                  This is an older plan set up before semester tracking —
+                  This is an older plan set up before section tracking —
                   assign it properly so it stops relying on a fallback.
                 </span>
               )}
@@ -451,7 +465,7 @@ const SetupPage = ({ data }) => {
                 <History size={13} />
                 {showHistory
                   ? "Hide"
-                  : `View ${pastPreferences.length} previous semester${pastPreferences.length !== 1 ? "s" : ""}`}
+                  : `View ${pastPreferences.length} earlier fee plan${pastPreferences.length !== 1 ? "s" : ""} (old class)`}
               </button>
             )}
           </div>
@@ -462,7 +476,7 @@ const SetupPage = ({ data }) => {
       {isSingleStudent && showHistory && pastPreferences.length > 0 && (
         <div className="px-4 sm:px-6 py-4 border-b border-slate-200 bg-slate-50 shrink-0 space-y-2 max-h-64 overflow-y-auto">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-            Previous semester plans (read-only)
+            Previous section plans (read-only)
           </p>
           {loadingPreferenceHistory ? (
             <div className="flex items-center gap-2 text-sm text-slate-400">
@@ -483,7 +497,10 @@ const SetupPage = ({ data }) => {
                     <span className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
                       <Lock size={12} className="text-slate-400" />
                       {pref.semesterId?.name ||
-                        `Semester ${pref.semesterId?.number ?? "—"}`}
+                        `Section ${pref.semesterId?.number ?? "—"}`}
+                      {pref.feeBasis === "monthly" && (
+                        <span className="ml-1 text-[10px] font-bold uppercase text-indigo-500">Monthly plan</span>
+                      )}
                     </span>
                     <span className="flex items-center gap-2">
                       <span className="text-xs text-slate-500">
@@ -592,7 +609,176 @@ const SetupPage = ({ data }) => {
               </div>
             ) : (
               <>
+                {/* Plan type: whole fee split into installments, or a monthly (school) fee */}
+                <div className="bg-white border border-slate-200 rounded-xl p-5">
+                  <p className="text-sm font-semibold text-slate-900 mb-0.5">
+                    How is the fee charged?
+                  </p>
+                  <p className="text-xs text-slate-500 mb-4">
+                    Choose how the fee that was set up for{" "}
+                    {isSingleStudent ? "this student" : "these students"} is billed.
+                  </p>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {[
+                      {
+                        id: "total",
+                        title: "One total fee, split into installments",
+                        text: "The fee is one amount (e.g. a semester or yearly fee) paid in parts.",
+                      },
+                      {
+                        id: "monthly",
+                        title: "Monthly fee (school fee)",
+                        text: "The fee is for ONE month. Bill it every month for a year, and optionally split each month into parts.",
+                      },
+                    ].map((opt) => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => handleFeeBasisChange(opt.id)}
+                        className={`text-left rounded-xl border-2 p-4 transition ${
+                          feeBasis === opt.id
+                            ? "border-indigo-500 bg-indigo-50"
+                            : "border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        <p className="text-sm font-semibold text-slate-900">{opt.title}</p>
+                        <p className="mt-1 text-xs text-slate-500">{opt.text}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {isMonthly && (
+                  <div className="bg-white border border-slate-200 rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <p className="text-sm font-semibold text-slate-900">Monthly plan</p>
+                      <span className="text-sm font-bold text-slate-900">
+                        Monthly fee: Rs {Number(totalFee || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Every month in the plan is billed the same way. This is saved once and applies to{" "}
+                      {isSingleStudent ? "this student" : `all ${selectedStudents.length} selected students`}.
+                    </p>
+
+                    <div className="grid sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-medium text-slate-500 uppercase mb-1.5">
+                          Starting month
+                        </label>
+                        <select
+                          value={planStartMonth}
+                          onChange={(e) => setPlanStartMonth(e.target.value)}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                        >
+                          {MONTHS.map((m) => (
+                            <option key={m} value={m}>
+                              {m}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-slate-500 uppercase mb-1.5">
+                          Number of months
+                        </label>
+                        <select
+                          value={planMonths}
+                          onChange={(e) => setPlanMonths(Number(e.target.value))}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                        >
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+                            <option key={n} value={n}>
+                              {n === 12 ? "12 (whole year)" : n}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-medium text-slate-500 uppercase mb-1.5">
+                          Split each month into
+                        </label>
+                        <select
+                          value={perMonth}
+                          onChange={(e) => handlePerMonthChange(Number(e.target.value))}
+                          className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                        >
+                          <option value={1}>1 payment (no split)</option>
+                          <option value={2}>2 installments</option>
+                          <option value={3}>3 installments</option>
+                          <option value={4}>4 installments</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {perMonth > 1 && (
+                      <div className="mt-4">
+                        <p className="text-xs font-medium text-slate-600 mb-2">
+                          Share of each month's fee in every installment (must add up to 100%)
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          {partPercents.map((pct, i) => (
+                            <div key={i} className="w-28">
+                              <label className="block text-[11px] text-slate-500 mb-1">Part {i + 1}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={pct}
+                                  onChange={(e) => handlePartPercentChange(i, e.target.value)}
+                                  className="w-full border border-slate-200 rounded-lg pl-3 pr-7 py-2 text-sm font-semibold outline-none focus:border-indigo-400"
+                                />
+                                <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400">%</span>
+                              </div>
+                              <p className="mt-1 text-[11px] text-slate-400">
+                                Rs {Math.round((Number(totalFee || 0) * Number(pct || 0)) / 100).toLocaleString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                        {!isTotalValid && (
+                          <p className="mt-2 text-xs text-amber-700">
+                            The parts add up to {partsTotal}%. They must add up to exactly 100%.
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Preview */}
+                    <div className="mt-5 overflow-x-auto rounded-lg border border-slate-200">
+                      <table className="w-full text-xs">
+                        <thead className="bg-slate-50 text-slate-500">
+                          <tr>
+                            <th className="px-3 py-2 text-left font-semibold">#</th>
+                            <th className="px-3 py-2 text-left font-semibold">Month</th>
+                            {perMonth > 1 && <th className="px-3 py-2 text-left font-semibold">Part</th>}
+                            <th className="px-3 py-2 text-right font-semibold">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {customMonths.map((m, i) => (
+                            <tr key={i} className="border-t border-slate-100">
+                              <td className="px-3 py-1.5 text-slate-400">{i + 1}</td>
+                              <td className="px-3 py-1.5 font-medium text-slate-800">{m}</td>
+                              {perMonth > 1 && <td className="px-3 py-1.5 text-slate-500">{(i % perMonth) + 1} of {perMonth}</td>}
+                              <td className="px-3 py-1.5 text-right font-semibold tabular-nums">
+                                Rs {Math.round((Number(totalFee || 0) * Number(customPercentages[i] || 0)) / 100).toLocaleString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="mt-3 text-xs text-slate-500">
+                      Challans are generated one installment at a time from Challan Management, in this order. Each
+                      one is billed for its month.
+                    </p>
+                  </div>
+                )}
+
                 {/* Step 1: fee + count */}
+                {!isMonthly && (
                 <div className="bg-white border border-slate-200 rounded-xl p-5">
               <p className="text-sm font-semibold text-slate-900 mb-0.5">
                 Total fee & number of installments
@@ -668,9 +854,10 @@ const SetupPage = ({ data }) => {
                 </div>
               </div>
             </div>
+                )}
 
             {/* Step 2: distribution */}
-            {count > 1 && (
+            {!isMonthly && count > 1 && (
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -842,7 +1029,7 @@ const SetupPage = ({ data }) => {
             {/* A single "installment" is really just the whole fee paid at
                 once — not a split — but it still needs a Billing Month so
                 challan generation knows which month this challan is for. */}
-            {count === 1 && (
+            {!isMonthly && count === 1 && (
               <div className="bg-white border border-slate-200 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-0.5">
                   <p className="text-sm font-semibold text-slate-900">
@@ -967,10 +1154,10 @@ const MainPage = ({ data }) => {
       placeholder: "All sessions",
     },
     {
-      label: "Department",
+      label: "Class",
       key: "departmentId",
       options: departments,
-      placeholder: "All departments",
+      placeholder: "All classes",
     },
     {
       label: "Program",
@@ -980,10 +1167,10 @@ const MainPage = ({ data }) => {
       disabled: !filters.departmentId,
     },
     {
-      label: "Semester",
+      label: "Section",
       key: "semesterId",
       options: semesters,
-      placeholder: "All semesters",
+      placeholder: "All sections",
       disabled: !filters.programId,
       labelFn: (opt) => opt.name || `Semester ${opt.number}`,
     },

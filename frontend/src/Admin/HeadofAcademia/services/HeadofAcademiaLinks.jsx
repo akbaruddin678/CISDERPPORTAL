@@ -14,7 +14,7 @@ export const HeadofAcademiaLinks = () => {
     },
     {
       title: "Course Catalog",
-      description: "Browse all active courses by department and program.",
+      description: "Browse all active courses by class and program.",
       path: "/academia/course-review", // ✅ Fixed Path! This must match getAdminRoutes
       icon: <BookOpenCheck size={22} strokeWidth={2.5} />,
       color: "text-sky-600",
@@ -32,7 +32,7 @@ export const HeadofAcademiaLinks = () => {
     },
     {
       title: "Approve Marks",
-      description: "Review exam marks approved by department heads, then forward to the VC.",
+      description: "Review exam marks approved by class heads, then forward to the VC.",
       path: "/academia/approve-marks",
       icon: <GraduationCap size={22} strokeWidth={2.5} />,
       color: "text-emerald-600",

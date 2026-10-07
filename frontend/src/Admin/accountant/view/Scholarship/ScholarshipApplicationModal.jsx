@@ -466,7 +466,7 @@ const ScholarshipApplicationModal = ({
 
                       <div className="col-span-2 sm:col-span-1">
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">
-                          Department
+                          Class
                         </label>
                         <select
                           className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-500"
@@ -478,7 +478,7 @@ const ScholarshipApplicationModal = ({
                           }
                           value={formData.filterDepartmentId}
                         >
-                          <option value="">All Departments</option>
+                          <option value="">All Classes</option>
                           {departments.map((d) => (
                             <option key={d.id || d._id} value={d.id || d._id}>
                               {d.name}
@@ -516,7 +516,7 @@ const ScholarshipApplicationModal = ({
 
                       <div className="col-span-2 sm:col-span-1">
                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">
-                          Semester
+                          Section
                         </label>
                         <select
                           className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-500"
@@ -529,7 +529,7 @@ const ScholarshipApplicationModal = ({
                           value={formData.filterSemesterId}
                           disabled={!formData.filterProgramId}
                         >
-                          <option value="">All Semesters</option>
+                          <option value="">All Sections</option>
                           {filteredSemesters.map((s) => (
                             <option key={s.id || s._id} value={s.id || s._id}>
                               Semester {s.number}
@@ -734,7 +734,7 @@ const ScholarshipApplicationModal = ({
                             : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        <Layers size={14} /> All Semesters
+                        <Layers size={14} /> All Sections
                       </button>
                       <button
                         type="button"
@@ -745,7 +745,7 @@ const ScholarshipApplicationModal = ({
                             : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                         }`}
                       >
-                        <ListChecks size={14} /> Selected Semesters
+                        <ListChecks size={14} /> Selected Sections
                       </button>
                     </div>
 
@@ -753,7 +753,7 @@ const ScholarshipApplicationModal = ({
                       <div className="flex flex-wrap gap-2 pt-1">
                         {studentProgramSemesters.length === 0 ? (
                           <p className="text-xs text-slate-400">
-                            No semesters found for this student's program.
+                            No sections found for this student's program.
                           </p>
                         ) : (
                           studentProgramSemesters.map((s) => {
@@ -878,7 +878,7 @@ const ScholarshipApplicationModal = ({
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">
-                        Department
+                        Class
                       </span>
                       <span className="text-xs font-semibold text-slate-700 text-right truncate max-w-[150px]">
                         {deptName}
@@ -894,7 +894,7 @@ const ScholarshipApplicationModal = ({
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">
-                        Semester
+                        Section
                       </span>
                       <span className="text-xs font-semibold text-slate-700 text-right">
                         {semName}

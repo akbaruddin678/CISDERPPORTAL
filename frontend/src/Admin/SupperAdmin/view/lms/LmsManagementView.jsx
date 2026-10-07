@@ -226,14 +226,14 @@ const LmsManagementView = ({
 
         <Box className="px-4 pb-4 flex flex-wrap items-end gap-3">
           <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel id="lms-department-filter-label">Department</InputLabel>
+            <InputLabel id="lms-department-filter-label">Class</InputLabel>
             <Select
               labelId="lms-department-filter-label"
-              label="Department"
+              label="Class"
               value={departmentId}
               onChange={(e) => handleDepartmentChange(e.target.value)}
             >
-              <MenuItem value="">All Departments</MenuItem>
+              <MenuItem value="">All Classes</MenuItem>
               {catalogData.departments.map((d) => (
                 <MenuItem key={d._id} value={d._id}>
                   {d.name}
@@ -260,14 +260,14 @@ const LmsManagementView = ({
           </FormControl>
 
           <FormControl size="small" sx={{ minWidth: 180 }} disabled={!catalogData.semesters.length}>
-            <InputLabel id="lms-semester-filter-label">Semester</InputLabel>
+            <InputLabel id="lms-semester-filter-label">Section</InputLabel>
             <Select
               labelId="lms-semester-filter-label"
-              label="Semester"
+              label="Section"
               value={semesterId}
               onChange={(e) => setSemesterId(e.target.value)}
             >
-              <MenuItem value="">All Semesters</MenuItem>
+              <MenuItem value="">All Sections</MenuItem>
               {catalogData.semesters.map((s) => (
                 <MenuItem key={s._id} value={s._id}>
                   Semester {s.number}

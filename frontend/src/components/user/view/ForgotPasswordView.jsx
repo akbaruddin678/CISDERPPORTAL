@@ -25,9 +25,9 @@ const ForgotPasswordView = ({
   goBackToEmail,
 }) => {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-lime-50 via-white to-sky-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-        <div className="bg-[#1e3a8a] px-8 py-8 text-center">
+        <div className="bg-[#0b2a6b] px-8 py-8 text-center">
           <div className="w-14 h-14 mx-auto mb-3 bg-white rounded-xl flex items-center justify-center shadow-lg">
             <img src={cisdLogo} alt="CISD Logo" className="w-9 h-9 object-contain" />
           </div>
@@ -42,7 +42,7 @@ const ForgotPasswordView = ({
           {step === "email" && (
             <form onSubmit={onSubmitEmail} className="space-y-6">
               <div className="text-center mb-2">
-                <Mail className="mx-auto text-[#1e3a8a] mb-3" size={32} />
+                <Mail className="mx-auto text-[#0b2a6b] mb-3" size={32} />
                 <p className="text-gray-600 text-sm">
                   Enter the email you registered with — we'll send you a
                   6-digit verification code.
@@ -62,15 +62,15 @@ const ForgotPasswordView = ({
                 variant="contained"
                 fullWidth
                 disabled={sendingOtp}
-                className="py-3 text-base font-semibold rounded-xl"
-                style={{ backgroundColor: "#1e3a8a" }}
+                className="py-3 text-base font-bold rounded-full"
+                style={{ backgroundColor: "#0b2a6b" }}
               >
                 {sendingOtp ? "Sending Code..." : "Send Verification Code"}
               </Button>
 
               <Link
                 to="/login"
-                className="flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-[#1e3a8a] mt-2"
+                className="flex items-center justify-center gap-1.5 text-sm text-gray-500 hover:text-[#0b2a6b] mt-2"
               >
                 <ArrowLeft size={14} /> Back to Login
               </Link>
@@ -81,7 +81,7 @@ const ForgotPasswordView = ({
           {step === "otp" && (
             <form onSubmit={onSubmitOtp} className="space-y-6">
               <div className="text-center mb-2">
-                <ShieldCheck className="mx-auto text-[#1e3a8a] mb-3" size={32} />
+                <ShieldCheck className="mx-auto text-[#0b2a6b] mb-3" size={32} />
                 <p className="text-gray-600 text-sm">
                   Enter the 6-digit code sent to{" "}
                   <span className="font-semibold text-gray-800">{email}</span>
@@ -101,8 +101,8 @@ const ForgotPasswordView = ({
                 variant="contained"
                 fullWidth
                 disabled={verifyingOtp}
-                className="py-3 text-base font-semibold rounded-xl"
-                style={{ backgroundColor: "#1e3a8a" }}
+                className="py-3 text-base font-bold rounded-full"
+                style={{ backgroundColor: "#0b2a6b" }}
               >
                 {verifyingOtp ? "Verifying..." : "Verify Code"}
               </Button>
@@ -111,14 +111,14 @@ const ForgotPasswordView = ({
                 <button
                   type="button"
                   onClick={goBackToEmail}
-                  className="flex items-center gap-1.5 text-gray-500 hover:text-[#1e3a8a]"
+                  className="flex items-center gap-1.5 text-gray-500 hover:text-[#0b2a6b]"
                 >
                   <ArrowLeft size={14} /> Change Email
                 </button>
                 <button
                   type="button"
                   onClick={resendOtp}
-                  className="text-[#1e3a8a] font-semibold hover:underline"
+                  className="text-[#0b2a6b] font-semibold hover:underline"
                 >
                   Resend Code
                 </button>
@@ -130,7 +130,7 @@ const ForgotPasswordView = ({
           {step === "reset" && (
             <form onSubmit={onSubmitReset} className="space-y-6">
               <div className="text-center mb-2">
-                <ShieldCheck className="mx-auto text-[#1e3a8a] mb-3" size={32} />
+                <ShieldCheck className="mx-auto text-[#0b2a6b] mb-3" size={32} />
                 <p className="text-gray-600 text-sm">
                   Choose a new password for your account.
                 </p>
@@ -154,8 +154,8 @@ const ForgotPasswordView = ({
                 variant="contained"
                 fullWidth
                 disabled={resettingPassword}
-                className="py-3 text-base font-semibold rounded-xl"
-                style={{ backgroundColor: "#1e3a8a" }}
+                className="py-3 text-base font-bold rounded-full"
+                style={{ backgroundColor: "#0b2a6b" }}
               >
                 {resettingPassword ? "Saving..." : "Reset Password"}
               </Button>
@@ -176,7 +176,7 @@ const ForgotPasswordView = ({
               </p>
               <Link
                 to="/login"
-                className="inline-block w-full py-3 px-4 bg-[#1e3a8a] text-white rounded-xl font-semibold hover:bg-[#1e3a8a]/90 transition-colors"
+                className="inline-block w-full py-3 px-4 bg-[#0b2a6b] text-white rounded-full font-bold hover:bg-[#0b2a6b]/90 transition-colors"
               >
                 Go to Login
               </Link>

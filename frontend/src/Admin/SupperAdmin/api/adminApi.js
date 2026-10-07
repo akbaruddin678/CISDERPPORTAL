@@ -69,6 +69,7 @@ export const {
   useGetAllSemestersQuery,
   useGetSemestersByProgramQuery,
   useCreateSemesterMutation,
+  useCreateSectionForClassMutation,
   useUpdateSemesterMutation,
   useToggleSemesterStatusMutation,
   useDeleteSemesterMutation,

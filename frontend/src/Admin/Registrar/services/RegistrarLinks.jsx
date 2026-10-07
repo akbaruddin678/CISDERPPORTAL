@@ -57,7 +57,7 @@ export const RegistrarLinks = () => {
     {
       title: "Course Withdrawals",
       description:
-        "Read-only register of course withdrawals processed by Heads of Department.",
+        "Read-only register of course withdrawals processed by Heads of Class.",
       path: "/registrar/students/withdrawals",
       icon: <UserMinus size={22} strokeWidth={2.5} />,
       color: "text-rose-600",

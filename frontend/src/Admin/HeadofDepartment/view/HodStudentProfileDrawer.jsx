@@ -298,7 +298,7 @@ const HodStudentProfileDrawer = ({
               {tab === "overview" && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
-                    <StatTile icon={Layers} label="Semester" value={semesterLabel} />
+                    <StatTile icon={Layers} label="Section" value={semesterLabel} />
                     <StatTile icon={CalendarDays} label="Session" value={profile.session?.name} />
                     <StatTile icon={GraduationCap} label="Enrollment" value={titleCase(e.status)} />
                     <StatTile
@@ -309,7 +309,7 @@ const HodStudentProfileDrawer = ({
                   </div>
                   <Card title="Academic placement" icon={Building2}>
                     <Fields>
-                      <Field label="Department" value={profile.department?.name} />
+                      <Field label="Class" value={profile.department?.name} />
                       <Field label="Program" value={profile.program?.name} />
                       <Field label="Registration No." value={profile.studentId} />
                       <Field label="Academic year" value={e.academicYear} />

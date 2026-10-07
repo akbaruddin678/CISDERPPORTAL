@@ -388,7 +388,7 @@ const useStudentFeeController = () => {
         id: recordId,
         semesterId: currentSemesterId,
       }).unwrap();
-      openAlert({ message: "Semester assigned", severity: "success" });
+      openAlert({ message: "Section assigned", severity: "success" });
       refetchFees();
     } catch (err) {
       openAlert({
@@ -513,7 +513,7 @@ const useStudentFeeController = () => {
         if (!semesterId)
           return openAlert({
             message:
-              "Select a Semester from filters (or a single student) first — Tuition/Exam fees are set per semester.",
+              "Select a Section from filters (or a single student) first — Tuition/Exam fees are set per section.",
             severity: "warning",
           });
 

@@ -332,7 +332,7 @@ export const login = async (req, res) => {
         // ✅ NEW: Send the department ID to the frontend
         departmentId: staffProfile ? staffProfile.departmentId : null,
         campusId: user.campusId || null,
-        campusAccess: user.roles.includes("admin") || user.roles.includes("headofaccount") ? "all" : "assigned",
+        campusAccess: user.roles.includes("admin") || user.roles.includes("headofaccount") || user.allCampuses ? "all" : "assigned",
         campus: campus ? {
           id: campus._id,
           name: campus.name,
@@ -623,7 +623,7 @@ export const updateUser = async (req, res) => {
       return res.status(403).json({ error: "Forbidden" });
 
     // Extract fields
-    const { email, name, password, confirmPassword, currentPassword, status, role, campusId } =
+    const { email, name, password, confirmPassword, currentPassword, status, role, campusId, allCampuses } =
       req.body;
 
     const user = await User.findById(id);
@@ -669,7 +669,14 @@ export const updateUser = async (req, res) => {
       if (campusId && !(await School.exists({ _id: campusId, isActive: true }))) return res.status(400).json({ error: "School not found or inactive" });
       user.campusId = campusId || null;
     }
-    if (user.roles.some((value) => ["accountant", "admission"].includes(value)) && !user.campusId) {
+    if (allCampuses !== undefined) {
+      if (!req.user.roles.includes("admin")) return res.status(403).json({ error: "Only admins can assign campus access" });
+      user.allCampuses = allCampuses === true || allCampuses === "true";
+    }
+    // "All campuses" only applies to Accountant / Admission logins and replaces the single-campus assignment.
+    if (!user.roles.some((value) => ["accountant", "admission"].includes(value))) user.allCampuses = false;
+    if (user.allCampuses) user.campusId = null;
+    if (user.roles.some((value) => ["accountant", "admission"].includes(value)) && !user.campusId && !user.allCampuses) {
       return res.status(400).json({ error: "A school must be assigned to account and admission users" });
     }
 
@@ -745,6 +752,7 @@ export const updateUser = async (req, res) => {
         roles: user.roles,
         status: user.status,
         campusId: user.campusId,
+        allCampuses: user.allCampuses === true,
       },
       person: person ? { name: person.name } : null,
     });
@@ -789,6 +797,7 @@ export const deleteUser = async (req, res) => {
 export const createUserByAdmin = async (req, res) => {
   try {
     const { name, email, password, confirmPassword, role, campusId } = req.body;
+    const wantsAllCampuses = ["accountant", "admission"].includes(role) && (req.body.allCampuses === true || req.body.allCampuses === "true");
 
     if (!name || !email || !password || !confirmPassword || !role) {
       return res
@@ -804,7 +813,7 @@ export const createUserByAdmin = async (req, res) => {
     }
 
     const campusRequiredRoles = ["accountant", "admission"];
-    if (campusRequiredRoles.includes(role) && !campusId) {
+    if (campusRequiredRoles.includes(role) && !campusId && !wantsAllCampuses) {
       return res.status(400).json({ error: "A school must be assigned to account and admission users" });
     }
     if (campusId && (!mongoose.isValidObjectId(campusId) || !(await School.exists({ _id: campusId, isActive: true })))) {
@@ -826,7 +835,8 @@ export const createUserByAdmin = async (req, res) => {
       roles: [role],
       status: "active",
       emailVerified: true,
-      campusId: role === "headofaccount" ? null : (campusId || null),
+      campusId: role === "headofaccount" || wantsAllCampuses ? null : (campusId || null),
+      allCampuses: wantsAllCampuses,
     });
 
     await Person.create({ userId: user._id, name: name.trim() });
@@ -834,7 +844,7 @@ export const createUserByAdmin = async (req, res) => {
     res.status(201).json({
       success: true,
       message: `User created successfully with role: ${role}`,
-      user: { id: user._id, email: user.email, roles: user.roles, campusId: user.campusId },
+      user: { id: user._id, email: user.email, roles: user.roles, campusId: user.campusId, allCampuses: user.allCampuses === true },
     });
   } catch (err) {
     console.error("Admin Create User Error:", err);
@@ -925,6 +935,7 @@ export const getUsersByRoles = async (req, res) => {
           status: user.status,
           emailVerified: user.emailVerified,
           campusId: user.campusId || null,
+          allCampuses: user.allCampuses === true,
         },
         person: { name: finalName }, 
       };

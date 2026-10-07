@@ -86,11 +86,8 @@ export const getLatestChallan = asyncHandler(async (req, res) => {
     createdAt: admissionChallan.createdAt,
     updatedAt: admissionChallan.updatedAt,
 
-    // 1BILL / EZPAY
-    ezPayBillId: admissionChallan.ezPayBillId,
     paymentReference: admissionChallan.paymentReference,
-    transactionRef:
-      admissionChallan.transactionRef || admissionChallan.ezPayTranId || null,
+    transactionRef: admissionChallan.transactionRef || null,
 
     programId: admissionChallan.programId,
     departmentId: admissionChallan.departmentId,

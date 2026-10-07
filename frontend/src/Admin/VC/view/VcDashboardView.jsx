@@ -221,7 +221,7 @@ const VcDashboardView = (c) => {
           <KpiTile label="Active Students" value={university.totalActiveStudents.toLocaleString()} icon={Users} tone="indigo" loading={isLoading} />
           <KpiTile label="Graduated" value={university.totalGraduatedStudents.toLocaleString()} icon={GraduationCap} tone="emerald" loading={isLoading} />
           <KpiTile label="Staff" value={university.totalStaff.toLocaleString()} icon={Briefcase} tone="sky" loading={isLoading} />
-          <KpiTile label="Departments" value={university.totalDepartments.toLocaleString()} icon={Building2} tone="slate" loading={isLoading} />
+          <KpiTile label="Classes" value={university.totalDepartments.toLocaleString()} icon={Building2} tone="slate" loading={isLoading} />
           <KpiTile label="Active Programs" value={university.totalPrograms.toLocaleString()} icon={BookOpen} tone="amber" loading={isLoading} />
         </div>
 
@@ -337,7 +337,7 @@ const VcDashboardView = (c) => {
                   <thead className="bg-slate-50/80 text-[10px] uppercase tracking-wider text-slate-500">
                     <tr>
                       <th className="px-4 py-3 text-left font-extrabold">Applicant</th>
-                      <th className="hidden px-4 py-3 text-left font-extrabold md:table-cell">Department / Program</th>
+                      <th className="hidden px-4 py-3 text-left font-extrabold md:table-cell">Class / Program</th>
                       <th className="hidden px-4 py-3 text-left font-extrabold sm:table-cell">Applied</th>
                       <th className="px-4 py-3 text-left font-extrabold">Status</th>
                     </tr>
@@ -383,9 +383,9 @@ const VcDashboardView = (c) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5">
             <div>
-              <p className="text-xs font-bold text-slate-500 mb-2">Collected vs Pending by Department</p>
+              <p className="text-xs font-bold text-slate-500 mb-2">Collected vs Pending by Class</p>
               {feeDepartmentData.length === 0 ? (
-                <EmptyState icon={Building2} title="No department data yet" hint="Fee collection will appear here once challans are billed." />
+                <EmptyState icon={Building2} title="No class data yet" hint="Fee collection will appear here once challans are billed." />
               ) : (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={feeDepartmentData} margin={{ top: 10, right: 10, left: 0, bottom: 30 }}>
@@ -454,7 +454,7 @@ const VcDashboardView = (c) => {
         </SectionCard>
 
         {/* Students by department */}
-        <SectionCard title="Active Students by Department" icon={Building2}>
+        <SectionCard title="Active Students by Class" icon={Building2}>
           {studentsByDepartment.length === 0 ? (
             <EmptyState icon={Users} title="No student data yet" />
           ) : (

@@ -5,6 +5,11 @@ import getAdminRoutes from "../../../Admin/SupperAdmin/routes/adminRoutes";
 // ✅ 1. Convert all static imports to Lazy Imports
 const LoginContainer = lazy(() => import("../../../components/user/container/LoginContainer"));
 const HomeMianContainer = lazy(() => import("../../../components/Home/container/HomeMianContainer"));
+const AboutPage = lazy(() => import("../../../components/LandingPage/About"));
+const AdmissionsPage = lazy(() => import("../../../components/LandingPage/Admissions"));
+const ContactPage = lazy(() => import("../../../components/LandingPage/Contact"));
+const ProgramsPage = lazy(() => import("../../../components/LandingPage/Programs"));
+const CampusesPage = lazy(() => import("../../../components/LandingPage/CampusLife"));
 const UniversityLanding = lazy(() => import("../../../components/LandingPage/LandingPage"));
 const ProfileContainer = lazy(() => import("../../../components/profile/container/ProfileContainer"));
 const UserAdmissionContainer = lazy(() => import("../../../components/user-admission/container/UserAdmissionContainer"));
@@ -59,6 +64,11 @@ const AllRoutes = [
     element: UniversityLanding,
     isProtected: false,
   },
+  { path: "/about", element: AboutPage, publicRoute: true },
+  { path: "/admissions", element: AdmissionsPage, publicRoute: true },
+  { path: "/contact", element: ContactPage, publicRoute: true },
+  { path: "/programs", element: ProgramsPage, publicRoute: true },
+  { path: "/campuses", element: CampusesPage, publicRoute: true },
   {
     path: "/home", 
     element: HomeMianContainer,

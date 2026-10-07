@@ -157,7 +157,7 @@ const EditSectionDialog = ({
           <Grid container spacing={2.5}>
             {[
               {
-                label: "Department",
+                label: "Class",
                 key: "departmentId",
                 items: catalogData?.departments,
                 renderItem: (d) => d.name,
@@ -179,10 +179,10 @@ const EditSectionDialog = ({
                 },
               },
               {
-                label: "Semester",
+                label: "Section",
                 key: "semesterId",
                 items: filteredSemesters,
-                renderItem: (s) => `Semester ${s.number}`,
+                renderItem: (s) => s.name || `Section ${s.number}`,
                 disabled: !formData.programId,
                 onChange: (v) => handleChange("semesterId", v),
               },
@@ -1383,17 +1383,16 @@ const StudentDetailsView = ({
                   icon={FaGraduationCap}
                 />
                 <InfoRow
-                  label="Department"
+                  label="Class"
                   value={student.department?.name}
                   icon={FaUniversity}
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <InfoRow
-                    label="Semester"
+                    label="Section"
                     value={
-                      student.semester?.number
-                        ? `Semester ${student.semester.number}`
-                        : "N/A"
+                      student.semester?.name ||
+                      (student.semester?.number ? `Section ${student.semester.number}` : "N/A")
                     }
                     icon={FaBook}
                   />

@@ -125,7 +125,7 @@ export const FeeAnalyticsView = ({
         <thead className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm shadow-sm">
           <tr>
             <th className="px-3 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100">
-              Department
+              Class
             </th>
             <th className="px-3 py-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-100 text-right">
               Expected
@@ -339,7 +339,7 @@ export const FeeAnalyticsView = ({
                 <div className="flex flex-col gap-1 mt-1 pt-2 border-t border-slate-50">
                   {!isAllDepts && (
                     <div className="flex justify-between gap-4">
-                      <span className="text-slate-400 font-medium">Department:</span>
+                      <span className="text-slate-400 font-medium">Class:</span>
                       <span className="font-semibold text-slate-600 text-right truncate max-w-[120px]">{getSelectedDepartmentName()}</span>
                     </div>
                   )}
@@ -558,7 +558,7 @@ export const FeeAnalyticsView = ({
             onChange={(e) => handleFilterChange("departmentId", e.target.value)}
             className="shrink-0 px-2 py-1 bg-white border border-slate-200 hover:border-slate-300 rounded text-[11px] font-bold text-slate-700 outline-none focus:border-indigo-500 transition-all shadow-sm max-w-[140px] truncate"
           >
-            <option value="ALL">All Departments</option>
+            <option value="ALL">All Classes</option>
             {departments.map((d) => (
               <option key={d._id || d.code} value={d._id || d.code}>
                 {d.name || d.code}
@@ -597,7 +597,7 @@ export const FeeAnalyticsView = ({
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}
             className="shrink-0 px-2 py-1 bg-white border border-slate-200 hover:border-slate-300 rounded text-[11px] font-bold text-slate-700 outline-none focus:border-indigo-500 transition-all shadow-sm max-w-[120px] truncate"
           >
-            <option value="ALL">All Semesters</option>
+            <option value="ALL">All Sections</option>
             {filteredSemesters.map((s) => (
               <option key={s._id || s.number} value={s._id || s.number}>
                 Semester {s.number}
@@ -678,7 +678,7 @@ export const FeeAnalyticsView = ({
             </DashboardCard>
             <DashboardCard
               id="semesterChart"
-              title="Collections by Semester"
+              title="Collections by Section"
               className="lg:col-span-1"
             >
               {renderSemesterChart()}
@@ -696,7 +696,7 @@ export const FeeAnalyticsView = ({
             </DashboardCard>
             <DashboardCard
               id="deptBar"
-              title="Collections by Department"
+              title="Collections by Class"
               className="lg:col-span-2"
             >
               {renderDepartmentBar()}

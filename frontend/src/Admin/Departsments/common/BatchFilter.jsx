@@ -119,7 +119,7 @@ const BatchFilter = ({
             select
             fullWidth
             size="small"
-            label="Department"
+            label="Class"
             disabled={!filters.termId}
             value={filters.departmentId || ""}
             onChange={(e) => onFilterChange("departmentId", e.target.value)}
@@ -140,7 +140,7 @@ const BatchFilter = ({
             }}
           >
             <MenuItem value="">
-              <em>All Departments</em>
+              <em>All Classes</em>
             </MenuItem>
             {departments.map((d) => (
               <MenuItem key={d._id} value={d._id}>
@@ -193,7 +193,7 @@ const BatchFilter = ({
             select
             fullWidth
             size="small"
-            label="Semester"
+            label="Section"
             disabled={!filters.programId}
             value={filters.semesterId || ""}
             onChange={(e) => onFilterChange("semesterId", e.target.value)}
@@ -214,7 +214,7 @@ const BatchFilter = ({
             }}
           >
             <MenuItem value="" disabled>
-              <em>Select Semester</em>
+              <em>Select Section</em>
             </MenuItem>
             {semesters.map((s) => (
               <MenuItem key={s._id} value={s._id}>

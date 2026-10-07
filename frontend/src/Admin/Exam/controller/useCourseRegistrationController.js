@@ -66,7 +66,7 @@ const useCourseRegistrationController = () => {
       !singleForm.owningDepartmentId
     ) {
       return openAlert({
-        message: "Title, Code, and Department are required.",
+        message: "Title, Code, and Class are required.",
         severity: "warning",
       });
     }

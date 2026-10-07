@@ -126,7 +126,7 @@ const AdmitCardView = ({
           Admit Cards
         </Typography>
         <Typography variant="body2" color="#64748b" mt={0.25} fontFamily="'Montserrat', sans-serif">
-          Generate and print official exam admit cards — a student's current-semester fee is checked before issuing.
+          Generate and print official exam admit cards — a student's current-section fee is checked before issuing.
         </Typography>
       </Box>
 
@@ -145,7 +145,7 @@ const AdmitCardView = ({
             {terms.map((t) => (<MenuItem key={t._id} value={t._id} sx={{ fontSize: 13 }}>{t.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="2. Department"
+            select fullWidth size="small" label="2. Class"
             value={filters.departmentId}
             onChange={(e) => handleFilterChange("departmentId", e.target.value)}
             sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
@@ -162,7 +162,7 @@ const AdmitCardView = ({
             {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
           <TextField
-            select fullWidth size="small" label="4. Semester"
+            select fullWidth size="small" label="4. Section"
             disabled={!filters.programId}
             value={filters.semesterId}
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}
@@ -190,7 +190,7 @@ const AdmitCardView = ({
             Complete the batch configuration above
           </Typography>
           <Typography fontSize={13} color="#94a3b8" mt={0.5}>
-            Session, Department, Program, Semester, and Exam Round are all required.
+            Session, Class, Program, Section, and Exam Round are all required.
           </Typography>
         </Paper>
       ) : (
@@ -440,7 +440,7 @@ const AdmitCardView = ({
             <Divider />
             <DialogContent sx={{ py: 2.5 }}>
               <Typography fontSize={13} color="#334155" mb={1.5}>
-                The fee for the current semester has <strong>not been paid</strong> (or not yet generated) for{" "}
+                The fee for the current section has <strong>not been paid</strong> (or not yet generated) for{" "}
                 {allSkipped.length === 1 ? "this student" : `these ${allSkipped.length} students`}. Generate the admit card anyway? A warning will be printed on the card.
               </Typography>
               <Box sx={{ maxHeight: 220, overflowY: "auto", border: "0.5px solid #e2e8f0", borderRadius: 2 }}>

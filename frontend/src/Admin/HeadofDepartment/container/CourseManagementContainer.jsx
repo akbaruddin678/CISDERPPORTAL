@@ -53,7 +53,7 @@ const HodCourseManagementContainer = () => {
             Access Denied
           </Typography>
           <Typography color="text.secondary">
-            You must have the "HOD" role to view your department's courses.
+            You must have the "HOD" role to view your class's courses.
           </Typography>
         </Paper>
       </Box>
@@ -72,11 +72,11 @@ const HodCourseManagementContainer = () => {
             style={{ margin: "0 auto 16px" }}
           />
           <Typography variant="h5" fontWeight="bold" gutterBottom>
-            Missing Department ID
+            Missing Class ID
           </Typography>
           <Typography color="text.secondary">
-            Your profile is not linked to a specific department. Please contact
-            HR to link your HOD account to a department.
+            Your profile is not linked to a specific class. Please contact
+            HR to link your HOD account to a class.
           </Typography>
         </Paper>
       </Box>

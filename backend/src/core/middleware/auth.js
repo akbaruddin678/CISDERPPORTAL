@@ -49,12 +49,12 @@ export async function protect(req, res, next) {
 
     req.user = user;
     const campusBoundRole = user.roles?.some((role) => ["accountant", "admission"].includes(role));
-    if (campusBoundRole && !user.campusId) {
+    if (campusBoundRole && !user.campusId && !user.allCampuses) {
       return res.status(403).json({ error: "This account has not been assigned to a CISD campus. Contact the administrator." });
     }
     req.campus = enterCampusContext(user, req.headers["x-campus-id"]);
     const isCampusWrite = req.method !== "GET" && (/^\/api\/account\//.test(req.originalUrl) || /^\/api\/admissions\//.test(req.originalUrl));
-    if (isCampusWrite && user.roles?.includes("headofaccount") && req.campus.allCampuses) {
+    if (isCampusWrite && (user.roles?.includes("headofaccount") || user.allCampuses) && !user.roles?.includes("admin") && req.campus.allCampuses) {
       return res.status(400).json({ error: "Select a specific campus before creating or changing campus records." });
     }
     next();

@@ -690,7 +690,7 @@ const ReportGenerationView = ({
             >
               <option value="program">Program Wise</option>
               <option value="session">Session Wise</option>
-              <option value="department">Department Wise</option>
+              <option value="department">Class Wise</option>
             </select>
 
             <MultiSelectDropdown

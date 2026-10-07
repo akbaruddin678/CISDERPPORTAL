@@ -91,10 +91,10 @@ const ChallanGenerationRequestView = ({
 
           {/* 2. DEPARTMENT */}
           <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Department</InputLabel>
+            <InputLabel>Class</InputLabel>
             <Select
               value={filters.departmentId}
-              label="Department"
+              label="Class"
               onChange={(e) =>
                 handleFilterChange("departmentId", e.target.value)
               }
@@ -134,10 +134,10 @@ const ChallanGenerationRequestView = ({
 
           {/* 4. SEMESTER (Filtered by Program & Sorted) */}
           <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Semester</InputLabel>
+            <InputLabel>Section</InputLabel>
             <Select
               value={filters.semesterId}
-              label="Semester"
+              label="Section"
               onChange={(e) => handleFilterChange("semesterId", e.target.value)}
               disabled={!filters.programId}
             >

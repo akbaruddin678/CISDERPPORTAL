@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { campusScopedPlugin } from "../../core/middleware/campusContext.js";
+import { campusScopedPlugin, getCampusContext } from "../../core/middleware/campusContext.js";
+import { getLateFineAmount } from "../services/fineSetting.service.js";
 
 const StudentChallanSchema = new mongoose.Schema(
   {
@@ -38,6 +39,10 @@ const StudentChallanSchema = new mongoose.Schema(
     discountAmount: { type: Number, default: 0, min: 0 },
     discountReason: { type: String },
     fineAmount: { type: Number, default: 0, min: 0 },
+    // Fine charged once the due date passes, snapshotted from the Late Fine
+    // setting when the challan is created (0 = no fine). Printed on the
+    // challan as "Payable after due date".
+    lateFeeAmount: { type: Number, min: 0 },
 
     // Arrears is now just a static number if you ever want to add it manually,
     // but logic won't auto-calculate it from previous challans anymore.
@@ -84,11 +89,7 @@ const StudentChallanSchema = new mongoose.Schema(
     // declared here, so it was silently dropped on every save.
     billingMonth: { type: String, default: null },
 
-    //Expay data
     paymentReference: { type: String },
-    ezPayBillId: { type: String },
-    ezPayTranId: { type: String },
-    isSyncedToEzPay: { type: Boolean, default: false },
     syncedAt: { type: Date },
 
     isDeleted: { type: Boolean, default: false },
@@ -135,7 +136,14 @@ StudentChallanSchema.methods.recalculateTotals = function () {
   }
 };
 
-StudentChallanSchema.pre("save", function (next) {
+StudentChallanSchema.pre("save", async function (next) {
+  if (this.isNew && (this.lateFeeAmount === undefined || this.lateFeeAmount === null)) {
+    try {
+      this.lateFeeAmount = await getLateFineAmount(this.campusId || getCampusContext().campusId || null);
+    } catch (err) {
+      return next(err);
+    }
+  }
   this.recalculateTotals();
   // Stashed here (mongoose's documented scratch space for passing data
   // between pre/post hooks on the same operation) since by the time the

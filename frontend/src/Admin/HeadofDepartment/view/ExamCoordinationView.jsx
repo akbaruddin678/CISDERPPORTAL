@@ -68,7 +68,7 @@ const ExamCoordinationView = ({
             Exam Coordination
           </Typography>
           <Typography variant="body2" color="#64748b" mt={0.25}>
-            Published exam schedule for your department — read-only visibility into what Exam-Cell has scheduled.
+            Published exam schedule for your class — read-only visibility into what Exam-Cell has scheduled.
           </Typography>
         </Box>
         {totalExams > 0 && (

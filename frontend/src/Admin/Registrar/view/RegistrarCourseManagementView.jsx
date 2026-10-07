@@ -356,7 +356,7 @@ const printCourses = (courses, title) => {
   <div class="header"><h1>${title}</h1><p>Printed: ${new Date().toLocaleString()}</p></div>
   <div class="accent"></div>
   <table>
-    <thead><tr><th>#</th><th>Course</th><th>Department</th><th>Level</th><th>Credits</th><th>Status</th><th>Content Preview</th></tr></thead>
+    <thead><tr><th>#</th><th>Course</th><th>Class</th><th>Level</th><th>Credits</th><th>Status</th><th>Content Preview</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>
   <div class="footer">ZABTEC EMS — University Course Catalog</div>
@@ -395,7 +395,7 @@ const printSingleCourse = (course) => {
     <div class="code">${course.code || "Code Not Yet Assigned"}</div>
   </div>
   <div class="meta-grid">
-    <div class="meta-item"><div class="meta-label">Department</div><div class="meta-value">${course.owningDepartmentId?.name || "N/A"}</div></div>
+    <div class="meta-item"><div class="meta-label">Class</div><div class="meta-value">${course.owningDepartmentId?.name || "N/A"}</div></div>
     <div class="meta-item"><div class="meta-label">Level</div><div class="meta-value">${course.level || "UG"}</div></div>
     <div class="meta-item"><div class="meta-label">Credits</div><div class="meta-value">${course.creditHours?.theory ?? 0} Theory + ${course.creditHours?.lab ?? 0} Lab</div></div>
     <div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">${STATUS_CONFIG[course.status]?.label || course.status}</div></div>
@@ -920,7 +920,7 @@ const RegistrarCourseManagementView = ({
             }}
           >
             <MenuItem value="" sx={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13 }}>
-              All Departments
+              All Classes
             </MenuItem>
             {departments.map((d) => (
               <MenuItem key={d._id} value={d._id} sx={{ fontFamily: "'Montserrat', sans-serif", fontSize: 13 }}>

@@ -366,7 +366,7 @@ export const useCOISFeeSetup = () => {
       if (semesterScoped && !semesterId) {
         return openAlert({
           message:
-            "This student has no Part/Semester on record — cannot set a Tuition/Exam fee.",
+            "This student has no Part/Section on record — cannot set a Tuition/Exam fee.",
           severity: "warning",
         });
       }

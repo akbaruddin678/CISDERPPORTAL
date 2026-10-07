@@ -28,7 +28,7 @@ router.post(
 );
 router.post(
   "/bulk-move",
-  requireRole("admin", "registrar", "hod", "manager", "exam"),
+  requireRole("admin", "registrar", "hod", "manager", "exam", "admission"),
   bulkSemesterPromotion,
 );
 

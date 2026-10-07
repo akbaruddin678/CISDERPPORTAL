@@ -43,7 +43,6 @@ import installmentRoutes from "./accountant/routes/installment.routes.js";
 import fineRoutes from "./accountant/routes/fine.routes.js";
 import accountStudentRoutes from "./accountant/routes/student.routes.js";
 import singlestudenttChallanRoutes from "./accountant/routes/singlestudentChallan.routes.js";
-import webhookRoutes from "./accountant/routes/webhook.routes.js";
 import studentFeeRoutes from "./accountant/routes/studentFee.routes.js";
 //Transport Management
 import transportroutes  from "./transport/routes/transportRoutes.js"
@@ -162,6 +161,9 @@ app.use(
   (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*"); 
     res.header("Access-Control-Allow-Methods", "GET");
+    // helmet() defaults this to "same-origin", which makes the browser block
+    // <img> loads of uploads (school logos) from the frontend's domain.
+    res.header("Cross-Origin-Resource-Policy", "cross-origin");
     next();
   },
   express.static(path.resolve("uploads"))
@@ -219,7 +221,6 @@ app.use("/api/transport", transportroutes)
 
 
 
-app.use("/api/webhooks", webhookRoutes);
 
 
 // --- Course Module Routing ---

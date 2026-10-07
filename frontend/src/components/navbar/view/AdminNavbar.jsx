@@ -65,49 +65,7 @@ const AdminNavbar = () => {
 
   return (
     <>
-      <nav className="bg-gradient-to-r from-[#616161] to-[#757575] shadow-xl sticky top-0 z-50 border-b border-gray-300">
-        {/* Top Info Bar */}
-        <div className="bg-[#424242] text-white py-1">
-          {/* changed max-w-7xl to w-full with wider padding */}
-          <div className="w-full mx-auto px-4 sm:px-8 lg:px-12">
-            <div className="flex justify-between items-center text-xs">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>
-                    {new Date().toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <span className="text-yellow-300 font-semibold">
-                  ⚡ Live System
-                </span>
-                <div className="hidden lg:flex items-center space-x-2">
-                  <span>🔒 Secure Admin Portal</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <nav className="cisd-admin-nav bg-white/95 backdrop-blur shadow-sm sticky top-0 z-50 border-b border-slate-100 border-t-4 border-t-[#7ab317]">
         {/* Main Navigation */}
         {/* changed max-w-7xl to w-full with wider padding */}
         <div className="w-full mx-auto px-4 sm:px-8 lg:px-12 py-2">
@@ -120,13 +78,13 @@ const AdminNavbar = () => {
               <img
                 src={logoSrc}
                 alt={`${activeSchool?.name || "CISD"} logo`}
-                className="h-16 w-16 rounded-full object-cover border-2 border-white/20 shadow-lg group-hover:scale-105 transition-transform"
+                className="h-12 w-auto max-w-[8rem] object-contain group-hover:scale-105 transition-transform"
               />
               <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-white">
+                <h1 className="text-lg font-extrabold leading-tight text-[#0b2a6b]">
                   {activeSchool?.name || "CISD"}
                 </h1>
-                <p className="text-gray-200 text-sm">
+                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">
                   Admin Portal
                 </p>
               </div>
@@ -136,9 +94,9 @@ const AdminNavbar = () => {
             <div className="flex items-center space-x-4">
               {showsCampus && (
                 canSwitchCampus ? (
-                  <label className="hidden md:flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-white">
+                  <label className="hidden md:flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 text-slate-700">
                     <span className="text-xs font-semibold">Campus</span>
-                    <select value={activeCampusId} onChange={handleCampusChange} className="max-w-52 rounded-md border-0 bg-white px-2 py-1 text-sm font-semibold text-slate-800">
+                    <select value={activeCampusId} onChange={handleCampusChange} className="max-w-52 rounded-md border border-slate-200 bg-white px-2 py-1 text-sm font-semibold text-slate-800">
                       <option value="all">All campuses</option>
                       {schools.filter((school) => school.isActive).map((school) => (
                         <option key={school.id} value={school.id}>{school.name}</option>
@@ -146,7 +104,7 @@ const AdminNavbar = () => {
                     </select>
                   </label>
                 ) : (
-                  <div className="hidden md:flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white">
+                  <div className="hidden md:flex items-center gap-2 rounded-full bg-slate-100 px-4 py-1.5 text-sm font-semibold text-slate-700">
                     <span>Campus:</span><span>{activeSchool?.name || "Not assigned"}</span>
                   </div>
                 )
@@ -156,18 +114,18 @@ const AdminNavbar = () => {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="hidden lg:flex items-center space-x-3 text-white hover:bg-white/10 rounded-lg px-3 py-2 transition-all duration-200 text-left focus:outline-none"
+                    className="hidden lg:flex items-center space-x-3 text-slate-800 hover:bg-slate-100 rounded-full px-3 py-1.5 transition-all duration-200 text-left focus:outline-none"
                   >
                     <div className="text-right">
                       <p className="text-sm font-semibold">
                         {userData.name || "Admin User"}
                       </p>
-                      <p className="text-xs text-gray-200 capitalize">
+                      <p className="text-xs text-slate-500 capitalize">
                         {userData.roles?.[0]?.replace("_", " ") ||
                           "Administrator"}
                       </p>
                     </div>
-                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30">
+                    <div className="w-10 h-10 bg-[#0b2a6b] rounded-full flex items-center justify-center">
                       <span className="text-white font-semibold text-sm">
                         {userData.name?.charAt(0)?.toUpperCase() || "A"}
                       </span>
@@ -226,7 +184,7 @@ const AdminNavbar = () => {
 
               {/* Mobile Menu Button */}
               <div className="md:hidden">
-                <button className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors">
+                <button className="text-[#0b2a6b] p-2 hover:bg-slate-100 rounded-lg transition-colors">
                   <svg
                     className="w-6 h-6"
                     fill="none"

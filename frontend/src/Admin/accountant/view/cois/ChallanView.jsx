@@ -59,7 +59,7 @@ const ChallanView = () => {
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">
-              Semester / Part
+              Section / Part
             </label>
             <select
               required
@@ -68,7 +68,7 @@ const ChallanView = () => {
                 setFormData({ ...formData, semesterId: e.target.value })
               }
             >
-              <option value="">Select Semester</option>
+              <option value="">Select Section</option>
               {semesters?.data?.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.name || s.semesterName}

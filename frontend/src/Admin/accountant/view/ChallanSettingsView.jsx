@@ -68,12 +68,12 @@ const ChallanSettingsView = (props) => {
     });
 
   const TABS = [
-    { label: "Tuition (Semester)", icon: BookOpen },
+    { label: "Tuition (Section)", icon: BookOpen },
     { label: "Admission (Fresh)", icon: UserPlus },
     { label: "Re-Admission", icon: RefreshCw },
     { label: "Exam Fee", icon: FileText },
     { label: "General / Misc", icon: LayoutGrid },
-    { label: "Basic Fee (Semester)", icon: Wallet },
+    { label: "Basic Fee (Section)", icon: Wallet },
   ];
 
   // Tuition, Exam and Basic are all set up per-semester (one distinct row
@@ -186,7 +186,7 @@ const ChallanSettingsView = (props) => {
                     }}
                     className="w-full pl-4 pr-10 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl appearance-none outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400 shadow-sm transition-all"
                   >
-                    <option value="">All Departments</option>
+                    <option value="">All Classes</option>
                     {departmentOptions.map((opt) => (
                       <option key={opt.value} value={opt.value}>
                         {opt.label}

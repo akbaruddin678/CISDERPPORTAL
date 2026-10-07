@@ -428,7 +428,7 @@ const AdminDashboard = () => {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography variant="body2">
-                      <strong>Departments:</strong> {viewSurvey.departments?.join(', ') || 'All'}
+                      <strong>Classes:</strong> {viewSurvey.departments?.join(', ') || 'All'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>

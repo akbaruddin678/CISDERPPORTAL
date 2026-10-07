@@ -133,7 +133,7 @@ const PersonalInfoForm = ({ control, errors, watch, setValue, getValues }) => {
             control={control}
             label={
               <>
-                Select Department <span className="text-red-500">*</span>
+                Select Class <span className="text-red-500">*</span>
               </>
             }
             options={departmentOptions}

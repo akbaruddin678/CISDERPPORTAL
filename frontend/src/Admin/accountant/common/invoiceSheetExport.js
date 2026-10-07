@@ -9,14 +9,14 @@
 // msc_1 | msc_2 | msc_3 | msc_4
 //
 // Field conventions (amount split, description, misc_1/2) mirror the
-// existing single-invoice sync in ezPay.service.js so a record generated
+// existing single-invoice numbering so a record generated
 // here and one synced automatically look the same to the gateway.
 //
 // `due_date` is per-row: each challan's own already-stored due date, not a
 // single date picked for the whole batch.
 //
 // Invoice Number = a fixed 6-digit prefix + the challan's own
-// `paymentReference` (a 10-digit string set once EzPay sync assigns one —
+// `paymentReference` (a 10-digit string assigned when the challan is generated —
 // e.g. paymentReference "1024203396" -> Invoice Number "1013401024203396").
 // `paymentReference` isn't set until a challan has actually been synced, so
 // any selected challan without one yet is left out of the sheet entirely

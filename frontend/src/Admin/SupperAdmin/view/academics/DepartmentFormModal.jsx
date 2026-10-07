@@ -45,7 +45,7 @@ export const DepartmentFormModal = ({
             <Grid item xs={12}>
               <InputField
                 name="name"
-                label="Department Name"
+                label="Class Name"
                 control={control}
                 errors={errors}
                 placeholder="e.g. Department of Computer Science"
@@ -54,7 +54,7 @@ export const DepartmentFormModal = ({
             <Grid item xs={12}>
               <InputField
                 name="code"
-                label="Department Code"
+                label="Class Code"
                 control={control}
                 errors={errors}
                 placeholder="e.g. CS"

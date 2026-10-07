@@ -448,7 +448,7 @@ const useStudentCourseRegistrationController = () => {
         ),
       );
       openAlert({
-        message: "Courses added to semester successfully!",
+        message: "Courses added to section successfully!",
         severity: "success",
       });
       setIsAssignCourseDrawerOpen(false);

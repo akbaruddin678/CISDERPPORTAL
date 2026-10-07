@@ -39,10 +39,10 @@ export const getAdminLinks = () => {
     },
     {
       id: 2,
-      title: "Academic Structure",
-      subtitle: "Departments & Programs",
+      title: "Academic Management",
+      subtitle: "Classes & Sections",
       path: "/admin/academics",
-      description: "Configure departments, faculties, and program structures.",
+      description: "Manage classes and their sections.",
       icon: Building2,
       accent: "#7c3aed",
       bg: "#f5f3ff",
@@ -51,7 +51,7 @@ export const getAdminLinks = () => {
     {
       id: 3,
       title: "Session Management",
-      subtitle: "Terms & Semesters",
+      subtitle: "Terms & Sections",
       path: "/admin/sessions",
       description:
         "Create and manage academic sessions, terms, and timeline windows.",

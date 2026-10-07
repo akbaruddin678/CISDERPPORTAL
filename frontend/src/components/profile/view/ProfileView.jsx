@@ -86,7 +86,6 @@ const ProfileView = ({
 
     const baseUrl = window.location.origin; // Needed for the stamp/sign images
     const logoUrl = baseUrl + "/cisd-logo.png";
-    const oneBillLogoUrl = "/logo1bill.PNG";
 
     const formatDateChallan = (d) =>
       d ? new Date(d).toLocaleDateString("en-GB") : "N/A";
@@ -96,8 +95,7 @@ const ProfileView = ({
     const fatherName = admissionData?.fatherName || "";
     const programName = getName(admissionData?.applyingForProgram);
 
-    const invoiceSuffix = challanData.paymentReference || "0000000000";
-    const fullOneBillId = `101340${invoiceSuffix}`;
+    const challanNoText = challanData.challanNo || "";
 
     let challanTypeFormatted = (
       challanData.challanType ||
@@ -170,12 +168,11 @@ const ProfileView = ({
            <div class="header-content">
              <div class="fee-challan-title">FEE CHALLAN</div>
              <div class="address">Faisal Sea Square, Main G.T Road, Gate-1 B-17 Islamabad</div>
-             <div style="margin-top: 6px; border: 2px solid #000; padding: 4px; background: #e0f7fa;">
-                <div style="font-size: 8px; font-weight: bold; text-transform: uppercase;">1 Bill Invoice</div>
-                <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;">${fullOneBillId}</div>
+             <div style="margin-top: 6px; border: 2px solid #000; padding: 4px;">
+                <div style="font-size: 8px; font-weight: bold; text-transform: uppercase;">Challan No.</div>
+                <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;">${challanNoText}</div>
              </div>
            </div>
-           <div class="logo-container"><img src="${oneBillLogoUrl}" class="logo-img" style="object-fit:contain;" alt="1Bill" onerror="this.style.display='none'"/></div>
          </div>
          <div class="separator-line"></div>
          <div class="content-area">
@@ -216,7 +213,7 @@ const ProfileView = ({
              <div class="amount-in-words"><strong>Total (Rs):</strong> ${formatCurrency(grandTotal)}</div>
              <div class="footer-notes">
                  <p><strong>Note:</strong> Pay the fee before due date to confirm your admission.</p>
-                 <p>1- Pay your Bills through 1Link/1-Bill (Invoice/Voucher), Banking Apps, ATMs, Easypaisa, Jazz Cash etc.</p>
+                 <p>1- Pay at the bank or through your banking app before the due date.</p>
                  <p>2- Direct Deposit by visiting any Bank in country.</p>
              </div>
            </div>
@@ -437,7 +434,7 @@ const ProfileView = ({
         </table>
         <div class="section-header">Academic Information</div>
         <table class="data-table">
-          <tr><td><strong>Program:</strong></td><td>${programName}</td><td><strong>Department:</strong></td><td>${departmentName}</td></tr>
+          <tr><td><strong>Program:</strong></td><td>${programName}</td><td><strong>Class:</strong></td><td>${departmentName}</td></tr>
           <tr><td><strong>Session:</strong></td><td>${sessionName}</td><td><strong>Status:</strong></td><td style="text-transform: uppercase;">${admissionData?.status || "N/A"}</td></tr>
           ${registrationNo ? `<tr><td><strong>Registration No:</strong></td><td colspan="3">${registrationNo}</td></tr>` : ""}
         </table>
@@ -1043,7 +1040,7 @@ const ProfileView = ({
                                 )}
                               />
                               <EnhancedInfoRow
-                                label="Department"
+                                label="Class"
                                 value={getName(
                                   admissionData.academicDepartment,
                                 )}

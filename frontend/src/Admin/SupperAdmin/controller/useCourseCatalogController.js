@@ -87,7 +87,7 @@ const useCourseCatalogController = ({ user }) => {
   const handleSaveDraft = async (submittedForm) => {
     if (!submittedForm.title || !submittedForm.owningDepartmentId) {
       return openAlert({
-        message: "Title and Department are required.",
+        message: "Title and Class are required.",
         severity: "warning",
       });
     }

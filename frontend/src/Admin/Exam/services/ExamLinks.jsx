@@ -50,7 +50,7 @@ export const ExamLinks = () => {
     {
       title: "Degree Audit",
       description:
-        "Run the automated eligibility check (CGPA, credits, curriculum) that marks final-semester students academically complete.",
+        "Run the automated eligibility check (CGPA, credits, curriculum) that marks final-section students academically complete.",
       path: "/exam/degree-audit",
       icon: <ClipboardCheck size={22} strokeWidth={2.5} />,
       color: "text-teal-600",
@@ -80,7 +80,7 @@ export const ExamLinks = () => {
     {
       title: "Student Promotion",
       description:
-        "Promote or demote students between semesters, with fee-defaulter checks and accountant overrides.",
+        "Promote or demote students between sections, with fee-defaulter checks and accountant overrides.",
       path: "/exam/student/promotion",
       icon: <TrendingUp size={22} strokeWidth={2.5} />,
       color: "text-cyan-600",
@@ -107,7 +107,7 @@ export const ExamLinks = () => {
     },
     {
       title: "Class Timetable",
-      description: "Browse the weekly class schedule, filtered by department, program, or session.",
+      description: "Browse the weekly class schedule, filtered by class, program, or session.",
       path: "/exam/timetable",
       icon: <CalendarClock size={22} strokeWidth={2.5} />,
       color: "text-sky-600",

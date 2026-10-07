@@ -129,6 +129,8 @@ export const saveStudentPreferences = asyncHandler(async (req, res) => {
     customAmounts,
     installmentMode,
     customMonths,
+    feeBasis,
+    installmentsPerMonth,
   } = req.body;
 
   if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
@@ -148,6 +150,30 @@ export const saveStudentPreferences = asyncHandler(async (req, res) => {
 
   const installments = parseInt(numberOfInstallments);
   const mode = installmentMode === "amount" ? "amount" : "percentage";
+  const basis = feeBasis === "monthly" ? "monthly" : "total";
+  const perMonth = basis === "monthly" ? Math.max(1, parseInt(installmentsPerMonth) || 1) : 1;
+
+  if (basis === "monthly") {
+    if (mode === "amount") {
+      return res.status(400).json({ success: false, message: "A monthly plan uses percentages of the monthly fee." });
+    }
+    if (!Array.isArray(customPercentages) || customPercentages.length !== installments || installments % perMonth !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: "A monthly plan needs one percentage per installment, in whole months.",
+      });
+    }
+    // Every month's parts must add up to 100% of that month's fee.
+    for (let start = 0; start < installments; start += perMonth) {
+      const sum = customPercentages.slice(start, start + perMonth).reduce((a, b) => a + Number(b), 0);
+      if (Math.abs(sum - 100) > 0.01) {
+        return res.status(400).json({
+          success: false,
+          message: `The parts of month ${start / perMonth + 1} add up to ${sum}%, they must add up to 100%.`,
+        });
+      }
+    }
+  }
 
   if (mode === "amount") {
     if (!Array.isArray(customAmounts) || customAmounts.length !== installments) {
@@ -181,6 +207,8 @@ export const saveStudentPreferences = asyncHandler(async (req, res) => {
           defaultInstallments: installments,
           autoSplit: installments > 1,
           installmentMode: mode,
+          feeBasis: basis,
+          installmentsPerMonth: perMonth,
           customPercentages: customPercentages || [],
           customAmounts: mode === "amount" ? customAmounts.map(Number) : [],
           customMonths: customMonths || [],

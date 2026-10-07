@@ -1,6 +1,5 @@
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { StudentChallanService } from "../services/studentChallan.service.js";
-import { EzPayService } from "../services/ezPay.service.js";
 import StudentChallan from "../model/StudentChallan.js";
 
 // --- Generation ---
@@ -16,12 +15,6 @@ export const generateChallan = asyncHandler(async (req, res) => {
       errors: result.errors,
       data: result,
     });
-  }
-
-  if (result.successCount > 0 && result.createdChallans) {
-    for (const c of result.createdChallans) {
-      await EzPayService.syncToEzPay(c._id).catch(() => null);
-    }
   }
 
   // Previous challans the accountant chose to delete outright instead of
@@ -76,12 +69,6 @@ export const getAutoGeneratePreview = asyncHandler(async (req, res) => {
 
 export const autoGenerateByMonth = asyncHandler(async (req, res) => {
   const result = await StudentChallanService.autoGenerateForMonth(req.body);
-
-  if (result.successCount > 0 && result.createdChallans) {
-    for (const c of result.createdChallans) {
-      await EzPayService.syncToEzPay(c._id).catch(() => null);
-    }
-  }
 
   res.status(200).json({
     success: true,
@@ -236,9 +223,6 @@ export const bulkRenewChallans = asyncHandler(async (req, res) => {
   const result = await StudentChallanService.bulkRenewChallans(
     req.body.challanIds,
   );
-  for (const c of result.renewed) {
-    await EzPayService.syncToEzPay(c._id).catch(() => null);
-  }
   res.status(200).json({
     success: true,
     message: `Renewed ${result.renewedCount} challan(s).${
@@ -347,13 +331,6 @@ export const regenerateLateChallan = asyncHandler(async (req, res) => {
     req.params.id,
     req.body,
   );
-  // Same pattern as generateChallan — a renewed challan is a real new
-  // payable challan, so it needs the same bank-invoice sync every other
-  // freshly-created challan gets, or the student would have no way to
-  // actually pay it.
-  if (result.status === "renewed" && result.challan) {
-    await EzPayService.syncToEzPay(result.challan._id).catch(() => null);
-  }
   res.status(200).json({ success: true, ...result });
 });
 export const updateChallan = asyncHandler(async (req, res) =>
@@ -410,15 +387,9 @@ export const createGeneralChallan = asyncHandler(async (req, res) => {
     remarks: remarks || "",
   });
 
-  if (result && result._id) {
-    await EzPayService.syncToEzPay(result._id).catch((err) => {
-      console.error(`[EzPay Sync Error for General Challan]:`, err.message);
-    });
-  }
-
   res.status(201).json({
     success: true,
-    message: "Challan generated and synced successfully",
+    message: "Challan generated successfully",
     data: result,
   });
 });

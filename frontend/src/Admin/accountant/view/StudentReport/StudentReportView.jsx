@@ -603,7 +603,7 @@ const SemesterReportBlock = ({ report = {} }) => {
           color="green"
         />
         <KpiCard
-          label="Outstanding (This Semester)"
+          label="Outstanding (This Section)"
           value={fmt(financialSummary?.totalPending)}
           icon={AlertTriangle}
           color="red"
@@ -1229,7 +1229,7 @@ const StudentReportView = ({
               { key: "termId", placeholder: "All Sessions", opts: terms },
               {
                 key: "departmentId",
-                placeholder: "All Departments",
+                placeholder: "All Classes",
                 opts: departments,
               },
               {
@@ -1240,7 +1240,7 @@ const StudentReportView = ({
               },
               {
                 key: "semesterId",
-                placeholder: "All Semesters",
+                placeholder: "All Sections",
                 opts: semesters,
                 disabled: !filters.programId,
               },
@@ -1370,7 +1370,7 @@ const StudentReportView = ({
                       {semesterReports.length > 0 && (
                         <div className="flex items-center gap-1.5 mt-1.5">
                           <span className="text-[9px] font-bold text-slate-400 uppercase">
-                            Semester:
+                            Section:
                           </span>
                           <div className="relative">
                             <select
@@ -1458,7 +1458,7 @@ const StudentReportView = ({
                       </>
                     ) : (
                       <div className="text-center py-16 text-slate-400 text-sm">
-                        No semester-specific data recorded for this student
+                        No section-specific data recorded for this student
                         yet.
                       </div>
                     )}
@@ -1530,8 +1530,8 @@ const StudentReportView = ({
                       accent="text-amber-500"
                     >
                       <InfoRow label="Program" value={pProg} />
-                      <InfoRow label="Department" value={pDept} />
-                      <InfoRow label="Semester" value={pSem} />
+                      <InfoRow label="Class" value={pDept} />
+                      <InfoRow label="Section" value={pSem} />
                       <InfoRow label="Session" value={pTerm} />
                     </SectionCard>
                     <SectionCard
@@ -1544,7 +1544,7 @@ const StudentReportView = ({
                         value={fmt(overallReport.configuredTotalFee)}
                       />
                       <InfoRow
-                        label="Payment Mode (Current Semester)"
+                        label="Payment Mode (Current Section)"
                         value={
                           overallReport.isInstallmentConfigured
                             ? `${overallReport.configuredInstallmentCount} Installments`
@@ -1580,7 +1580,7 @@ const StudentReportView = ({
                             }
                           />
                           <InfoRow
-                            label="Semester Tuition"
+                            label="Section Tuition"
                             value={fmt(activeScholarship.tuitionPortion)}
                           />
                           <InfoRow

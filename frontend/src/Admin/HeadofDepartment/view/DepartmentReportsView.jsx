@@ -53,10 +53,10 @@ const DepartmentReportsView = ({
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={2} mb={3}>
         <Box>
           <Typography variant="h5" fontWeight={800} color="#0f172a" fontFamily="'Aleo', serif">
-            Department Reports
+            Class Reports
           </Typography>
           <Typography variant="body2" color="#64748b" mt={0.25}>
-            Analytics on student performance, pass rates, and GPA across your department.
+            Analytics on student performance, pass rates, and GPA across your class.
           </Typography>
         </Box>
         {overview && (
@@ -86,7 +86,7 @@ const DepartmentReportsView = ({
       ) : !overview ? (
         <Box py={10} textAlign="center" color="#94a3b8">
           <BarChart4 size={40} style={{ opacity: 0.2, marginBottom: 8 }} />
-          <Typography fontSize={14} fontWeight={700}>Select a session to load department results.</Typography>
+          <Typography fontSize={14} fontWeight={700}>Select a session to load class results.</Typography>
         </Box>
       ) : (
         <>

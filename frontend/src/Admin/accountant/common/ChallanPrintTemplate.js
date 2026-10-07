@@ -1,15 +1,6 @@
-// src/Admin/accountant/view/Challan/ChallanPrintTemplate.js
+// src/Admin/accountant/common/ChallanPrintTemplate.js
 
 const LOGO_URL = window.location.origin + "/cisd-logo.png";
-const ONEBILL_URL = window.location.origin + "/onelink.png";
-const STAMP_URL = window.location.origin + "/accountss.jpeg";
-
-const fmtPKR = (val) =>
-  new Intl.NumberFormat("en-PK", {
-    style: "currency",
-    currency: "PKR",
-    maximumFractionDigits: 0,
-  }).format(val || 0);
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "N/A");
 
@@ -79,130 +70,233 @@ const toWords = (n) => {
   return result + " Only";
 };
 
+// Used only for older challans created before the Late Fine setting existed.
+// New challans carry their own `lateFeeAmount` (0 = no fine).
+export const LATE_FEE = 2000;
+
+const COLLEGE_NAME_1 = "College of International";
+const COLLEGE_NAME_2 = "Skills Development";
+const COLLEGE_PHONE = "051-3757665";
+
 const getPrintStyles = () => `
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+  body { background: #fff; color: #111; }
   @media print {
-    @page { size: A4 landscape; margin: 0mm !important; }
-    body { margin: 0 !important; padding: 0 !important; background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    .challan-page { width: 297mm !important; height: 209mm !important; padding: 6mm !important; page-break-after: always; display: flex; flex-direction: column; justify-content: center; }
+    @page { size: A4 landscape; margin: 0 !important; }
+    body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .challan-page { width: 297mm !important; height: 209mm !important; padding: 5mm !important; page-break-after: always; }
     .challan-page:last-child { page-break-after: auto; }
-    .challan-row-container { display: flex !important; flex-direction: row !important; width: 100% !important; height: 100% !important; gap: 3mm !important; justify-content: space-between !important; align-items: stretch !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-    .challan-card { flex: 1 !important; min-width: 0 !important; border: 0.5mm dashed #000 !important; background: white !important; position: relative !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; page-break-inside: avoid !important; break-inside: avoid !important; }
-    .info-label, .fee-label { background-color: #f5f5f5 !important; }
-    .total-row { background-color: #e0e0e0 !important; }
-    .footer-notes { background-color: #fffde7 !important; }
-    .copy-label { padding: 2px 6px; background-color: #fff !important; border: 0.3mm solid #555 !important; color: #000 !important; }
     .no-print { display: none !important; }
   }
-  .challan-card { position: relative; display: flex; flex-direction: column; border: 1px dashed #333; }
-  .copy-label { position: absolute; top: 5px; left: 5px; background: #e8e8e8; padding: 2px 7px; font-weight: bold; font-size: 8px; z-index: 10; border-radius: 2px; border: 0.2mm solid #555; }
-  .bank-name-main { font-size: 15px; font-weight: bold; color: #1a237e; text-align: center; padding: 20px 6px 2px; letter-spacing: 0.2px; }
-  .challan-header { display: flex; align-items: center; gap: 8px; padding: 2px 6px 6px; }
-  .logo-container { flex-shrink: 0; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; }
-  .logo-img { width: 50px; height: 50px; object-fit: contain; border-radius: 6px; }
-  .header-content { flex: 1; text-align: center; }
-  .fee-challan-title { font-size: 12px; font-weight: bold; color: #d32f2f; text-transform: uppercase; line-height: 1.2; margin-bottom: 2px; }
-  .address { font-size: 9px; color: #333; line-height: 1.2; margin-bottom: 3px; }
-  .onebill-box { margin-top: 4px; border: 2px solid #000; padding: 3px 5px; background: #e0f7fa; display: inline-block; }
-  .onebill-label { font-size: 7px; font-weight: bold; text-transform: uppercase; }
-  .onebill-id { font-size: 13px; font-weight: bold; letter-spacing: 1px; }
-  .separator-line { border-top: 0.5mm solid #000; margin: 4px 0; flex-shrink: 0; }
-  .info-section { padding: 0 6px; flex-shrink: 0; }
-  .info-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
-  .info-table td { border: 0.4mm solid #000; padding: 3px 4px; vertical-align: middle; word-wrap: break-word; }
-  .info-label { font-weight: bold; background: #f5f5f5; width: 22%; font-size: 8.5px; }
-  .info-value { width: 28%; font-size: 8.5px; }
-  .fee-details-title { text-align: center; font-size: 11px; font-weight: bold; margin: 5px 0 3px; text-decoration: underline; flex-shrink: 0; }
-  .content-area { flex: 1; display: flex; flex-direction: column; padding: 0 6px; }
-  .table-container { flex: 1; }
-  .fee-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9px; }
-  .fee-table td { border: 0.4mm solid #000; padding: 2px 4px; vertical-align: middle; }
-  .fee-label { font-weight: bold; background: #f5f5f5; width: 70%; font-size: 8.5px; }
-  .fee-amount { text-align: right; width: 30%; font-weight: bold; font-family: 'Courier New', monospace; padding-right: 6px; font-size: 8.5px; }
-  .total-row { font-weight: bold; background: #e0e0e0; }
-  .total-row .fee-amount { font-size: 10px; }
-  .amount-in-words { font-size: 8px; margin: 4px 0; border: 0.4mm solid #ccc; padding: 3px 4px; background: #fafafa; }
-  .footer-notes { margin: 4px 0; padding: 4px 5px; border: 0.4mm solid #000; background: #fffde7; font-size: 7.5px; line-height: 1.3; border-radius: 2px; }
-  .signature-section { display: flex; justify-content: space-between; align-items: flex-end; margin: 6px 0 4px; padding-top: 4px; flex-shrink: 0; }
-  .signature-box { text-align: center; width: 45%; }
-  .signature-line { width: 100%; border-top: 0.4mm solid #000; margin: 2px 0; }
-  .signature-label { font-size: 8px; font-weight: bold; }
+  .challan-page { width: 297mm; min-height: 209mm; padding: 5mm; margin: 0 auto; }
+  .challan-row { display: flex; gap: 0; width: 100%; height: 199mm; }
+  .challan-card { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 0 2.2mm; border-right: 0.3mm dashed #777; }
+  .challan-card:last-child { border-right: none; }
+
+  .banner { display: flex; align-items: center; gap: 6px; background: #0b2a6b; color: #fff; padding: 5px 7px; border-radius: 3px; }
+  .banner .logo { width: 34px; height: 34px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .banner .logo img { width: 28px; height: 28px; object-fit: contain; }
+  .banner .name { font-size: 12.5px; font-weight: 800; line-height: 1.15; letter-spacing: 0.1px; }
+  .tel { text-align: center; font-size: 9px; font-weight: 600; margin-top: 3px; color: #333; }
+  .copy-title { text-align: center; font-size: 11px; font-weight: 800; color: #c62828; margin: 1px 0 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .info td { border: 0.3mm solid #000; padding: 3px 4px; font-size: 9px; vertical-align: middle; word-wrap: break-word; }
+  .info .lbl { width: 24%; background: #f3f6e9; font-size: 8.5px; }
+  .info .val { font-weight: 700; }
+  .info .lbl.sm { width: 20%; }
+
+  .month-line { display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; margin: 5px 2px 4px; }
+  .month-line b { font-size: 10.5px; }
+
+  .fees td, .fees th { border: 0.3mm solid #000; padding: 3px 5px; font-size: 9px; }
+  .fees th { background: #eef3dc; font-size: 9px; font-weight: 800; text-align: center; }
+  .fees .sr { width: 11%; text-align: center; }
+  .fees .amt { width: 28%; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .fees .neg { color: #15803d; }
+  .fees .pos-red { color: #b91c1c; }
+  .fees tr.total td { background: #e6ecd3; font-weight: 800; font-size: 10px; }
+  .fees tr.after td { font-weight: 700; }
+  .fees td.empty-row { height: 15px; }
+
+  .words { font-size: 8px; margin: 4px 0; padding: 3px 4px; border: 0.3mm solid #bbb; background: #fafafa; line-height: 1.25; }
+  .notes { font-size: 8px; line-height: 1.35; margin-top: 3px; color: #222; }
+  .notes b { font-size: 8.5px; }
+  .spacer { flex: 1; }
+  .sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; padding: 4px 2px 2px; }
+  .sign .box { width: 48%; text-align: center; }
+  .sign .box img { height: 32px; width: auto; object-fit: contain; display: block; margin: 0 auto 1px; }
+  .sign .line { border-top: 0.3mm solid #000; margin-top: 18px; padding-top: 2px; font-size: 8.5px; font-weight: 700; }
+  .sign .box.stamp .line { margin-top: 2px; }
+  .challan-no { font-size: 8px; color: #555; text-align: center; margin-top: 3px; letter-spacing: 0.3px; }
 `;
+
+const esc = (v) =>
+  String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+const num = (v) => new Intl.NumberFormat("en-PK", { maximumFractionDigits: 0 }).format(v || 0);
+
+const MONTH_NAMES = [
+  "january", "february", "march", "april", "may", "june",
+  "july", "august", "september", "october", "november", "december",
+];
+
+// "Fee for the month of" — billingMonth is either a month name ("October",
+// the installment plan's month) or a date-like value; falls back to the due
+// date's month. Printed as e.g. "Oct/26".
+const monthLabel = (challan) => {
+  const yearOf = (d) => {
+    const dt = new Date(d);
+    return Number.isNaN(dt.getTime()) ? new Date().getFullYear() : dt.getFullYear();
+  };
+  const short = (idx, year) =>
+    `${new Date(2000, idx, 1).toLocaleString("en-GB", { month: "short" })}/${String(year).slice(-2)}`;
+
+  const raw = challan.billingMonth;
+  if (raw) {
+    const idx = MONTH_NAMES.indexOf(String(raw).trim().toLowerCase());
+    if (idx >= 0) {
+      // A month earlier than the due date's month belongs to the due date's year.
+      const due = new Date(challan.dueDate);
+      const year = Number.isNaN(due.getTime()) ? yearOf(challan.createdAt) : due.getFullYear();
+      return short(idx, year);
+    }
+    const d = /^\d{4}-\d{2}$/.test(String(raw)) ? new Date(`${raw}-01`) : new Date(raw);
+    if (!Number.isNaN(d.getTime())) return short(d.getMonth(), d.getFullYear());
+  }
+  const due = new Date(challan.dueDate);
+  if (Number.isNaN(due.getTime())) return "N/A";
+  return short(due.getMonth(), due.getFullYear());
+};
+
+// Groups the challan's itemised fees into the standard particulars shown on
+// the printed challan. Anything that does not match a standard head goes to
+// "Other Charges". Every itemised amount is already part of originalTotal, so
+// whatever is not itemised (the base fee) is added to the matching head.
+const buildParticulars = (challan) => {
+  const heads = { registration: 0, admission: 0, monthly: 0, course: 0, other: 0 };
+  let itemized = 0;
+  const detailLines = [];
+
+  Object.entries(challan.feeDetails || {}).forEach(([key, amount]) => {
+    if (!(amount > 0) || key.toLowerCase().includes("arrears")) return;
+    const k = key.toLowerCase();
+    if (k.includes("fine")) {
+      detailLines.push({ label: key.replace(/([A-Z])/g, " $1").replace(/^./, (c) => c.toUpperCase()), amount, tone: "red" });
+      return;
+    }
+    itemized += amount;
+    if (k.includes("regist")) heads.registration += amount;
+    else if (k.includes("admission")) heads.admission += amount;
+    else if (k.includes("tuition") || k.includes("monthly")) heads.monthly += amount;
+    else if (k.includes("course") || k.includes("exam")) heads.course += amount;
+    else heads.other += amount;
+  });
+
+  const remainder = Math.max(0, (challan.originalTotal || 0) - itemized);
+  if (remainder > 0) {
+    const type = String(challan.challanType || "").toLowerCase();
+    if (type.includes("regist")) heads.registration += remainder;
+    else if (type.includes("admission")) heads.admission += remainder;
+    else heads.monthly += remainder;
+  }
+
+  const rows = [
+    ["Registration Fee", heads.registration],
+    ["Admission Fee", heads.admission],
+    ["Monthly Fee", heads.monthly],
+    ["Course Fee", heads.course],
+    ["Other Charges", heads.other],
+  ].map(([label, amount]) => ({ label, amount }));
+
+  if (challan.arrears > 0 && !detailLines.length) rows.push({ label: "Arrears / Previous Dues", amount: challan.arrears, tone: "red" });
+  detailLines.forEach((l) => rows.push(l));
+  if (challan.fineAmount > 0 && !detailLines.length) rows.push({ label: "Late Fine", amount: challan.fineAmount, tone: "red" });
+  if (challan.scholarshipAmount > 0) rows.push({ label: "Scholarship", amount: -challan.scholarshipAmount, tone: "green" });
+  if (challan.discountAmount > 0) {
+    rows.push({
+      label: `Discount${challan.discountReason ? ` (${esc(challan.discountReason)})` : ""}`,
+      amount: -challan.discountAmount,
+      tone: "green",
+    });
+  }
+  return rows;
+};
 
 const buildChallanCard = (challan, copyTitle) => {
   const student = challan.studentId || {};
   const personal = student.personalInfo || {};
-  const fatherName =
-    student.familyInfo?.fatherName || personal.fatherName || "—";
-  const programName = challan.programId?.name || "N/A";
-  const sessionName = challan.termId?.name || "N/A";
-  const semesterNum = challan.semesterId?.number
-    ? `Semester ${challan.semesterId.number}`
-    : "N/A";
-  const invoiceSuffix =
-    challan.paymentReference && challan.paymentReference !== "00000000"
-      ? challan.paymentReference
-      : challan.challanNo;
-  const invoiceId = `101340${invoiceSuffix}`;
-  let challanTypeLabel = challan.challanType
-    ? challan.challanType.replace(/_/g, " ").toUpperCase()
-    : "FEE";
-  if (challan.isInstallment && challan.installmentNumber) {
-    challanTypeLabel =
-      challanTypeLabel === "INSTALLMENT"
-        ? `INSTALLMENT ${challan.installmentNumber}`
-        : `${challanTypeLabel} (INSTALLMENT ${challan.installmentNumber})`;
-  }
-  // Each feeDetails entry (tuition sub-items, misc fees, merged previous
-  // dues, ...) is ALREADY included in originalTotal — it was previously
-  // shown with a blank "—" amount instead of its real value, and the
-  // "(Base)" row always printed the FULL originalTotal on top of that,
-  // so a challan built from itemized fees (e.g. Global Misc Fees) looked
-  // like it was showing a generic, unrelated lump sum with no visible
-  // amount for the fee that was actually selected. Now each line shows
-  // its own real amount, and "(Base)" is only the REMAINDER not already
-  // itemized — never a duplicate of what's listed below it.
-  let itemizedRowsHTML = "";
-  let itemizedTotal = 0;
-  let hasItemizedFine = false;
-  if (challan.feeDetails) {
-    Object.entries(challan.feeDetails).forEach(([key, amount]) => {
-      if (amount > 0 && !key.toLowerCase().includes("arrears")) {
-        const label = key
-          .replace(/([A-Z])/g, " $1")
-          .replace(/^./, (s) => s.toUpperCase());
-        itemizedRowsHTML += `<tr><td class="fee-label">${label}</td><td class="fee-amount">${fmtPKR(amount)}</td></tr>`;
-        // A carried-over "Fine on ..." line is display-only (never part of
-        // originalTotal) — count it toward the row list but not toward the
-        // base-remainder subtraction below, and skip the generic Arrears
-        // fallback row so the same fine isn't shown twice.
-        if (key.toLowerCase().includes("fine")) {
-          hasItemizedFine = true;
-        } else {
-          itemizedTotal += amount;
-        }
-      }
-    });
-  }
-  const baseRemainder = Math.max(0, (challan.originalTotal || 0) - itemizedTotal);
-  let feeRowsHTML =
-    baseRemainder > 0
-      ? `<tr style="background:#f0f0f0;"><td class="fee-label" style="font-weight:900;">${challanTypeLabel} (Base)</td><td class="fee-amount" style="font-weight:900;">${fmtPKR(baseRemainder)}</td></tr>`
-      : "";
-  feeRowsHTML += itemizedRowsHTML;
-  if (challan.arrears > 0 && !hasItemizedFine)
-    feeRowsHTML += `<tr><td class="fee-label">Arrears / Previous</td><td class="fee-amount">${fmtPKR(challan.arrears)}</td></tr>`;
-  if (challan.fineAmount > 0)
-    feeRowsHTML += `<tr><td class="fee-label">Late Fine</td><td class="fee-amount" style="color:#dc2626">${fmtPKR(challan.fineAmount)}</td></tr>`;
-  if (challan.scholarshipAmount > 0)
-    feeRowsHTML += `<tr><td class="fee-label">Scholarship</td><td class="fee-amount" style="color:#16a34a">(${fmtPKR(challan.scholarshipAmount)})</td></tr>`;
-  if (challan.discountAmount > 0)
-    feeRowsHTML += `<tr><td class="fee-label">Discount${challan.discountReason ? ` (${challan.discountReason})` : ""}</td><td class="fee-amount" style="color:#16a34a">(${fmtPKR(challan.discountAmount)})</td></tr>`;
-  return `<div class="challan-card"><div class="copy-label">${copyTitle}</div><div class="bank-name-main">CISD</div><div class="challan-header"><div class="logo-container"><img src="${LOGO_URL}" class="logo-img" alt="CISD Logo" onerror="this.style.display='none'" /></div><div class="header-content"><div class="fee-challan-title">Fee Challan</div><div class="address">Faisal Sea Square, Main G.T Road, Gate-1 B-17 Islamabad</div><div class="onebill-box"><div class="onebill-label">1Bill Invoice No.</div><div class="onebill-id">${invoiceId}</div></div></div><div class="logo-container"><img src="${ONEBILL_URL}" class="logo-img" alt="1Bill" onerror="this.style.display='none'" /></div></div><div class="separator-line"></div><div class="info-section"><table class="info-table"><tr><td class="info-label">Due Date</td><td class="info-value">${fmtDate(challan.dueDate)}</td><td class="info-label">Reg ID</td><td class="info-value">${student.studentId || "N/A"}</td></tr><tr><td class="info-label">Name</td><td class="info-value">${personal.fullName || "N/A"}</td><td class="info-label">Father Name</td><td class="info-value">${fatherName}</td></tr><tr><td class="info-label">Program</td><td class="info-value">${programName}</td><td class="info-label">Semester</td><td class="info-value">${semesterNum}</td></tr><tr><td class="info-label">Session</td><td class="info-value">${sessionName}</td><td class="info-label">Type</td><td class="info-value">${challanTypeLabel}</td></tr><tr><td class="info-label">Challan No.</td><td class="info-value" colspan="3">${challan.challanNo}</td></tr></table></div><div class="separator-line"></div><div class="content-area"><div class="fee-details-title">FEE DETAILS</div><div class="table-container"><table class="fee-table">${feeRowsHTML}<tr><td style="border:none;">&nbsp;</td><td style="border:none;"></td></tr><tr class="total-row"><td class="fee-label">GRAND TOTAL</td><td class="fee-amount">${fmtPKR(challan.netAmount)}</td></tr></table><div class="amount-in-words"><strong>Amount in Words:</strong> ${toWords(challan.netAmount)}</div><div class="footer-notes"><p><strong>Note:</strong></p><p>1- Pay via 1Link/1-Bill, Banking Apps, ATMs, Easypaisa, JazzCash, etc.</p><p>2- Direct deposit by visiting any bank branch nationwide.</p><p>A late fee of 2,000 will be charged after the due date. Five days after the due date, the fee increases to 5,000.</p></div></div><div class="signature-section"><div class="signature-box"><div class="signature-line"></div><div class="signature-label">BANK OFFICIAL</div></div><div class="signature-box"><img src="${STAMP_URL}" style="height:42px;width:auto;object-fit:contain;display:block;margin:0 auto 2px;" alt="Stamp" onerror="this.style.display='none'" /><div class="signature-line"></div><div class="signature-label">ACCOUNTS OFFICER</div></div></div></div></div>`;
+  const fatherName = student.familyInfo?.fatherName || personal.fatherName || "—";
+  const className =
+    challan.departmentId?.name || student.departmentId?.name || challan.programId?.name || "N/A";
+  const sectionName = challan.semesterId?.name || (challan.semesterId?.number ? `Section ${challan.semesterId.number}` : "N/A");
+  const sessionName = challan.termId?.name || "";
+  const issueDate = fmtDate(challan.issueDate || challan.createdAt);
+
+  const total = challan.netAmount || 0;
+  const lateFee = challan.lateFeeAmount ?? LATE_FEE;
+  const rows = buildParticulars(challan);
+  const minRows = 5;
+  const fillers = Math.max(0, minRows - rows.length);
+
+  const feeRows = rows
+    .map((r, i) => {
+      const amt = r.amount < 0 ? `(${num(-r.amount)})` : r.amount ? num(r.amount) : "";
+      const cls = r.tone === "green" ? "neg" : r.tone === "red" ? "pos-red" : "";
+      return `<tr><td class="sr">${i + 1}</td><td>${r.label}</td><td class="amt ${cls}">${amt}</td></tr>`;
+    })
+    .join("");
+  const fillerRows = Array.from({ length: fillers }, () => `<tr><td class="sr empty-row"></td><td></td><td></td></tr>`).join("");
+
+  return `<div class="challan-card">
+    <div class="banner">
+      <div class="logo"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
+      <div class="name">${COLLEGE_NAME_1}<br/>${COLLEGE_NAME_2}</div>
+    </div>
+    <div class="tel">Tel: ${COLLEGE_PHONE}</div>
+    <div class="copy-title">${copyTitle}</div>
+
+    <table class="info">
+      <tr><td class="lbl">Issue Date:</td><td class="val">${issueDate}</td><td class="lbl sm">Due Date:</td><td class="val">${fmtDate(challan.dueDate)}</td></tr>
+      <tr><td class="lbl">Student Name:</td><td class="val" colspan="3">${esc(personal.fullName || "N/A")}</td></tr>
+      <tr><td class="lbl">Father Name:</td><td class="val" colspan="3">${esc(fatherName)}</td></tr>
+      <tr><td class="lbl">ID Card No:</td><td class="val" colspan="3">${esc(personal.cnic || "—")}</td></tr>
+      <tr><td class="lbl">Reg. ID:</td><td class="val" colspan="3">${esc(student.studentId || "N/A")}</td></tr>
+      <tr><td class="lbl">Class:</td><td class="val" colspan="3">${esc(className)}</td></tr>
+      <tr><td class="lbl">Section:</td><td class="val" colspan="3">${esc(sectionName)}${sessionName ? ` &nbsp;·&nbsp; ${esc(sessionName)}` : ""}</td></tr>
+    </table>
+
+    <div class="month-line"><span>Fee For The Month(s) of:</span><b>${monthLabel(challan)}</b></div>
+
+    <table class="fees">
+      <tr><th class="sr">Sr.</th><th>Particulars</th><th class="amt" style="text-align:center">Amount</th></tr>
+      ${feeRows}${fillerRows}
+      <tr class="total"><td></td><td>Total =</td><td class="amt">${num(total)}</td></tr>
+      ${lateFee > 0 ? `<tr class="after"><td></td><td style="text-align:right">Payable after due date</td><td class="amt">${num(total + lateFee)}</td></tr>` : ""}
+    </table>
+
+    <div class="words"><b>In words:</b> ${toWords(total)}</div>
+
+    <div class="notes">
+      <b>Note:</b><br/>
+      ${lateFee > 0 ? "After the due date a fine will be charged.<br/>" : ""}
+      This fee challan is valid up to the 25th of this month.
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="sign">
+      <div class="box"><div class="line">Depositor / Bank</div></div>
+    </div>
+    <div class="challan-no">Challan No: ${esc(challan.challanNo)}</div>
+  </div>`;
 };
 
 export const buildChallanPage = (challan) =>
-  `<div class="challan-page"><div class="challan-row-container">${buildChallanCard(challan, "BANK COPY")}${buildChallanCard(challan, "OFFICE COPY")}${buildChallanCard(challan, "STUDENT COPY")}</div></div>`;
+  `<div class="challan-page"><div class="challan-row">${buildChallanCard(challan, "Head Office Copy")}${buildChallanCard(challan, "College Copy")}${buildChallanCard(challan, "Student Copy")}</div></div>`;
 
 export const openPrintWindow = (
   bodyHTML,

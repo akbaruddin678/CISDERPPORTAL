@@ -413,7 +413,7 @@ const CourseFormModal = ({
               select
               fullWidth
               size="small"
-              label="Department"
+              label="Class"
               value={localForm.owningDepartmentId || ""}
               onChange={(e) => f("owningDepartmentId", e.target.value)}
               sx={{
@@ -769,7 +769,7 @@ const CourseCatalogView = ({
               color="text.secondary"
               sx={{ fontFamily: "'Montserrat', sans-serif", mt: 0.25 }}
             >
-              Create new courses for any department. Registrar assigns the
+              Create new courses for any class. Registrar assigns the
               official code, which activates the course.
             </Typography>
           </Box>

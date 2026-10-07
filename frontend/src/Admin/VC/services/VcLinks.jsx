@@ -41,7 +41,7 @@ export const VcLinks = () => {
     },
     {
       title: "Student Directory",
-      description: "Browse every student by program and semester, with full profiles.",
+      description: "Browse every student by program and section, with full profiles.",
       path: "/vc/students",
       icon: <Users size={24} strokeWidth={2} />,
       color: "text-violet-600",
@@ -59,7 +59,7 @@ export const VcLinks = () => {
     },
     {
       title: "Course Catalog",
-      description: "Browse all active courses by department and program.",
+      description: "Browse all active courses by class and program.",
       path: "/vc/course-review",
       icon: <CheckSquare size={24} strokeWidth={2} />,
       color: "text-emerald-600",

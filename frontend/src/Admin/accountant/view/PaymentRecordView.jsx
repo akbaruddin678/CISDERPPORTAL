@@ -563,7 +563,7 @@ const PaymentRecordView = ({
       >
         <form onSubmit={handleCreateOrUpdateAllocation} className="space-y-4">
           <Field label="Purpose / Title">
-            <input required name="title" defaultValue={editingRecord?.title} type="text" className={inputCls()} placeholder="e.g. Department Supplies Q3" />
+            <input required name="title" defaultValue={editingRecord?.title} type="text" className={inputCls()} placeholder="e.g. Class Supplies Q3" />
           </Field>
           <Field label="Allocated Amount (PKR)">
             <input required name="allocatedAmount" defaultValue={editingRecord?.allocatedAmount} type="number" className={inputCls()} placeholder="0" style={{ fontFamily: "'Geist Mono', monospace" }} />

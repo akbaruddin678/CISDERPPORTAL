@@ -235,14 +235,14 @@ const AutoFeeGenerator = ({
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-500 uppercase">
-                    Department
+                    Class
                   </label>
                   <select
                     className="w-full p-2.5 text-sm border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
                     value={filters.departmentId}
                     onChange={(e) => handleFilterChange("departmentId", e.target.value)}
                   >
-                    <option value="">All Departments</option>
+                    <option value="">All Classes</option>
                     {departments?.map((d) => (
                       <option key={d._id} value={d._id}>
                         {d.name}
@@ -270,7 +270,7 @@ const AutoFeeGenerator = ({
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-slate-500 uppercase">
-                    Semester
+                    Section
                   </label>
                   <select
                     className="w-full p-2.5 text-sm border border-slate-200 rounded-lg disabled:bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
@@ -278,7 +278,7 @@ const AutoFeeGenerator = ({
                     disabled={!filters.programId}
                     onChange={(e) => handleFilterChange("semesterId", e.target.value)}
                   >
-                    <option value="">All Semesters</option>
+                    <option value="">All Sections</option>
                     {semesters.map((s) => (
                       <option key={s._id} value={s._id}>
                         Sem {s.number}
@@ -420,9 +420,9 @@ const AutoFeeGenerator = ({
                 </button>
               </div>
               <SummaryRow label="Session" value={termName} />
-              <SummaryRow label="Department" value={deptName} />
+              <SummaryRow label="Class" value={deptName} />
               <SummaryRow label="Program" value={progName} />
-              <SummaryRow label="Semester" value={semLabel} />
+              <SummaryRow label="Section" value={semLabel} />
               <SummaryRow
                 label="Students in scope"
                 value={`${preview?.totalStudents ?? 0} (${preview?.studentsWithPlan ?? 0} with a plan)`}

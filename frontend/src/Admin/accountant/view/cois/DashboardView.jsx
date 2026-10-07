@@ -133,7 +133,7 @@ const DashboardView = () => {
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="mb-6">
             <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-              <Wallet className="text-violet-500 w-5 h-5" /> Revenue by Semester
+              <Wallet className="text-violet-500 w-5 h-5" /> Revenue by Section
             </h2>
             <p className="text-xs text-slate-500 font-medium">
               Comparison of collected vs pending fees across active parts.
@@ -142,7 +142,7 @@ const DashboardView = () => {
           <div className="h-[300px] w-full">
             {chartData.length === 0 ? (
               <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium text-sm border-2 border-dashed border-slate-100 rounded-xl">
-                No active semester data available.
+                No active section data available.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">

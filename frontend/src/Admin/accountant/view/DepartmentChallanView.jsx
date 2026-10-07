@@ -231,7 +231,7 @@ const DepartmentChallanView = ({
               </span>
             </div> */}
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              Department Wise Challan Report
+              Class Wise Challan Report
             </h1>
             <p className="text-sm text-slate-400 mt-1 font-medium">
               {groupedData.length} departments &nbsp;·&nbsp;{" "}
@@ -251,7 +251,7 @@ const DepartmentChallanView = ({
         {/* ══ KPI STRIP ═══════════════════════════ */}
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
           <KpiCard
-            label="Departments"
+            label="Classes"
             value={groupedData.length}
             sub="active units"
             icon={Building2}

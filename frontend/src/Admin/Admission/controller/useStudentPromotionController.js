@@ -13,12 +13,19 @@ const useStudentPromotionController = () => {
     filters,
     setFilters,
     catalogData,
+    fullCatalog,
     fetchStudents,
   } = useStudentManagement();
 
   // 2. Local State Management
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  // Where the selected students go: class -> program -> section, plus the
+  // session. Class/program start as the source ones (same-class moves) and
+  // can be changed for a real class promotion (e.g. 9th -> 10th).
+  const [targetDepartmentId, setTargetDepartmentId] = useState("");
+  const [targetProgramId, setTargetProgramId] = useState("");
   const [targetSemesterId, setTargetSemesterId] = useState("");
+  const [targetSessionId, setTargetSessionId] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Feedback State
@@ -40,10 +47,27 @@ const useStudentPromotionController = () => {
     setSelectedStudentIds([]);
   }, [filters]);
 
-  // 4. Reset target semester when program changes
+  // 4. Target defaults to the source class/program/session; section is reset
   useEffect(() => {
+    setTargetDepartmentId(filters.departmentId || "");
+    setTargetProgramId(filters.programId || "");
     setTargetSemesterId("");
-  }, [filters.programId]);
+  }, [filters.departmentId, filters.programId]);
+
+  useEffect(() => {
+    setTargetSessionId(filters.sessionId || "");
+  }, [filters.sessionId]);
+
+  const handleTargetDepartmentChange = useCallback((value) => {
+    setTargetDepartmentId(value);
+    setTargetProgramId("");
+    setTargetSemesterId("");
+  }, []);
+
+  const handleTargetProgramChange = useCallback((value) => {
+    setTargetProgramId(value);
+    setTargetSemesterId("");
+  }, []);
 
   // 5. Selection Handlers
   const handleSelectAll = useCallback(
@@ -81,7 +105,7 @@ const useStudentPromotionController = () => {
       setFeedback({
         open: true,
         message:
-          "Please select a Target Semester to specify where students move",
+          "Please select a Target Section to specify where students move",
         severity: "warning",
       });
       return false;
@@ -90,7 +114,7 @@ const useStudentPromotionController = () => {
     if (!filters.semesterId) {
       setFeedback({
         open: true,
-        message: "Please select a Current Semester to define the source cohort",
+        message: "Please select a Current Section to define the source cohort",
         severity: "error",
       });
       return false;
@@ -105,18 +129,27 @@ const useStudentPromotionController = () => {
       return false;
     }
 
+    if (!targetSessionId) {
+      setFeedback({
+        open: true,
+        message: "Please select the Target Session",
+        severity: "warning",
+      });
+      return false;
+    }
+
     if (!filters.departmentId || !filters.programId) {
       setFeedback({
         open: true,
         message:
-          "Please complete all filter selections (Department, Program, Semester, Session)",
+          "Please complete all filter selections (Class, Program, Section, Session)",
         severity: "error",
       });
       return false;
     }
 
     return true;
-  }, [selectedStudentIds.length, targetSemesterId, filters]);
+  }, [selectedStudentIds.length, targetSemesterId, targetSessionId, filters]);
 
   // 7. Main Promotion/Demotion Logic
   const handleBulkAction = useCallback(
@@ -132,7 +165,7 @@ const useStudentPromotionController = () => {
         const payload = {
           studentIds: selectedStudentIds,
           targetSemesterId,
-          targetSessionId: filters.sessionId,
+          targetSessionId,
           actionType,
           sourceFilters: {
             departmentId: filters.departmentId,
@@ -178,7 +211,7 @@ const useStudentPromotionController = () => {
             retryPayload: {
               studentIds: selectedStudentIds,
               targetSemesterId,
-              targetSessionId: filters.sessionId,
+              targetSessionId,
               actionType,
             },
           });
@@ -206,6 +239,7 @@ const useStudentPromotionController = () => {
     [
       selectedStudentIds,
       targetSemesterId,
+      targetSessionId,
       filters,
       validateBulkAction,
       fetchStudents,
@@ -232,7 +266,7 @@ const useStudentPromotionController = () => {
             reason: d.reason,
           })),
           targetSemesterId,
-          targetSessionId: filters.sessionId,
+          targetSessionId,
           remarks: remarks.trim(),
           sourceAction: defaulterModal.retryPayload?.actionType || "promote",
           requestedBy: "admin", // Should come from auth context
@@ -271,25 +305,32 @@ const useStudentPromotionController = () => {
       defaulterModal.list,
       defaulterModal.retryPayload,
       targetSemesterId,
-      filters.sessionId,
+      targetSessionId,
     ],
   );
 
   // 9. Helper: Filter available target semesters based on program
+  const availableTargetPrograms = useMemo(() => {
+    if (!targetDepartmentId) return [];
+    return fullCatalog.programs.filter(
+      (p) => String(p.departmentId?._id || p.departmentId) === String(targetDepartmentId),
+    );
+  }, [targetDepartmentId, fullCatalog.programs]);
+
   const availableTargetSemesters = useMemo(() => {
-    if (!filters.programId) {
+    if (!targetProgramId) {
       return [];
     }
 
-    return catalogData.semesters
+    return fullCatalog.semesters
       .filter((s) => {
         // Match by program ID (handle both object and string references)
         const sProgramId =
           typeof s.programId === "object" ? s.programId?._id : s.programId;
-        return sProgramId === filters.programId;
+        return String(sProgramId) === String(targetProgramId);
       })
       .sort((a, b) => (a.number || 0) - (b.number || 0));
-  }, [filters.programId, catalogData.semesters]);
+  }, [targetProgramId, fullCatalog.semesters]);
 
   // 10. Feedback & Modal Handlers
   const closeFeedback = useCallback(
@@ -323,7 +364,12 @@ const useStudentPromotionController = () => {
 
     // State
     selectedStudentIds,
+    fullCatalog,
+    targetDepartmentId,
+    targetProgramId,
     targetSemesterId,
+    targetSessionId,
+    availableTargetPrograms,
     availableTargetSemesters,
     isProcessing,
     feedback,
@@ -332,6 +378,9 @@ const useStudentPromotionController = () => {
     // Actions
     setFilters,
     setTargetSemesterId,
+    setTargetSessionId,
+    handleTargetDepartmentChange,
+    handleTargetProgramChange,
     handleSelectAll,
     handleSelectOne,
     handleBulkAction,

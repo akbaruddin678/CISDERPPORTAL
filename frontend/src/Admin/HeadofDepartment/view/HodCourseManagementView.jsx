@@ -304,7 +304,7 @@ const printCourses = (courses, title) => {
   <div class="header"><h1>${title}</h1><p>Printed: ${new Date().toLocaleString()}</p></div>
   <div class="accent"></div>
   <table>
-    <thead><tr><th>#</th><th>Course</th><th>Department</th><th>Credits</th><th>Status</th><th>Content Preview</th></tr></thead>
+    <thead><tr><th>#</th><th>Course</th><th>Class</th><th>Credits</th><th>Status</th><th>Content Preview</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>
   <div class="footer">ZABTEC EMS — Confidential Academic Document</div>
@@ -339,7 +339,7 @@ const printSingleCourse = (course) => {
   <div class="header"><h1>${course.title || "Course"}</h1></div>
   <div class="meta-grid">
     <div class="meta-item"><div class="meta-label">Course Code</div><div class="meta-value">${course.code || "Pending"}</div></div>
-    <div class="meta-item"><div class="meta-label">Department</div><div class="meta-value">${course.owningDepartmentId?.name || "N/A"}</div></div>
+    <div class="meta-item"><div class="meta-label">Class</div><div class="meta-value">${course.owningDepartmentId?.name || "N/A"}</div></div>
     <div class="meta-item"><div class="meta-label">Credits</div><div class="meta-value">${course.creditHours?.theory ?? 0} Theory + ${course.creditHours?.lab ?? 0} Lab</div></div>
     <div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">${STATUS_CONFIG[course.status]?.label || course.status}</div></div>
   </div>
@@ -650,7 +650,7 @@ const HodCourseManagementView = ({
                 <TextField
                   select
                   size="small"
-                  label="Department"
+                  label="Class"
                   value={deptFilter}
                   onChange={(e) => setDeptFilter(e.target.value)}
                   sx={{
@@ -658,7 +658,7 @@ const HodCourseManagementView = ({
                     "& .MuiOutlinedInput-root": { fontFamily: "'Montserrat', sans-serif", fontSize: 13 },
                   }}
                 >
-                  <MenuItem value="">All Departments</MenuItem>
+                  <MenuItem value="">All Classes</MenuItem>
                   {departments.map((d) => (
                     <MenuItem key={d._id} value={d._id}>
                       {d.name}

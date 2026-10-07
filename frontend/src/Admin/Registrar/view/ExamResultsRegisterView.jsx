@@ -110,7 +110,7 @@ const ExamResultsRegisterView = ({
             onChange={(e) => setSelectedSemester(e.target.value)}
             className="px-3 py-2.5 border border-slate-300 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
           >
-            <option value="all">All Semesters</option>
+            <option value="all">All Sections</option>
             {availableSemesters.map((n) => (
               <option key={n} value={n}>Semester {n}</option>
             ))}
@@ -139,7 +139,7 @@ const ExamResultsRegisterView = ({
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-xs tracking-wider">
                     <th className="p-4 font-bold">Course</th>
                     <th className="p-4 font-bold">Teacher</th>
-                    <th className="p-4 font-bold">Session / Semester</th>
+                    <th className="p-4 font-bold">Session / Section</th>
                     <th className="p-4 font-bold">Exam</th>
                     <th className="p-4 font-bold">Marks</th>
                     <th className="p-4 font-bold">Status</th>

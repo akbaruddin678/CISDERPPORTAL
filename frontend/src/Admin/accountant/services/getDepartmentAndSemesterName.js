@@ -1,13 +1,13 @@
 const getDepartmentAndSemesterName = (extra = []) => {
   const challanTypeOptions = [
-    { value: "1st_semester", label: "1st Semester" },
-    { value: "2nd_semester", label: "2nd Semester" },
-    { value: "3rd_semester", label: "3rd Semester" },
-    { value: "4th_semester", label: "4th Semester" },
-    { value: "5th_semester", label: "5th Semester" },
-    { value: "6th_semester", label: "6th Semester" },
-    { value: "7th_semester", label: "7th Semester" },
-    { value: "8th_semester", label: "8th Semester" },
+    { value: "1st_semester", label: "1st Section" },
+    { value: "2nd_semester", label: "2nd Section" },
+    { value: "3rd_semester", label: "3rd Section" },
+    { value: "4th_semester", label: "4th Section" },
+    { value: "5th_semester", label: "5th Section" },
+    { value: "6th_semester", label: "6th Section" },
+    { value: "7th_semester", label: "7th Section" },
+    { value: "8th_semester", label: "8th Section" },
     ...extra,
   ];
 

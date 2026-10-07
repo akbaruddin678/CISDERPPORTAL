@@ -12,7 +12,7 @@ const HodTimetableContainer = () => {
   return (
     <MasterTimetableView
       {...controller}
-      title="Department Timetable"
+      title="Class Timetable"
       subtitle="Schedule and manage your department's weekly class timetable."
     />
   );

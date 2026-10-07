@@ -87,34 +87,21 @@ export const RoleFilter = ({ selectedRoles, onRoleChange }) => {
           expandIcon={<ExpandMoreIcon />}
           className="bg-gray-50"
         >
-          <Box className="flex justify-between items-center w-full pr-4">
-            <Typography variant="h6" className="font-semibold text-gray-700">
-              Filter Users by Role
-            </Typography>
-            <div className="flex gap-2">
-              <Button
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectAll();
-                }}
-              >
-                Select All
-              </Button>
-              <Button
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleClearAll();
-                }}
-                color="error"
-              >
-                Clear
-              </Button>
-            </div>
-          </Box>
+          <Typography variant="h6" className="font-semibold text-gray-700">
+            Filter Users by Role
+          </Typography>
         </AccordionSummary>
         <AccordionDetails>
+          {/* Kept out of the summary: a <button> cannot sit inside the
+              accordion header's own <button>. */}
+          <div className="flex gap-2 mb-3">
+            <Button size="small" onClick={handleSelectAll}>
+              Select All
+            </Button>
+            <Button size="small" onClick={handleClearAll} color="error">
+              Clear
+            </Button>
+          </div>
           <Grid container spacing={2}>
             {Object.entries(roleGroups).map(([groupName, roles]) => (
               <Grid item xs={12} sm={6} md={4} lg={2.4} key={groupName}>

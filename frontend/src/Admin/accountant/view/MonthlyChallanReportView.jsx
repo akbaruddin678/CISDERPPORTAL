@@ -391,7 +391,7 @@ const MonthlyChallanReportView = (props) => {
             onChange={(e) => handleFilterChange("department", e.target.value)}
             className="w-[150px]"
           >
-            <option value="all">All Departments</option>
+            <option value="all">All Classes</option>
             {departmentOptions.map((d) => (
               <option key={d} value={d}>
                 {d}
@@ -417,7 +417,7 @@ const MonthlyChallanReportView = (props) => {
             onChange={(e) => handleFilterChange("semester", e.target.value)}
             className="w-[130px]"
           >
-            <option value="all">All Semesters</option>
+            <option value="all">All Sections</option>
             {semesterOptions.map((s) => (
               <option key={s} value={s}>
                 {s}

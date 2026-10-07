@@ -15,7 +15,7 @@ export const fineManagementApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Fines', 'OverdueChallans'],
+  tagTypes: ['Fines', 'OverdueChallans', 'FineSettings'],
   endpoints: (builder) => ({
     // Apply fine to challan
     applyFineToChallan: builder.mutation({
@@ -42,6 +42,16 @@ export const fineManagementApi = createApi({
       providesTags: ['OverdueChallans'],
     }),
 
+    // Late fine setting (0 = no fine after the due date)
+    getFineSettings: builder.query({
+      query: () => '/settings',
+      providesTags: ['FineSettings'],
+    }),
+    updateFineSettings: builder.mutation({
+      query: (body) => ({ url: '/settings', method: 'PUT', body }),
+      invalidatesTags: ['FineSettings', 'OverdueChallans'],
+    }),
+
     // Process overdue challans
     processOverdueChallans: builder.mutation({
       query: () => ({
@@ -58,4 +68,6 @@ export const {
   useGetOverdueChallansQuery,
   useLazyGetOverdueChallansQuery,
   useProcessOverdueChallansMutation,
+  useGetFineSettingsQuery,
+  useUpdateFineSettingsMutation,
 } = fineManagementApi;

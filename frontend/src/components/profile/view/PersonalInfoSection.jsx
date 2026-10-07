@@ -7,7 +7,7 @@ export const PersonalInfoSection = ({ data }) => (
     </h3>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <InfoField label="Full Name" value={data.fullName} />
-      {/* <InfoField label="Semester No" value={data.semesterNo} /> */}
+      {/* <InfoField label="Section No" value={data.semesterNo} /> */}
       {/* <InfoField label="Registration No" value={data.registrationNumber} /> */}
       <InfoField label="CNIC" value={data.cnic} />
       <InfoField label="Phone" value={data.phone} />

@@ -71,7 +71,7 @@ const MonitorFacultyView = ({
           Monitor Faculty &amp; Courses
         </Typography>
         <Typography variant="body2" color="#64748b" mt={0.25}>
-          Track exam publishing and marks-submission progress per faculty section in your department.
+          Track exam publishing and marks-submission progress per faculty section in your class.
         </Typography>
       </Box>
 
@@ -84,8 +84,8 @@ const MonitorFacultyView = ({
           <TextField select size="small" label="Program" disabled={isFetchingPrograms} value={filters.programId} onChange={(e) => handleFilterChange("programId", e.target.value)} sx={{ minWidth: 200, "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             {programs.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
-          <TextField select size="small" label="Semester" disabled={!filters.programId || isFetchingSemesters} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ minWidth: 160, "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
-            <MenuItem value="" sx={{ fontSize: 13 }}>All Semesters</MenuItem>
+          <TextField select size="small" label="Section" disabled={!filters.programId || isFetchingSemesters} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ minWidth: 160, "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
+            <MenuItem value="" sx={{ fontSize: 13 }}>All Sections</MenuItem>
             {semesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
           </TextField>
           <TextField

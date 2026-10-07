@@ -617,7 +617,7 @@ const DashboardView = () => {
                 style={{ display: "flex", alignItems: "center", gap: 6 }}
               >
                 <Wallet size={14} style={{ color: "#4F46E5" }} /> Revenue by
-                Semester
+                Section
               </div>
               <div style={{ fontSize: 11, color: "#A8A29E", marginTop: 2 }}>
                 Collected vs. pending across active parts
@@ -628,7 +628,7 @@ const DashboardView = () => {
             {chartData.length === 0 ? (
               <EmptyState
                 icon={BarChart}
-                title="No semester data yet"
+                title="No section data yet"
                 sub="Data will appear once challans are generated"
               />
             ) : (
@@ -970,7 +970,7 @@ const COISSemesterReport = ({ report }) => {
                   <td colSpan={6}>
                     <EmptyState
                       icon={Receipt}
-                      title="No tuition fee configured for this semester yet"
+                      title="No tuition fee configured for this section yet"
                     />
                   </td>
                 </tr>
@@ -1030,7 +1030,7 @@ const COISSemesterReport = ({ report }) => {
           >
             {monthlyCollection.tuition.length === 0 ? (
               <span style={{ fontSize: 12, color: "#A8A29E" }}>
-                No tuition fee configured for this semester yet.
+                No tuition fee configured for this section yet.
               </span>
             ) : (
               monthlyCollection.tuition.map((m) => (
@@ -1064,7 +1064,7 @@ const COISSemesterReport = ({ report }) => {
           >
             {monthlyCollection.hostelMonthly.length === 0 ? (
               <span style={{ fontSize: 12, color: "#A8A29E" }}>
-                No hostel monthly challans for this semester.
+                No hostel monthly challans for this section.
               </span>
             ) : (
               monthlyCollection.hostelMonthly.map((m, i) => (
@@ -1295,7 +1295,7 @@ const COISProfileInfo = ({ student }) => {
           }}
         >
           <InfoRow label="Program" val={student?.programId?.name} />
-          <InfoRow label="Department" val={student?.departmentId?.name} />
+          <InfoRow label="Class" val={student?.departmentId?.name} />
           <InfoRow label="Session" val={student?.termId?.name} />
           <InfoRow
             label="Part"
@@ -1622,7 +1622,7 @@ const Student360 = ({ studentId, onBack }) => {
               {[
                 { label: "Program", val: student?.programId?.name || "N/A" },
                 {
-                  label: "Department",
+                  label: "Class",
                   val: student?.departmentId?.name || "N/A",
                 },
                 {
@@ -1751,7 +1751,7 @@ const Student360 = ({ studentId, onBack }) => {
               ) : (
                 <EmptyState
                   icon={Receipt}
-                  title="No semester data available for this student"
+                  title="No section data available for this student"
                 />
               ))}
 
@@ -5215,8 +5215,8 @@ const InstallmentView = () => {
                   color: "#B91C1C",
                 }}
               >
-                The selected student(s) have no Part/Semester on record —
-                installment plans must be bound to a specific semester.
+                The selected student(s) have no Part/Section on record —
+                installment plans must be bound to a specific section.
               </div>
             )}
 

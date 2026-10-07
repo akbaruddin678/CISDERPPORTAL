@@ -5,8 +5,11 @@ import {
   processOverdueChallans,
   payFine,
   waiveFine,
-    getFineHistory
+    getFineHistory,
+  getFineSettings,
+  updateFineSettings
 } from '../controller/fine.controller.js';
+import { protect, requireRole } from '../../core/middleware/auth.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { validateObjectIds } from '../middleware/validation.js';
 
@@ -14,6 +17,9 @@ const router = express.Router();
 
 // router.use(authenticate);
 // router.use(authorize('admin', 'accountant'));
+
+router.get('/settings', protect, requireRole('accountant', 'headofaccount', 'admin'), getFineSettings);
+router.put('/settings', protect, requireRole('accountant', 'headofaccount', 'admin'), updateFineSettings);
 
 router.post('/challans/:id/apply-fine', validateObjectIds(['id']), applyFine);
 router.get('/overdue', getOverdueChallans);
