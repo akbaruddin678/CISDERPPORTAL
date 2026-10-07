@@ -38,7 +38,21 @@ export const getCompleteCatalog = asyncHandler(async (req, res) => {
   // 4. If a filter was applied, enforce the department query to match only valid IDs
   let departmentQuery = {};
   if (level || excludeLevel) {
-    departmentQuery._id = { $in: departmentIds };
+    // Departments with no programs at all (e.g. school classes such as
+    // "9th Class" whose students are linked by department only) are not tied
+    // to any level, so they must not be filtered out with the HSSC programs.
+    let programlessDepartmentIds = [];
+    if (excludeLevel && !level) {
+      const departmentsWithPrograms = await Program.distinct("departmentId");
+      const withPrograms = new Set(
+        departmentsWithPrograms.filter(Boolean).map((id) => id.toString()),
+      );
+      const allDepartments = await Department.find().select("_id").lean();
+      programlessDepartmentIds = allDepartments
+        .map((d) => d._id)
+        .filter((id) => !withPrograms.has(id.toString()));
+    }
+    departmentQuery._id = { $in: [...departmentIds, ...programlessDepartmentIds] };
   }
 
   // Terms are a single shared collection for both university semester

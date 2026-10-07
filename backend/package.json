@@ -10,7 +10,8 @@
     "backfill:admission-term": "node scripts/2026-09-backfill-admission-term-id.mjs",
     "backfill:rooms": "node scripts/2026-10-backfill-room-collection.mjs",
     "backfill:campus": "node scripts/backfill-campus.mjs",
-    "create:admin": "node scripts/create-admin.mjs"
+    "create:admin": "node scripts/create-admin.mjs",
+    "import:cisd-rawat": "node scripts/import-cisd-rawat-students.mjs"
   },
   "keywords": [],
   "author": "",

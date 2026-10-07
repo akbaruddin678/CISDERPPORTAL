@@ -100,7 +100,9 @@ export class StudentService {
     // that program can only have come from an already-scoped catalog dropdown.
     if (excludeLevel && !programId) {
       const validProgramIds = await StudentChallanService.getValidUniversityProgramIds();
-      filter.programId = { $in: validProgramIds };
+      // `null` also matches students with no program (e.g. school classes
+      // imported with a department only), which would otherwise be hidden.
+      filter.programId = { $in: [...validProgramIds, null] };
     }
 
     // ✅ NEW: Apply Date Range Filter for New Admissions
