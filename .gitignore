@@ -26,3 +26,6 @@ Thumbs.db
 
 # Claude Code local files
 .claude/
+
+# Backed-up nested repos
+.git.bak/

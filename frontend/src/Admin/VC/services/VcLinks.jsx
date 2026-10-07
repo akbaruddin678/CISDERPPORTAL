@@ -1,0 +1,88 @@
+import React from "react";
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Award,
+  GraduationCap,
+  ClipboardList,
+  Wallet,
+  Users,
+  Bell,
+} from "lucide-react";
+
+export const VcLinks = () => {
+  return [
+    {
+      title: "Vice Chancellor Dashboard",
+      description: "University-wide overview and executive summaries.",
+      path: "/vc/dashboard",
+      icon: <LayoutDashboard size={24} strokeWidth={2} />,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      category: "Executive",
+    },
+    {
+      title: "Admissions",
+      description: "Every admission application, at every stage — full detail, read-only.",
+      path: "/vc/admissions",
+      icon: <ClipboardList size={24} strokeWidth={2} />,
+      color: "text-sky-600",
+      bg: "bg-sky-50",
+      category: "Executive",
+    },
+    {
+      title: "Accounts",
+      description: "Every student's fee ledger, plus revenue drilled down by department and program.",
+      path: "/vc/accounts",
+      icon: <Wallet size={24} strokeWidth={2} />,
+      color: "text-teal-600",
+      bg: "bg-teal-50",
+      category: "Executive",
+    },
+    {
+      title: "Student Directory",
+      description: "Browse every student by program and semester, with full profiles.",
+      path: "/vc/students",
+      icon: <Users size={24} strokeWidth={2} />,
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+      category: "Executive",
+    },
+    {
+      title: "Notifications",
+      description: "Publish targeted notices to student and teacher portals.",
+      path: "/communications/notifications",
+      icon: <Bell size={24} strokeWidth={2} />,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+      category: "Executive",
+    },
+    {
+      title: "Course Catalog",
+      description: "Browse all active courses by department and program.",
+      path: "/vc/course-review",
+      icon: <CheckSquare size={24} strokeWidth={2} />,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      category: "Academics",
+    },
+    {
+      title: "Approve Marks",
+      description: "Final sign-off on exam results — approving here officially declares them.",
+      path: "/vc/approve-marks",
+      icon: <GraduationCap size={24} strokeWidth={2} />,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+      category: "Academics",
+    },
+    {
+      title: "University Accreditations",
+      description: "View compliance reports and accreditation statuses.",
+      path: "/vc/accreditations",
+      icon: <Award size={24} strokeWidth={2} />,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50",
+      category: "Executive",
+    },
+  ];
+};

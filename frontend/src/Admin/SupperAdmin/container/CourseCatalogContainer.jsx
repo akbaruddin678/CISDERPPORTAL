@@ -1,0 +1,55 @@
+import React from "react";
+import { Box, Typography, Paper, CircularProgress } from "@mui/material";
+import { ShieldAlert } from "lucide-react";
+import { getUserProfile } from "../../teacher/services/getAuthToken";
+import CourseCatalogView from "../view/CourseCatalogView";
+import useCourseCatalogController from "../controller/useCourseCatalogController";
+
+const CourseCatalogContainer = () => {
+  const user = getUserProfile();
+  const roles = user?.roles || [];
+  const isAuthorized = roles.includes("admin");
+
+  const controller = useCourseCatalogController({ user });
+
+  if (!user) {
+    return (
+      <Box
+        p={10}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={2}
+      >
+        <CircularProgress />
+        <Typography color="text.secondary">Verifying session...</Typography>
+      </Box>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <Box p={4} display="flex" justifyContent="center">
+        <Paper
+          sx={{ p: 5, textAlign: "center", borderRadius: 3, maxWidth: 500 }}
+        >
+          <ShieldAlert
+            size={64}
+            color="#ef4444"
+            style={{ margin: "0 auto 16px" }}
+          />
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography color="text.secondary">
+            Only System Admin can create and manage the course catalog.
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
+  return <CourseCatalogView {...controller} />;
+};
+
+export default CourseCatalogContainer;

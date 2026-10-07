@@ -1,0 +1,122 @@
+.exam-workspace {
+  --exam-primary: #1d4ed8;
+  --exam-primary-dark: #1e3a8a;
+  --exam-text: #172033;
+  --exam-muted: #64748b;
+  --exam-border: #dfe5ee;
+  --exam-surface: #ffffff;
+  min-height: 100vh;
+  background: #f6f8fb;
+  color: var(--exam-text);
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.exam-workspace__context {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--exam-border);
+  backdrop-filter: blur(10px);
+}
+
+.exam-workspace__context-inner {
+  width: min(100%, 1440px);
+  min-height: 48px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exam-workspace__home,
+.exam-workspace__all-modules {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.exam-workspace__home:hover,
+.exam-workspace__all-modules:hover {
+  color: var(--exam-primary);
+}
+
+.exam-workspace__separator { color: #b0bac9; }
+
+.exam-workspace__current {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.exam-workspace__all-modules {
+  margin-left: auto;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.exam-workspace__content { min-width: 0; }
+
+/* A quiet, shared visual language for old and new Exam screens. */
+.exam-workspace__content .MuiPaper-root {
+  box-shadow: none;
+}
+
+.exam-workspace__content .MuiButton-root,
+.exam-workspace__content .MuiChip-root,
+.exam-workspace__content .MuiOutlinedInput-root,
+.exam-workspace__content .MuiDialog-paper {
+  border-radius: 9px;
+}
+
+.exam-workspace__content .MuiButton-containedPrimary {
+  background-color: var(--exam-primary);
+  box-shadow: none;
+}
+
+.exam-workspace__content .MuiButton-containedPrimary:hover {
+  background-color: var(--exam-primary-dark);
+  box-shadow: none;
+}
+
+.exam-workspace__content .MuiTableCell-head {
+  background: #f7f9fc;
+  color: #526079;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.exam-workspace__content .MuiTableRow-root:last-child .MuiTableCell-body {
+  border-bottom: 0;
+}
+
+.exam-workspace__content .MuiDialog-paper {
+  border: 1px solid var(--exam-border);
+}
+
+@media (max-width: 640px) {
+  .exam-workspace__context-inner { padding: 0 16px; }
+  .exam-workspace__all-modules span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exam-workspace *,
+  .exam-workspace *::before,
+  .exam-workspace *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

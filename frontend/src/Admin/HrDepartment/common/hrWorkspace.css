@@ -1,0 +1,93 @@
+.hr-workspace {
+  --hr-primary: #1d4ed8;
+  --hr-primary-dark: #1e3a8a;
+  --hr-text: #172033;
+  --hr-border: #dfe5ee;
+  min-height: 100vh;
+  background: #f6f8fb;
+  color: var(--hr-text);
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.hr-workspace__context {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--hr-border);
+  backdrop-filter: blur(10px);
+}
+
+.hr-workspace__context-inner {
+  width: min(100%, 1440px);
+  min-height: 48px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hr-workspace__home,
+.hr-workspace__all-modules {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.hr-workspace__home:hover,
+.hr-workspace__all-modules:hover { color: var(--hr-primary); }
+.hr-workspace__separator { color: #b0bac9; }
+
+.hr-workspace__current {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hr-workspace__all-modules {
+  margin-left: auto;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #f1f5f9;
+}
+
+.hr-workspace__content { min-width: 0; }
+.hr-workspace__content .MuiPaper-root { box-shadow: none; }
+.hr-workspace__content .MuiButton-root,
+.hr-workspace__content .MuiChip-root,
+.hr-workspace__content .MuiOutlinedInput-root,
+.hr-workspace__content .MuiDialog-paper { border-radius: 9px; }
+.hr-workspace__content .MuiButton-containedPrimary { background-color: var(--hr-primary); box-shadow: none; }
+.hr-workspace__content .MuiButton-containedPrimary:hover { background-color: var(--hr-primary-dark); box-shadow: none; }
+.hr-workspace__content .MuiTableCell-head {
+  background: #f7f9fc;
+  color: #526079;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+.hr-workspace__content .MuiTableRow-root:last-child .MuiTableCell-body { border-bottom: 0; }
+.hr-workspace__content .MuiDialog-paper { border: 1px solid var(--hr-border); }
+
+@media (max-width: 640px) {
+  .hr-workspace__context-inner { padding: 0 16px; }
+  .hr-workspace__all-modules { padding: 7px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hr-workspace *, .hr-workspace *::before, .hr-workspace *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
