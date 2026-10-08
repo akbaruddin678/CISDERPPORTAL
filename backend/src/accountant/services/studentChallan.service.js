@@ -3254,24 +3254,34 @@ export class StudentChallanService {
       excludeType,
       month,
       departmentId,
+      programId,
+      semesterId,
       scope,
     } = query;
-    // Powers the College Dashboard's by-semester chart too — university-only
-    // by default silently zeroed out that chart for every HSSC student.
-    const validProgramIds = await this.getProgramIdsForScope(
-      scope === "college" ? "college" : "university",
-    );
     const matchStage = {
       isDeleted: false,
       status: { $ne: "cancelled" },
-      programId: { $in: validProgramIds },
     };
+    // scope "all" covers every program (classes of a school/college).
+    // Older callers still pass "college" / default "university".
+    if (scope !== "all") {
+      const validProgramIds = await this.getProgramIdsForScope(
+        scope === "college" ? "college" : "university",
+      );
+      matchStage.programId = { $in: validProgramIds };
+    }
 
     const cleanT = safeString(termId);
     if (cleanT) matchStage.termId = new mongoose.Types.ObjectId(cleanT);
     const cleanDept = safeString(departmentId);
     if (cleanDept)
       matchStage.departmentId = new mongoose.Types.ObjectId(cleanDept);
+    const cleanProg = safeString(programId);
+    if (cleanProg)
+      matchStage.programId = new mongoose.Types.ObjectId(cleanProg);
+    const cleanSem = safeString(semesterId);
+    if (cleanSem)
+      matchStage.semesterId = new mongoose.Types.ObjectId(cleanSem);
     const cleanCat = safeString(category);
     if (cleanCat) matchStage.challanType = cleanCat;
     const cleanExclude = safeString(excludeType);

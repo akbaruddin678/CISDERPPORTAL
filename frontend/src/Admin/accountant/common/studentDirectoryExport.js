@@ -36,7 +36,7 @@ const rowsFromStudents = (students) =>
     program: s.programId?.name || s.program?.name || "—",
     semester:
       s.semesterId?.number || s.semester?.number
-        ? `Semester ${s.semesterId?.number || s.semester?.number}`
+        ? `Section ${s.semesterId?.number || s.semester?.number}`
         : "—",
   }));
 

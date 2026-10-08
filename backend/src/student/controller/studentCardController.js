@@ -40,7 +40,7 @@ async function loadStudentForCard(studentId) {
     .select("studentId status isTrashed departmentId programId semesterId termId")
     .populate("departmentId", "name")
     .populate("programId", "name level durationStages")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name startDate")
     .lean();
   if (!student || student.isTrashed) return null;
@@ -342,7 +342,7 @@ export const listStudentsForCards = asyncHandler(async (req, res) => {
       .select("studentId departmentId programId semesterId termId status")
       .populate("departmentId", "name")
       .populate("programId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("termId", "name")
       .sort({ studentId: 1 })
       .skip((page - 1) * limit)

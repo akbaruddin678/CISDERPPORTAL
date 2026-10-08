@@ -112,7 +112,7 @@ const ExamResultsRegisterView = ({
           >
             <option value="all">All Sections</option>
             {availableSemesters.map((n) => (
-              <option key={n} value={n}>Semester {n}</option>
+              <option key={n} value={n}>Section {n}</option>
             ))}
           </select>
         </div>
@@ -158,7 +158,7 @@ const ExamResultsRegisterView = ({
                       <td className="p-4 text-sm font-semibold text-slate-700">{s.teacherName}</td>
                       <td className="p-4">
                         <p className="text-sm font-semibold text-slate-600">{s.termName}</p>
-                        <p className="text-xs text-slate-400">Semester {s.semesterNumber ?? "?"}</p>
+                        <p className="text-xs text-slate-400">Section {s.semesterNumber ?? "?"}</p>
                       </td>
                       <td className="p-4">
                         <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-violet-50 text-violet-700">
@@ -198,7 +198,7 @@ const ExamResultsRegisterView = ({
                   {selectedSubmission.courseTitle} — {selectedSubmission.exam?.type}
                 </h2>
                 <p className="text-sm text-slate-500">
-                  {selectedSubmission.courseCode} · {selectedSubmission.teacherName} · {selectedSubmission.termName}, Semester {selectedSubmission.semesterNumber}
+                  {selectedSubmission.courseCode} · {selectedSubmission.teacherName} · {selectedSubmission.termName}, Section {selectedSubmission.semesterNumber}
                 </p>
               </div>
               <button onClick={closeDetails} className="p-2 hover:bg-slate-100 rounded-lg">

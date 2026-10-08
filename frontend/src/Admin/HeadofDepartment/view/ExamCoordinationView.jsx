@@ -130,7 +130,7 @@ const ExamCoordinationView = ({
                             <Typography fontWeight={700} fontSize={13} color="#0f172a">{e.courseId?.title}</Typography>
                             <Typography fontSize={11} color="#059669" fontWeight={700}>{e.courseId?.code}</Typography>
                           </TableCell>
-                          <TableCell><Typography fontSize={13} color="#475569">Semester {e.semesterId?.number ?? "?"}</Typography></TableCell>
+                          <TableCell><Typography fontSize={13} color="#475569">Section {e.semesterId?.number ?? "?"}</Typography></TableCell>
                           <TableCell><Chip size="small" label={e.type} sx={{ bgcolor: meta.bg, color: meta.color, fontWeight: 800, fontSize: 11 }} /></TableCell>
                           <TableCell><Typography fontSize={13} color="#334155">{formatDate(e.date)}</Typography></TableCell>
                           <TableCell><Typography fontSize={13} color="#334155">{e.startTime || "TBD"}</Typography></TableCell>

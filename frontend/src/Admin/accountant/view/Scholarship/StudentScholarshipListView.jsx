@@ -270,7 +270,7 @@ const StudentScholarshipListView = ({
                             <div className="text-slate-500 text-[11px] mt-1.5 font-medium">
                               {app.studentProgram || "—"}
                               {app.studentSemesterNumber
-                                ? ` · Sem ${app.studentSemesterNumber}`
+                                ? ` · Section ${app.studentSemesterNumber}`
                                 : ""}
                               {app.studentDepartment && (
                                 <div className="text-slate-400 text-[10px]">
@@ -302,7 +302,7 @@ const StudentScholarshipListView = ({
                           <Layers size={10} />
                           {app.semesterScope === "selective"
                             ? app.semesterNumbers?.length > 0
-                              ? `Sem ${app.semesterNumbers.join(", ")}`
+                              ? `Section ${app.semesterNumbers.join(", ")}`
                               : "Selected Semesters"
                             : "All Semesters"}
                         </span>

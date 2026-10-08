@@ -246,7 +246,7 @@ const StudentPromotionView = ({
                       </MenuItem>
                       {catalogData.semesters.map((s) => (
                         <MenuItem key={s._id} value={s._id}>
-                          {s.name || `Semester ${s.number}`}
+                          {s.name || `Section ${s.number}`}
                         </MenuItem>
                       ))}
                     </Select>
@@ -669,7 +669,7 @@ const StudentPromotionView = ({
                               <Chip
                                 label={
                                   student.semester?.name ||
-                                  `Sem ${student.semester?.number}`
+                                  `Section ${student.semester?.number}`
                                 }
                                 size="small"
                                 variant="outlined"

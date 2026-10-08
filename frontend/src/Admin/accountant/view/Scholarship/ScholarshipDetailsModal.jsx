@@ -58,7 +58,7 @@ const ScholarshipDetailsModal = ({
   const scopeLabel =
     application.semesterScope === "selective"
       ? application.semesterNumbers?.length > 0
-        ? `Sem ${application.semesterNumbers.join(", ")}`
+        ? `Section ${application.semesterNumbers.join(", ")}`
         : "Selected Semesters"
       : "All Semesters";
 

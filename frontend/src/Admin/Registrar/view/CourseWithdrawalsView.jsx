@@ -30,7 +30,7 @@ const WithdrawalDetailModal = ({ record, onClose }) => {
     ["Type", record.withdrawalType],
     ["Decided By", record.decidedBy?.personalInfo?.fullName || "—"],
     ["Decided On", record.decidedAt ? new Date(record.decidedAt).toLocaleDateString() : "—"],
-    ["Semester", reg?.semesterId?.number ? `Semester ${reg.semesterId.number}` : "—"],
+    ["Section", reg?.semesterId?.number ? `Section ${reg.semesterId.number}` : "—"],
     ["Session", reg?.termId?.name || "—"],
   ];
   return (

@@ -134,7 +134,7 @@ const RenewOverdueChallans = ({
             <option value="">All Sections</option>
             {semesters.map((s) => (
               <option key={s._id} value={s._id}>
-                Sem {s.number}
+                Section {s.number}
               </option>
             ))}
           </select>

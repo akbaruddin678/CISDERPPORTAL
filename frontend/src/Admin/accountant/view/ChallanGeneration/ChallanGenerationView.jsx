@@ -48,7 +48,7 @@ const exportToExcel = (challans, filters) => {
     "Registration ID",
     "Father Name",
     "Program",
-    "Semester",
+    "Section",
     "Session",
     "Challan Type",
     "Due Date",
@@ -90,7 +90,7 @@ const exportToExcel = (challans, filters) => {
       student.studentId || "",
       fatherName,
       c.programId?.name || "",
-      c.semesterId?.number ? `Semester ${c.semesterId.number}` : "",
+      c.semesterId?.number ? `Section ${c.semesterId.number}` : "",
       c.termId?.name || "",
       challanTypeLabel,
       fmtDate(c.dueDate),
@@ -419,7 +419,7 @@ const DossierModal = ({ challan, onClose, onPrint }) => {
                   icon: <Layers size={13} />,
                   label: "Section",
                   value: challan.semesterId?.number
-                    ? `Semester ${challan.semesterId.number}`
+                    ? `Section ${challan.semesterId.number}`
                     : "—",
                 },
                 {
@@ -946,7 +946,7 @@ const ChallanGenerationView = ({
             <option value="">All Sections</option>
             {semesters.map((s) => (
               <option key={s._id} value={s._id}>
-                Semester {s.number}
+                Section {s.number}
               </option>
             ))}
           </FilterSelect>

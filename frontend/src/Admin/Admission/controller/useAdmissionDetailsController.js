@@ -21,7 +21,7 @@ const useAdmissionDetailsController = (admissionId) => {
         generatedSemesters.push({
           _id: `${programId}-semester-${i}`,
           number: i,
-          name: `Semester ${i}`,
+          name: `Section ${i}`,
           programId: programId,
         });
       }

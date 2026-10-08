@@ -180,7 +180,7 @@ async function buildStudentFinancialPDF({
       [
         "Current Semester",
         studentDetails?.semesterId?.number
-          ? `Semester ${studentDetails.semesterId.number}`
+          ? `Section ${studentDetails.semesterId.number}`
           : "N/A",
         "",
         "",
@@ -257,8 +257,8 @@ async function buildStudentFinancialPDF({
       doc.setFont(undefined, "bold");
       doc.text(
         outstanding > 0
-          ? `Semester ${paddedSemNum} : ${fmtRs(outstanding)} Outstanding`
-          : `Semester ${paddedSemNum} : All Dues Cleared`,
+          ? `Section ${paddedSemNum} : ${fmtRs(outstanding)} Outstanding`
+          : `Section ${paddedSemNum} : All Dues Cleared`,
         14,
         y + 3,
       );
@@ -270,7 +270,7 @@ async function buildStudentFinancialPDF({
     doc.setFontSize(10);
     doc.setTextColor(30, 41, 59);
     doc.setFont(undefined, "bold");
-    doc.text(`Semester ${semNum}`, 14, y + 3);
+    doc.text(`Section ${semNum}`, 14, y + 3);
     doc.setFont(undefined, "normal");
 
     autoTable(doc, {
@@ -380,7 +380,7 @@ async function buildStudentFinancialWorkbook(studentsArray) {
       "Student Name": s.personalInfo?.fullName || s.fullName || "—",
       Program: s.programId?.name || "—",
       Department: s.departmentId?.name || "—",
-      Semester: s.semesterId?.number ? `Semester ${s.semesterId.number}` : "—",
+      Semester: s.semesterId?.number ? `Section ${s.semesterId.number}` : "—",
       Session: s.termId?.name || "—",
       "Net Billed": fs.netGenerated || 0,
       "Total Paid": fs.totalPaid || 0,
@@ -817,7 +817,7 @@ const StudentReportController = ({ children }) => {
     const sem = strictFilteredSemesters.find((s) => s._id === filters.semesterId);
     if (dept) parts.push(dept.name);
     if (prog) parts.push(prog.name);
-    if (sem) parts.push(sem.name || `Semester ${sem.number}`);
+    if (sem) parts.push(sem.name || `Section ${sem.number}`);
     return parts.length > 0 ? parts.join(" — ") : "All Students";
   })();
 

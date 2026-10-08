@@ -26,7 +26,7 @@ const EXPORT_COLUMNS = [
   { header: "Program", value: (a) => a.program?.name },
   { header: "Class", value: (a) => a.department },
   { header: "Session", value: (a) => a.session },
-  { header: "Section", value: (a) => (a.semester ? `Semester ${a.semester}` : "N/A") },
+  { header: "Section", value: (a) => (a.semester ? `Section ${a.semester}` : "N/A") },
   { header: "LMS Status", value: (a) => a.status },
   { header: "Fee Status", value: (a) => (a.feePendingForSemester ? "Pending" : "Paid") },
   {

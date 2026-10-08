@@ -108,7 +108,7 @@ const BatchFilter = ({
           </MenuItem>
           {semesters.map((s) => (
             <MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>
-              {s.name || `Semester ${s.number}`}
+              {s.name || `Section ${s.number}`}
             </MenuItem>
           ))}
         </TextField>

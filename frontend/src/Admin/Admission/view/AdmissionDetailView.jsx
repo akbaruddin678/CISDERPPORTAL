@@ -328,7 +328,7 @@ const AdmissionDetailView = ({
               {option.name ||
                 option.title ||
                 (option.number
-                  ? `Semester ${option.number}`
+                  ? `Section ${option.number}`
                   : `Option ${option._id}`)}
             </MenuItem>
           ))}

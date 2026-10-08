@@ -547,7 +547,7 @@ const SemesterReportBlock = ({ report = {} }) => {
         <div className="flex items-center gap-2.5 p-3 rounded-xl border border-amber-200 bg-amber-50">
           <AlertTriangle size={16} className="text-amber-600 shrink-0" />
           <p className="text-xs font-bold text-amber-800">
-            Previous Semester Due carried forward: {fmt(previousDue)} — added
+            Previous dues carried forward: {fmt(previousDue)} — added
             into this semester's Total Outstanding below.
           </p>
         </div>
@@ -1129,7 +1129,7 @@ const StudentReportView = ({
   const pDept = studentDetails?.departmentId?.name || "N/A";
   const pProg = studentDetails?.programId?.name || "N/A";
   const pSem = studentDetails?.semesterId?.number
-    ? `Semester ${studentDetails.semesterId.number}`
+    ? `Section ${studentDetails.semesterId.number}`
     : "N/A";
   const pTerm = studentDetails?.termId?.name || "N/A";
 
@@ -1256,7 +1256,7 @@ const StudentReportView = ({
                   {opts?.map((o) => (
                     <option key={o._id} value={o._id}>
                       {o.name ||
-                        (o.number ? `Semester ${o.number}` : "Unknown")}
+                        (o.number ? `Section ${o.number}` : "Unknown")}
                     </option>
                   ))}
                 </select>
@@ -1380,7 +1380,7 @@ const StudentReportView = ({
                             >
                               {semesterReports.map((s) => (
                                 <option key={s.semesterId} value={s.semesterId}>
-                                  Semester {s.number ?? "—"}
+                                  Section {s.number ?? "—"}
                                 </option>
                               ))}
                             </select>
@@ -1451,7 +1451,7 @@ const StudentReportView = ({
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-5 bg-indigo-500 rounded-full" />
                           <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">
-                            Semester {activeSemesterReport.number ?? "—"}
+                            Section {activeSemesterReport.number ?? "—"}
                           </h3>
                         </div>
                         <SemesterReportBlock report={activeSemesterReport} />

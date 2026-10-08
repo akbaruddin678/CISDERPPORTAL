@@ -234,13 +234,14 @@ const DashboardView = ({ data }) => {
                 <select
                   className="w-full p-2.5 text-sm border border-slate-200 rounded-lg disabled:bg-slate-50 outline-none focus:border-indigo-500 focus:ring-2 transition-all font-medium text-slate-700"
                   value={filters.semesterId}
-                  disabled={!filters.programId}
+                  disabled={!filters.departmentId}
                   onChange={(e) => updateFilters("semesterId", e.target.value)}
                 >
                   <option value="">All Sections</option>
                   {semesters.map((s) => (
                     <option key={s._id} value={s._id}>
-                      {s.name || `Semester ${s.number}`}
+                      {s.name || `Section ${s.number}`}
+                      {!filters.programId && s.programId?.name ? ` (${s.programId.name})` : ""}
                     </option>
                   ))}
                 </select>
@@ -296,7 +297,10 @@ const DashboardView = ({ data }) => {
                       <th className="p-4 whitespace-nowrap">Father Name</th>
                       <th className="p-4 whitespace-nowrap">CNIC</th>
                       <th className="p-4 whitespace-nowrap">Phone</th>
-                      <th className="p-4 whitespace-nowrap">Program Info</th>
+                      <th className="p-4 whitespace-nowrap">Class</th>
+                      <th className="p-4 whitespace-nowrap">Program</th>
+                      <th className="p-4 whitespace-nowrap">Section</th>
+                      <th className="p-4 whitespace-nowrap">Session</th>
                       <th className="p-4 whitespace-nowrap">Remark</th>
                       <th className="p-4 whitespace-nowrap text-center">
                         Status
@@ -354,17 +358,24 @@ const DashboardView = ({ data }) => {
                             <td className="p-4 font-mono text-slate-500 text-xs whitespace-nowrap">
                               {s.personalInfo?.phone || "-"}
                             </td>
+                            <td className="p-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                              {s.departmentId?.name || s.department?.name || "—"}
+                            </td>
                             <td className="p-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                              <div className="text-sm text-slate-700 flex items-center gap-1.5">
                                 <GraduationCap size={14} />{" "}
                                 {s.programId?.name || s.program?.name || "N/A"}
                               </div>
-                              <div className="text-[10px] font-bold text-slate-500 mt-0.5 ml-5">
-                                Sem{" "}
-                                {s.semesterId?.number ||
-                                  s.semester?.number ||
-                                  "-"}
-                              </div>
+                            </td>
+                            <td className="p-4 whitespace-nowrap text-sm text-slate-700">
+                              {s.semesterId?.name ||
+                                s.semester?.name ||
+                                (s.semesterId?.number || s.semester?.number
+                                  ? `Section ${s.semesterId?.number || s.semester?.number}`
+                                  : "—")}
+                            </td>
+                            <td className="p-4 whitespace-nowrap text-sm text-slate-600">
+                              {s.termId?.name || s.session?.name || "—"}
                             </td>
                             <td className="p-4 whitespace-nowrap">
                               {s.remark ? (

@@ -166,7 +166,7 @@ const useDateSheetController = () => {
         (s) =>
           String(s._id) === String(exam.semesterId?._id || exam.semesterId),
       );
-      const semName = `Semester ${semObj?.number || exam.semesterNumber || "?"}`;
+      const semName = `Section ${semObj?.number || exam.semesterNumber || "?"}`;
       const typeName = exam.type || "Other";
 
       if (!grouped[deptName]) grouped[deptName] = {};

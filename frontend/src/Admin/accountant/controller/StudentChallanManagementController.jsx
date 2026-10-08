@@ -124,16 +124,21 @@ const StudentChallanManagementController = ({ children }) => {
         String(filters.departmentId),
     );
   }, [catalog.programs, filters.departmentId]);
+  // Sections follow the chosen program; with only a class chosen they are
+  // every section of that class's programs.
   const semestersList = useMemo(() => {
-    if (!filters.programId) return [];
-    return catalog.semesters
-      .filter(
-        (s) =>
-          String(s.programId?._id || s.programId) ===
-          String(filters.programId),
-      )
-      .sort((a, b) => (a.number || 0) - (b.number || 0));
-  }, [catalog.semesters, filters.programId]);
+    if (!filters.programId && !filters.departmentId) return [];
+    let list = catalog.semesters;
+    if (filters.programId) {
+      list = list.filter(
+        (s) => String(s.programId?._id || s.programId) === String(filters.programId),
+      );
+    } else {
+      const programIds = new Set(programsList.map((p) => String(p._id)));
+      list = list.filter((s) => programIds.has(String(s.programId?._id || s.programId)));
+    }
+    return [...list].sort((a, b) => (a.number || 0) - (b.number || 0));
+  }, [catalog.semesters, filters.programId, filters.departmentId, programsList]);
 
   const { data: studRes, isFetching: isStudLoading } = useGetStudentsQuery({
     ...filters,

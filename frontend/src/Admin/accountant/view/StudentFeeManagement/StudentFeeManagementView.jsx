@@ -325,7 +325,7 @@ const FeeSetupPage = (props) => {
           <div className="flex-1 overflow-y-auto py-2">
             {selectedStudents.map((s) => {
               const name = s.personalInfo?.fullName || "Unknown";
-              const semNumber = s.semesterId?.number;
+              const semNumber = s.semesterId?.name || (s.semesterId?.number ? `Section ${s.semesterId.number}` : "");
               return (
                 <div
                   key={s._id}
@@ -343,7 +343,7 @@ const FeeSetupPage = (props) => {
                         </p>
                         {semNumber && (
                           <span className="text-[9px] font-bold text-sky-700 bg-sky-50 border border-sky-200 px-1.5 py-0.5 rounded">
-                            Sem {semNumber}
+                            {semNumber}
                           </span>
                         )}
                       </div>
@@ -397,8 +397,8 @@ const FeeSetupPage = (props) => {
                   }`}
                 >
                   {currentSemesterFeeStatus.configured
-                    ? `${tabMeta?.label} fee is already set up for Semester ${currentSemesterFeeStatus.semesterNumber ?? "—"}${currentSemesterFeeStatus.termName ? ` (${currentSemesterFeeStatus.termName})` : ""}.`
-                    : `This student needs a ${tabMeta?.label} fee setup for Semester ${currentSemesterFeeStatus.semesterNumber ?? "—"}${currentSemesterFeeStatus.termName ? ` (${currentSemesterFeeStatus.termName})` : ""} — none configured yet.`}
+                    ? `${tabMeta?.label} fee is already set up for Section ${currentSemesterFeeStatus.semesterNumber ?? "—"}${currentSemesterFeeStatus.termName ? ` (${currentSemesterFeeStatus.termName})` : ""}.`
+                    : `This student needs a ${tabMeta?.label} fee setup for Section ${currentSemesterFeeStatus.semesterNumber ?? "—"}${currentSemesterFeeStatus.termName ? ` (${currentSemesterFeeStatus.termName})` : ""} — none configured yet.`}
                   {currentSemesterFeeStatus.isLegacyUntagged && (
                     <span className="block text-xs font-normal text-emerald-700 mt-0.5">
                       This is an older record set up before section
@@ -420,7 +420,7 @@ const FeeSetupPage = (props) => {
                     <CheckCircle2 size={13} />
                     {isAssigningSemester
                       ? "Assigning..."
-                      : `Assign to Semester ${currentSemesterFeeStatus.semesterNumber ?? ""}`}
+                      : `Assign to Section ${currentSemesterFeeStatus.semesterNumber ?? ""}`}
                   </button>
                 )}
                 {hiddenOlderTermCount > 0 && (
@@ -559,7 +559,7 @@ const FeeSetupPage = (props) => {
                               </p>
                               {fee.semesterId?.number && (
                                 <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                                  Sem {fee.semesterId.number}
+                                  Section {fee.semesterId.number}
                                 </span>
                               )}
                               {isPastSemester && (
@@ -737,24 +737,6 @@ const MainPage = (props) => {
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
-              Academic Session <span className="text-rose-400">*</span>
-            </label>
-            <select
-              value={selectedTerm}
-              onChange={(e) => setSelectedTerm(e.target.value)}
-              className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white text-slate-700 font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-50 transition-all cursor-pointer"
-            >
-              <option value="">Select session…</option>
-              {termOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {[
             {
               label: "Class",
@@ -777,7 +759,14 @@ const MainPage = (props) => {
               onChange: (v) => setSelectedSem(v),
               opts: semOptions,
               placeholder: "All Sections",
-              disabled: !selectedProg,
+              disabled: !selectedDept,
+            },
+            {
+              label: "Session",
+              val: selectedTerm,
+              onChange: (v) => setSelectedTerm(v),
+              opts: termOptions,
+              placeholder: "All Sessions",
             },
           ].map(({ label, val, onChange, opts, placeholder, disabled }) => (
             <div key={label}>
@@ -888,8 +877,10 @@ const MainPage = (props) => {
                   "Father Name",
                   "CNIC",
                   "Phone",
+                  "Class",
                   "Program",
-                  "Semester",
+                  "Section",
+                  "Session",
                 ].map((h) => (
                   <th
                     key={h}
@@ -924,8 +915,12 @@ const MainPage = (props) => {
                     student.personalInfo?.fatherName ||
                     student.familyInfo?.fatherName ||
                     "—";
+                  const className = student.departmentId?.name || "—";
                   const program = student.programId?.name || "—";
-                  const sem = student.semesterId?.number;
+                  const sem =
+                    student.semesterId?.name ||
+                    (student.semesterId?.number ? `Section ${student.semesterId.number}` : "");
+                  const sessionName = student.termId?.name || "—";
 
                   return (
                     <tr
@@ -970,16 +965,24 @@ const MainPage = (props) => {
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="text-slate-700 text-xs font-medium">
+                          {className}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <span className="text-slate-600 text-xs">
                           {program}
                         </span>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         {sem ? (
-                          <Badge variant="info">Sem {sem}</Badge>
+                          <Badge variant="info">{sem}</Badge>
                         ) : (
                           <span className="text-slate-400 text-xs">—</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <span className="text-slate-600 text-xs">{sessionName}</span>
                       </td>
                     </tr>
                   );

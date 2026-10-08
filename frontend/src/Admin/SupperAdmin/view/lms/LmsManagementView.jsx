@@ -270,7 +270,7 @@ const LmsManagementView = ({
               <MenuItem value="">All Sections</MenuItem>
               {catalogData.semesters.map((s) => (
                 <MenuItem key={s._id} value={s._id}>
-                  Semester {s.number}
+                  Section {s.number}
                 </MenuItem>
               ))}
             </Select>

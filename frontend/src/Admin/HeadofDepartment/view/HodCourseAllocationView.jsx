@@ -114,7 +114,7 @@ const StatCard = ({ icon: Icon, label, value, color, bg }) => (
 const exportAllocationsExcel = (rows, sheetName, terms) => {
   const mapped = rows.map((r) => ({
     Session: terms.find((t) => t._id === r.termId)?.name || "Unknown",
-    Semester: `Semester ${r.semesterId?.number || "?"}`,
+    Semester: `Section ${r.semesterId?.number || "?"}`,
     Course: r.courseId?.title,
     Code: r.courseId?.code,
     Section: r.section,
@@ -419,7 +419,7 @@ const HodCourseAllocationView = ({
               {semesters.map((s) => (
                 <Chip
                   key={s._id}
-                  label={`Semester ${s.number}`}
+                  label={`Section ${s.number}`}
                   size="small"
                   onClick={() => handleFilterChange("semesterId", s._id)}
                   disabled={!filters.programId || isFetchingSemesters}
@@ -483,7 +483,7 @@ const HodCourseAllocationView = ({
             {/* ── Breadcrumb ── */}
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <Crumb
-                label={`Semester ${currentSemesterNumber ?? "?"}`}
+                label={`Section ${currentSemesterNumber ?? "?"}`}
                 onClick={
                   drillLevel !== "sessions" ? handleBackToSessions : undefined
                 }
@@ -1176,7 +1176,7 @@ const HodCourseAllocationView = ({
                       />
                       <Chip
                         size="small"
-                        label={`Semester ${currentSemesterNumber ?? "?"}`}
+                        label={`Section ${currentSemesterNumber ?? "?"}`}
                         sx={{
                           bgcolor: "#f5f3ff",
                           color: "#6d28d9",

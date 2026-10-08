@@ -210,7 +210,8 @@ const StudentManagementView = ({
                 <tr>
                   <th className="px-4 py-3">Student ID</th>
                   <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Program / Class</th>
+                  <th className="px-4 py-3">Class / Program</th>
+                  <th className="px-4 py-3">Section</th>
                   <th className="px-4 py-3">Reason</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -218,7 +219,7 @@ const StudentManagementView = ({
               <tbody className="divide-y divide-slate-100">
                 {isWithdrawnLoading ? (
                   <tr>
-                    <td colSpan={5} className="py-16 text-center">
+                    <td colSpan={6} className="py-16 text-center">
                       <FaSpinner className="animate-spin mx-auto text-indigo-500 mb-2" size={20} />
                       <p className="text-slate-400 text-sm">Loading withdrawn students…</p>
                     </td>
@@ -234,8 +235,11 @@ const StudentManagementView = ({
                         <p className="text-xs text-slate-400 mt-0.5">{student.personalInfo?.email}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm text-slate-700 leading-tight">{student.program?.name || "—"}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{student.department?.name}</p>
+                        <p className="text-sm text-slate-700 leading-tight">{student.department?.name || "—"}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{student.program?.name}</p>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-600">
+                        {student.semester?.name || (student.semester?.number ? `Section ${student.semester.number}` : "—")}
                       </td>
                       <td className="px-4 py-3 max-w-[220px]">
                         <p className="text-xs text-slate-600 truncate" title={student.remark || ""}>
@@ -263,7 +267,7 @@ const StudentManagementView = ({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-16 text-center">
+                    <td colSpan={6} className="py-16 text-center">
                       <FaUserSlash size={22} className="mx-auto text-slate-200 mb-3" />
                       <p className="text-slate-500 text-sm font-medium">No withdrawn students</p>
                     </td>
@@ -349,9 +353,14 @@ const StudentManagementView = ({
                 {catalogData.programs?.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}
               </SelectField>
 
-              <SelectField label="Section" value={filters.semesterId} disabled={!filters.programId} onChange={(e) => handleFilterChange("semesterId", e.target.value)}>
+              <SelectField label="Section" value={filters.semesterId} disabled={!filters.departmentId} onChange={(e) => handleFilterChange("semesterId", e.target.value)}>
                 <option value="">All Sections</option>
-                {catalogData.semesters?.map((s) => <option key={s._id} value={s._id}>Semester {s.number}</option>)}
+                {catalogData.semesters?.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name || `Section ${s.number}`}
+                    {!filters.programId && s.programId?.name ? ` (${s.programId.name})` : ""}
+                  </option>
+                ))}
               </SelectField>
 
               <SelectField label="Session" value={filters.sessionId} onChange={(e) => handleFilterChange("sessionId", e.target.value)}>
@@ -370,7 +379,7 @@ const StudentManagementView = ({
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse min-w-[880px]">
+            <table className="w-full text-left text-sm border-collapse min-w-[1000px]">
               <thead className="bg-slate-50/80 text-slate-400 font-medium text-[11px] uppercase tracking-wide border-b border-slate-100">
                 <tr>
                   <th className="px-4 py-3 w-10">
@@ -383,8 +392,10 @@ const StudentManagementView = ({
                   </th>
                   <th className="px-4 py-3">Student ID</th>
                   <th className="px-4 py-3">Name &amp; Contact</th>
-                  <th className="px-4 py-3">Program / Class</th>
-                  <th className="px-4 py-3">Session · Section</th>
+                  <th className="px-4 py-3">Class</th>
+                  <th className="px-4 py-3">Program</th>
+                  <th className="px-4 py-3">Section</th>
+                  <th className="px-4 py-3">Session</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -393,7 +404,7 @@ const StudentManagementView = ({
                 {loading ? (
                   [...Array(6)].map((_, i) => (
                     <tr key={i}>
-                      {[...Array(7)].map((__, j) => (
+                      {[...Array(9)].map((__, j) => (
                         <td key={j} className="px-4 py-4">
                           <div className="h-4 bg-slate-100 rounded-lg animate-pulse" style={{ width: `${60 + Math.random() * 30}%` }} />
                         </td>
@@ -432,17 +443,24 @@ const StudentManagementView = ({
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3">
-                          <p className="text-sm text-slate-700 leading-tight">{student.program?.name || "—"}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">{student.department?.name}</p>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-800">
+                          {student.department?.name || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-700">
+                          {student.program?.name || "—"}
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm text-slate-600">{student.session?.name || "—"}</p>
-                          {student.semester?.number && (
-                            <span className="mt-1 inline-block">
-                              <Badge label={`Sem ${student.semester.number}`} tone="slate" />
-                            </span>
+                          {student.semester?.name || student.semester?.number ? (
+                            <Badge
+                              label={student.semester?.name || `Section ${student.semester.number}`}
+                              tone="slate"
+                            />
+                          ) : (
+                            <span className="text-sm text-slate-400">—</span>
                           )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-600">
+                          {student.session?.name || "—"}
                         </td>
                         <td className="px-4 py-3">
                           <Badge
@@ -472,7 +490,7 @@ const StudentManagementView = ({
                   })
                 ) : (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center">
+                    <td colSpan={9} className="py-16 text-center">
                       <FaSearch size={22} className="mx-auto text-slate-200 mb-3" />
                       <p className="text-slate-500 text-sm font-medium">No students found</p>
                       <p className="text-slate-400 text-xs mt-0.5">Try adjusting your filters or search terms.</p>

@@ -36,7 +36,7 @@ const StudentPicker = ({ c }) => {
             <p className="text-[11px] font-mono font-semibold text-slate-500 truncate">{s.regNo}</p>
             <p className="text-[11px] font-medium text-slate-400 truncate">
               {s.programName}
-              {s.semesterNumber != null ? ` · Semester ${s.semesterNumber}` : ""}
+              {s.semesterNumber != null ? ` · Section ${s.semesterNumber}` : ""}
             </p>
           </div>
           <button
@@ -86,7 +86,7 @@ const StudentPicker = ({ c }) => {
           <option value="">All sections</option>
           {c.semesterNumbers.map((n) => (
             <option key={n} value={n}>
-              Semester {n}
+              Section {n}
             </option>
           ))}
         </select>
@@ -159,7 +159,7 @@ const StudentPicker = ({ c }) => {
                     <span className="font-sans">
                       {" "}
                       · {r.programName || "—"}
-                      {r.semesterNumber != null ? ` · Sem ${r.semesterNumber}` : ""}
+                      {r.semesterNumber != null ? ` · Section ${r.semesterNumber}` : ""}
                     </span>
                   </span>
                 </span>

@@ -600,7 +600,7 @@ export const FeeAnalyticsView = ({
             <option value="ALL">All Sections</option>
             {filteredSemesters.map((s) => (
               <option key={s._id || s.number} value={s._id || s.number}>
-                Semester {s.number}
+                Section {s.number}
               </option>
             ))}
           </select>

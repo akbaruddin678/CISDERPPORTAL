@@ -75,7 +75,7 @@ const ReportTab = (c) => (
       <select value={c.filters.semesterId} onChange={(e) => c.setFilter("semesterId", e.target.value)} className={selectCls}>
         <option value="">All sections</option>
         {c.semesters.map((s) => (
-          <option key={s._id} value={s._id}>Semester {s.number}</option>
+          <option key={s._id} value={s._id}>Section {s.number}</option>
         ))}
       </select>
       <select value={c.filters.termId} onChange={(e) => c.setFilter("termId", e.target.value)} className={selectCls}>

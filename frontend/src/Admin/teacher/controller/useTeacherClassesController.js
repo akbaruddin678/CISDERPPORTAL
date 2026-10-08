@@ -17,7 +17,7 @@ const mapAssignmentToCourse = (assignment) => ({
   code: assignment.courseId?.code || "N/A",
   program: assignment.programId?.name || "Unknown Program",
   semester: assignment.semesterId?.number
-    ? `Semester ${assignment.semesterId.number}`
+    ? `Section ${assignment.semesterId.number}`
     : "Unknown Semester",
   session: assignment.termId?.name || "Unknown Session",
   section: assignment.section,

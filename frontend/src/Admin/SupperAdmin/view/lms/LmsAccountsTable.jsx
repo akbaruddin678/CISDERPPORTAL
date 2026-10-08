@@ -104,7 +104,7 @@ const LmsAccountsTable = ({
               <TableCell>
                 <div className="text-sm">{a.session}</div>
                 <div className="text-xs text-gray-400">
-                  {a.semester ? `Semester ${a.semester}` : "N/A"}
+                  {a.semester ? `Section ${a.semester}` : "N/A"}
                 </div>
               </TableCell>
               <TableCell>

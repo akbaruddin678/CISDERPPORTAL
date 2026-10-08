@@ -568,6 +568,9 @@ const ReportGenerationView = ({
   reportData,
   summary,
   terms,
+  departments = [],
+  programs = [],
+  sections = [],
   feeCategoryOptions,
   monthOptions,
   isLoading,
@@ -639,28 +642,6 @@ const ReportGenerationView = ({
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex bg-slate-100 p-1 rounded-xl no-print">
-              <button
-                onClick={() => setFilters({ ...filters, scope: "university" })}
-                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 transition-all ${
-                  (filters.scope || "university") === "university"
-                    ? "bg-white text-indigo-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                <Building2 size={15} /> University
-              </button>
-              <button
-                onClick={() => setFilters({ ...filters, scope: "college" })}
-                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 transition-all ${
-                  filters.scope === "college"
-                    ? "bg-white text-indigo-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                <GraduationCap size={15} /> College
-              </button>
-            </div>
             <ActionBar
               onExportExcel={onExportExcel}
               onExportPDF={onExportPDF}
@@ -688,10 +669,60 @@ const ReportGenerationView = ({
                 setFilters({ ...filters, reportType: e.target.value })
               }
             >
-              <option value="program">Program Wise</option>
-              <option value="session">Session Wise</option>
               <option value="department">Class Wise</option>
+              <option value="program">Program Wise</option>
+              <option value="semester">Section Wise</option>
+              <option value="session">Session Wise</option>
             </select>
+
+            <select
+              className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-bold rounded-xl outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700 cursor-pointer transition-all disabled:opacity-50"
+              value={filters.departmentId}
+              disabled={false}
+              onChange={(e) =>
+                setFilters({ ...filters, departmentId: e.target.value })
+              }
+            >
+              <option value="">All Classes</option>
+              {departments.map((o) => (
+                <option key={o._id} value={o._id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-bold rounded-xl outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700 cursor-pointer transition-all disabled:opacity-50"
+              value={filters.programId}
+              disabled={programs.length === 0}
+              onChange={(e) =>
+                setFilters({ ...filters, programId: e.target.value })
+              }
+            >
+              <option value="">All Programs</option>
+              {programs.map((o) => (
+                <option key={o._id} value={o._id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="px-4 py-2.5 bg-slate-50 border border-slate-200 text-sm font-bold rounded-xl outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 text-slate-700 cursor-pointer transition-all disabled:opacity-50"
+              value={filters.semesterId}
+              disabled={sections.length === 0}
+              onChange={(e) =>
+                setFilters({ ...filters, semesterId: e.target.value })
+              }
+            >
+              <option value="">All Sections</option>
+              {sections.map((o) => (
+                <option key={o._id} value={o._id}>
+                  {o.name || `Section ${o.number}`}
+                </option>
+              ))}
+            </select>
+
 
             <MultiSelectDropdown
               options={feeCategoryOptions}
@@ -753,7 +784,12 @@ const ReportGenerationView = ({
         </div>
 
         {/* Active Filter Chips */}
-        {(filters.category?.length > 0 || filters.termId || filters.month) && (
+        {(filters.category?.length > 0 ||
+          filters.termId ||
+          filters.month ||
+          filters.departmentId ||
+          filters.programId ||
+          filters.semesterId) && (
           <div className="flex flex-wrap gap-2 px-1">
             {filters.category?.length > 0 && (
               <FilterChip
@@ -767,6 +803,30 @@ const ReportGenerationView = ({
                   .filter(Boolean)
                   .join(", ")}
                 onClear={() => setFilters({ ...filters, category: [] })}
+              />
+            )}
+            {filters.departmentId && (
+              <FilterChip
+                label="Class"
+                value={departments.find((d) => d._id === filters.departmentId)?.name}
+                onClear={() => setFilters({ ...filters, departmentId: "" })}
+              />
+            )}
+            {filters.programId && (
+              <FilterChip
+                label="Program"
+                value={programs.find((p) => p._id === filters.programId)?.name}
+                onClear={() => setFilters({ ...filters, programId: "" })}
+              />
+            )}
+            {filters.semesterId && (
+              <FilterChip
+                label="Section"
+                value={(() => {
+                  const sec = sections.find((s) => s._id === filters.semesterId);
+                  return sec ? sec.name || `Section ${sec.number}` : "";
+                })()}
+                onClear={() => setFilters({ ...filters, semesterId: "" })}
               />
             )}
             {filters.termId && (

@@ -109,7 +109,7 @@ export async function exportStudentProfilePDF({ studentDetails, activeStudent, f
 
   autoTable(doc, {
     startY: y,
-    head: [["Semester", "Code", "Course Title", "Credits", "Marks", "Grade", "Status"]],
+    head: [["Section", "Code", "Course Title", "Credits", "Marks", "Grade", "Status"]],
     body: rows.length
       ? rows.map((r) => [r.semester, r.code, r.title, r.credits, r.marks, r.grade, r.status])
       : [["-", "-", "No academic history available yet", "-", "-", "-", "-"]],

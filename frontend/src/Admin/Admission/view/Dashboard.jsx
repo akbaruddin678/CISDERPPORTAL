@@ -1430,7 +1430,7 @@ const Dashboard = () => {
                           {sp.termId?.name || "N/A"}
                         </p>
                         <p style={{ fontSize: 11, color: "#94a3b8", fontWeight: 500, margin: "2px 0 0" }}>
-                          {sp.semesterId?.number ? `Semester ${sp.semesterId.number}` : "N/A"}
+                          {sp.semesterId?.number ? `Section ${sp.semesterId.number}` : "N/A"}
                         </p>
                       </td>
                       <td style={{ padding: "14px 12px" }}>

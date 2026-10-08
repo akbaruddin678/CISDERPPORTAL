@@ -98,19 +98,34 @@ const useStudentFeeController = () => {
       )
       .map((p) => ({ label: p.name, value: p._id }));
   }, [catalog.programs, selectedDept]);
+  // Sections follow the chosen program; with only a class chosen they are
+  // every section of that class's programs (shown with the program name).
   const semOptions = useMemo(() => {
-    if (!selectedProg) return [];
-    return catalog.semesters
-      .filter(
-        (s) =>
-          String(s.programId?._id || s.programId) === String(selectedProg),
-      )
+    if (!selectedDept && !selectedProg) return [];
+    let list = catalog.semesters;
+    if (selectedProg) {
+      list = list.filter(
+        (s) => String(s.programId?._id || s.programId) === String(selectedProg),
+      );
+    } else {
+      const programIds = new Set(
+        catalog.programs
+          .filter(
+            (p) => String(p.departmentId?._id || p.departmentId) === String(selectedDept),
+          )
+          .map((p) => String(p._id)),
+      );
+      list = list.filter((s) => programIds.has(String(s.programId?._id || s.programId)));
+    }
+    return [...list]
       .sort((a, b) => (a.number || 0) - (b.number || 0))
       .map((s) => ({
-        label: s.name || `Semester ${s.number}`,
+        label:
+          (s.name || `Section ${s.number}`) +
+          (!selectedProg && s.programId?.name ? ` (${s.programId.name})` : ""),
         value: s._id,
       }));
-  }, [catalog.semesters, selectedProg]);
+  }, [catalog.semesters, catalog.programs, selectedDept, selectedProg]);
 
   // --- Students Fetching & Pagination ---
   const { data: studentsData, isFetching: loadingStudents } =
@@ -379,7 +394,7 @@ const useStudentFeeController = () => {
     if (!currentSemesterId) return;
     if (
       !window.confirm(
-        `Assign this fee record to Semester ${singleStudent?.semesterId?.number ?? ""}? This cannot be undone.`,
+        `Assign this fee record to Section ${singleStudent?.semesterId?.number ?? ""}? This cannot be undone.`,
       )
     )
       return;

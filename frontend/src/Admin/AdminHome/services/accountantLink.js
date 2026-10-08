@@ -29,16 +29,6 @@ export const accountantLinks = () => {
       bg: "#f5f3ff",
     },
      {
-      title: "New Admission",
-      subtitle: "List of New Students Registered",
-      path: "/student-admission",
-      description:
-        "View and check the admission details of newly registered students.",
-      icon: UserSquare2,
-      accent: "#7c3aed",
-      bg: "#f5f3ff",
-    },
-    {
       title: "Revenue Explorer",
       subtitle: "Class → Program → Section → Student",
       path: "/revenue-explorer",
@@ -88,16 +78,6 @@ export const accountantLinks = () => {
       icon: Award,
       accent: "#d97706",
       bg: "#fffbeb",
-    },
-    {
-      title: "Challan Requests",
-      subtitle: "Incoming Queue",
-      path: "/challan-request",
-      description:
-        "Review and approve incoming requests from students for new fee challans.",
-      icon: FilePlus2,
-      accent: "#0891b2",
-      bg: "#ecfeff",
     },
     {
       title: "Bulk Challan Print",

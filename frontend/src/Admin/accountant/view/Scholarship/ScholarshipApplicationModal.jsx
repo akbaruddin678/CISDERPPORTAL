@@ -332,7 +332,7 @@ const ScholarshipApplicationModal = ({
   const semRef = selectedStudentObj?.semesterId || selectedStudentObj?.semester;
   const semNumber =
     semRef?.number || semesters.find((s) => (s._id || s.id) === semRef)?.number;
-  const semName = semNumber ? `Semester ${semNumber}` : "—";
+  const semName = semNumber ? `Section ${semNumber}` : "—";
 
   const sessionName =
     selectedStudentObj?.termId?.name ||
@@ -532,7 +532,7 @@ const ScholarshipApplicationModal = ({
                           <option value="">All Sections</option>
                           {filteredSemesters.map((s) => (
                             <option key={s.id || s._id} value={s.id || s._id}>
-                              Semester {s.number}
+                              Section {s.number}
                             </option>
                           ))}
                         </select>
@@ -770,7 +770,7 @@ const ScholarshipApplicationModal = ({
                                     : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
                                 }`}
                               >
-                                Sem {s.number}
+                                Section {s.number}
                               </button>
                             );
                           })

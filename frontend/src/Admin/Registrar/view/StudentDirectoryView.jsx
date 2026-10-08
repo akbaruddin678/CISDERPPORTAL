@@ -81,7 +81,7 @@ const StudentDirectoryView = ({
                       <td className="px-6 py-4 font-mono text-slate-600">{student.studentId}</td>
                       <td className="px-6 py-4 text-slate-600">{student.program?.name || "N/A"}</td>
                       <td className="px-6 py-4 text-slate-600">
-                        {student.semester?.number ? `Semester ${student.semester.number}` : "N/A"}
+                        {student.semester?.number ? `Section ${student.semester.number}` : "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         <span
@@ -154,7 +154,7 @@ const StudentDirectoryView = ({
                     ["Phone", selectedStudent.personalInfo?.phone],
                     ["Department", selectedStudent.department?.name],
                     ["Program", selectedStudent.program?.name],
-                    ["Semester", selectedStudent.semester?.number ? `Semester ${selectedStudent.semester.number}` : "N/A"],
+                    ["Section", selectedStudent.semester?.number ? `Section ${selectedStudent.semester.number}` : "N/A"],
                     ["Session", selectedStudent.session?.name],
                     ["Status", selectedStudent.status],
                   ].map(([k, v]) => (

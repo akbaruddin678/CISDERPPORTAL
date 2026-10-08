@@ -39,7 +39,7 @@ export const useStudentDirectoryController = () => {
         s.studentId,
         s.personalInfo?.fullName || "N/A",
         s.program?.name || "N/A",
-        s.semester?.number ? `Semester ${s.semester.number}` : "N/A",
+        s.semester?.number ? `Section ${s.semester.number}` : "N/A",
         s.session?.name || "N/A",
         s.status,
       ]),
@@ -62,7 +62,7 @@ export const useStudentDirectoryController = () => {
       ["Phone", student.personalInfo?.phone || "N/A"],
       ["Department", student.department?.name || "N/A"],
       ["Program", student.program?.name || "N/A"],
-      ["Semester", student.semester?.number ? `Semester ${student.semester.number}` : "N/A"],
+      ["Section", student.semester?.number ? `Section ${student.semester.number}` : "N/A"],
       ["Session", student.session?.name || "N/A"],
       ["Status", student.status],
     ];

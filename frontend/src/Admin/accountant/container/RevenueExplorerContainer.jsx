@@ -32,7 +32,7 @@ const CATEGORY_COLORS = {
 
 const LEVEL_META = {
   department: { icon: Building2, label: "Class", next: "Programs" },
-  program: { icon: GraduationCap, label: "Program", next: "Semesters" },
+  program: { icon: GraduationCap, label: "Program", next: "Sections" },
   semester: { icon: Layers, label: "Section", next: "Students" },
 };
 
@@ -312,7 +312,7 @@ const RevenueExplorerContainer = ({ readOnly = false } = {}) => {
               Revenue Explorer
             </h1>
             <p className="text-xs text-slate-400">
-              Department → Program → Semester → Student ·{" "}
+              Class → Program → Section → Student ·{" "}
               {period?.monthName || monthOptions[month - 1]?.label} {period?.year || year}
             </p>
           </div>

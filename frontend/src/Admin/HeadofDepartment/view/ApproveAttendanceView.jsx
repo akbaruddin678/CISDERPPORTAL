@@ -189,7 +189,7 @@ const ApproveAttendanceView = ({
               <MenuItem value="all" sx={{ fontSize: 13 }}>All Sections</MenuItem>
               {availableSemesters.map((n) => (
                 <MenuItem key={n} value={n} sx={{ fontSize: 13 }}>
-                  Semester {n}
+                  Section {n}
                 </MenuItem>
               ))}
             </TextField>
@@ -243,7 +243,7 @@ const ApproveAttendanceView = ({
                           {s.termName}
                         </Typography>
                         <Typography fontSize={11} color="#94a3b8">
-                          Semester {s.semesterNumber ?? "?"}
+                          Section {s.semesterNumber ?? "?"}
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -296,7 +296,7 @@ const ApproveAttendanceView = ({
                     {selectedSubmission.courseTitle} — {selectedSubmission.exam?.type}
                   </Typography>
                   <Typography fontSize={12} color="#64748b">
-                    {selectedSubmission.courseCode} · {selectedSubmission.termName}, Semester {selectedSubmission.semesterNumber}
+                    {selectedSubmission.courseCode} · {selectedSubmission.termName}, Section {selectedSubmission.semesterNumber}
                   </Typography>
                 </Box>
                 <IconButton onClick={closeDetails}><X size={18} /></IconButton>

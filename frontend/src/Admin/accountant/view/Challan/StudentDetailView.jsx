@@ -58,6 +58,8 @@ const StudentDetailView = ({ data }) => {
       if (!groups.has(key)) {
         groups.set(key, {
           number: c.semesterId?.number ?? null,
+          name: c.semesterId?.name || "",
+          className: c.departmentId?.name || "",
           challans: [],
         });
       }
@@ -149,10 +151,10 @@ const StudentDetailView = ({ data }) => {
           challanId: c._id,
           label: c.isInstallment
             ? `Installment ${c.installmentNumber} Fee${
-                c.semesterId?.number ? ` (Sem ${c.semesterId.number})` : ""
+                c.semesterId?.number ? ` (Section ${c.semesterId.number})` : ""
               }`
             : `${(c.challanType || "Fee").replace(/_/g, " ")}${
-                c.semesterId?.number ? ` (Sem ${c.semesterId.number})` : ""
+                c.semesterId?.number ? ` (Section ${c.semesterId.number})` : ""
               }`,
           baseAmount: Math.max(0, (c.remainingAmount || 0) - (c.fineAmount || 0)),
           fineAmount: c.fineAmount || 0,
@@ -182,13 +184,29 @@ const StudentDetailView = ({ data }) => {
           <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mt-1">
             <span>ID: {selectedStudent.studentId}</span>
             <span>•</span>
+            {(selectedStudent.departmentId?.name || selectedStudent.department?.name) && (
+              <>
+                <span>
+                  Class: {selectedStudent.departmentId?.name || selectedStudent.department?.name}
+                </span>
+                <span>•</span>
+              </>
+            )}
             <span>
-              {selectedStudent.programId?.name || selectedStudent.program?.name}
+              Program: {selectedStudent.programId?.name || selectedStudent.program?.name || "—"}
             </span>
-            {selectedStudent.semesterId?.number && (
+            {(selectedStudent.semesterId?.name || selectedStudent.semesterId?.number) && (
               <>
                 <span>•</span>
-                <span>Semester {selectedStudent.semesterId.number}</span>
+                <span>
+                  Section: {selectedStudent.semesterId.name || selectedStudent.semesterId.number}
+                </span>
+              </>
+            )}
+            {(selectedStudent.termId?.name || selectedStudent.term?.name) && (
+              <>
+                <span>•</span>
+                <span>Session: {selectedStudent.termId?.name || selectedStudent.term?.name}</span>
               </>
             )}
           </div>
@@ -294,7 +312,7 @@ const StudentDetailView = ({ data }) => {
             onClick={() => setShowPreviousSemesters((v) => !v)}
             className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-slate-800"
           >
-            {showPreviousSemesters ? "Hide" : "Show"} previous semesters (
+            {showPreviousSemesters ? "Hide" : "Show"} previous classes / sections (
             {previousSemesterGroups.reduce((s, g) => s + g.challans.length, 0)}{" "}
             challans)
           </button>
@@ -303,7 +321,8 @@ const StudentDetailView = ({ data }) => {
               {previousSemesterGroups.map((g, idx) => (
                 <div key={idx}>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">
-                    Semester {g.number ?? "—"}
+                    {g.className ? `${g.className} · ` : ""}
+                    {g.name || (g.number ? `Section ${g.number}` : "—")}
                   </p>
                   <ChallanTable
                     challans={g.challans}

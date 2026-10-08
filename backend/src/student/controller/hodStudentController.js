@@ -119,7 +119,7 @@ export const getHodStudentsByProgram = asyncHandler(async (req, res) => {
   const [students, total, programTotal, activeTotal, semesterCounts] = await Promise.all([
     StudentProfile.find(filter)
     .select("studentId semesterId termId status")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name")
       .sort({ studentId: 1 })
       .skip((page - 1) * limit)
@@ -198,7 +198,7 @@ export const getHodStudentProfile = asyncHandler(async (req, res) => {
     .select("studentId departmentId programId semesterId termId status createdAt")
     .populate("departmentId", "name code")
     .populate("programId", "name code")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name startDate")
     .lean();
 

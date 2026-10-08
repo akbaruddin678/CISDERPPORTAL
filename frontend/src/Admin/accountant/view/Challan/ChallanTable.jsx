@@ -184,7 +184,7 @@ const ChallanTable = ({ challans, actions, onRowClick }) => {
                     >
                       {c.semesterId?.name ||
                         (c.semesterId?.number
-                          ? `Semester ${c.semesterId.number}`
+                          ? `Section ${c.semesterId.number}`
                           : "—")}
                     </td>
 

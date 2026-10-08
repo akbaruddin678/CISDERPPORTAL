@@ -335,7 +335,7 @@ const CreateExamView = ({
               const chip = (
                 <Chip
                   key={s._id}
-                  label={`Semester ${s.number}`}
+                  label={`Section ${s.number}`}
                   size="small"
                   onClick={() => handleFilterChange("semesterId", s._id)}
                   disabled={!filters.programId || isFetchingSemesters || isEmpty}

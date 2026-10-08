@@ -73,7 +73,6 @@ export const useStudentManagement = () => {
     // College students are managed separately — this directory is
     // University-only. Deleted college students still show up in the
     // Admin-side Student Trash page (that endpoint isn't level-filtered).
-    excludeCollege: true,
     // Withdrawn students get their own dedicated tab below instead of
     // being mixed into the main directory.
     excludeWithdrawn: true,
@@ -100,7 +99,7 @@ export const useStudentManagement = () => {
     isFetching: withdrawnLoading,
     refetch: refetchWithdrawn,
   } = useGetAllStudentsQuery(
-    { ...withdrawnFilters, limit: 10, status: "withdrawn", excludeCollege: true },
+    { ...withdrawnFilters, limit: 10, status: "withdrawn" },
     { refetchOnMountOrArgChange: true, skip: activeView !== "withdrawn" },
   );
   const withdrawnStudents = useMemo(() => withdrawnData?.data?.students || [], [withdrawnData]);
@@ -151,30 +150,11 @@ export const useStudentManagement = () => {
     sessions: sessionsData?.data || [],
   };
 
-  // College is managed separately (see the excludeCollege query flag
-  // above) — the filter dropdowns shouldn't offer college departments,
-  // programs, or semesters either, since selecting one would always come
-  // back empty. Department uses the same name-based heuristic already
-  // established in the Accountant module's own University/College split
-  // (Program is the only catalog entity with a real `level` field).
-  // Session/Term has no level concept — a session applies to both, so it
-  // isn't filtered.
-  const nonCollegeDepartments = useMemo(
-    () => rawCatalogData.departments.filter((d) => !d.name?.toLowerCase().includes("college")),
-    [rawCatalogData.departments],
-  );
-  const nonCollegePrograms = useMemo(
-    () => rawCatalogData.programs.filter((p) => p.level !== "HSSC"),
-    [rawCatalogData.programs],
-  );
-  const nonCollegeProgramIds = useMemo(
-    () => new Set(nonCollegePrograms.map((p) => p._id)),
-    [nonCollegePrograms],
-  );
-  const nonCollegeSemesters = useMemo(
-    () => rawCatalogData.semesters.filter((s) => nonCollegeProgramIds.has(s.programId?._id || s.programId)),
-    [rawCatalogData.semesters, nonCollegeProgramIds],
-  );
+  // Every class, program, section and session is available — this school /
+  // college directory is no longer split into University-only and College.
+  const nonCollegeDepartments = rawCatalogData.departments;
+  const nonCollegePrograms = rawCatalogData.programs;
+  const nonCollegeSemesters = rawCatalogData.semesters;
 
   const filteredPrograms = useMemo(() => {
     if (!filters.departmentId) return nonCollegePrograms;
@@ -183,12 +163,22 @@ export const useStudentManagement = () => {
     );
   }, [filters.departmentId, nonCollegePrograms]);
 
+  // Sections follow the chosen program; with only a class chosen they are
+  // every section of that class's programs.
   const filteredSemesters = useMemo(() => {
-    if (!filters.programId) return nonCollegeSemesters;
-    return nonCollegeSemesters
-      .filter((s) => (s.programId?._id || s.programId) === filters.programId)
-      .sort((a, b) => (a.number || 0) - (b.number || 0));
-  }, [filters.programId, nonCollegeSemesters]);
+    let list = nonCollegeSemesters;
+    if (filters.programId) {
+      list = list.filter((s) => String(s.programId?._id || s.programId) === String(filters.programId));
+    } else if (filters.departmentId) {
+      const programIds = new Set(
+        nonCollegePrograms
+          .filter((p) => String(p.departmentId?._id || p.departmentId) === String(filters.departmentId))
+          .map((p) => String(p._id)),
+      );
+      list = list.filter((s) => programIds.has(String(s.programId?._id || s.programId)));
+    }
+    return [...list].sort((a, b) => (a.number || 0) - (b.number || 0));
+  }, [filters.programId, filters.departmentId, nonCollegeSemesters, nonCollegePrograms]);
 
   const catalogData = useMemo(
     () => ({
@@ -387,10 +377,10 @@ export const useStudentManagement = () => {
           "Student ID": regNo,
           "Full Name": fullName,
           Status: profile.status || "-",
-          Department: profile.departmentId?.name || "-",
+          Class: profile.departmentId?.name || "-",
           Program: profile.programId?.name || "-",
+          Section: profile.semesterId?.name || (profile.semesterId?.number ? `Section ${profile.semesterId.number}` : "-"),
           Session: profile.termId?.name || "-",
-          Semester: profile.semesterId?.number ? `Sem ${profile.semesterId.number}` : "-",
           Gender: pInfo.gender || "-",
           DOB: fmtDate(pInfo.dob),
           CNIC: pInfo.cnic || "-",

@@ -661,7 +661,7 @@ const InstallmentConfigurationController = ({ children }) => {
       return;
     if (
       !window.confirm(
-        `Assign this installment plan to Semester ${activeSemesterNumber ?? ""}? This cannot be undone.`,
+        `Assign this installment plan to Section ${activeSemesterNumber ?? ""}? This cannot be undone.`,
       )
     )
       return;

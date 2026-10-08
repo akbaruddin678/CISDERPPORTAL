@@ -428,7 +428,7 @@ const BulkChallanManager = ({
                   <option value="">All</option>
                   {semesters.map((s) => (
                     <option key={s._id} value={s._id}>
-                      Sem {s.number}
+                      Section {s.number}
                     </option>
                   ))}
                 </select>

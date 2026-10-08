@@ -129,7 +129,7 @@ const ExamAttendanceView = ({
             {availablePrograms.map((p) => (<MenuItem key={p._id} value={p._id} sx={{ fontSize: 13 }}>{p.name}</MenuItem>))}
           </TextField>
           <TextField select fullWidth size="small" label="Section" disabled={!filters.programId} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
-            {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
+            {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Section ${s.number}`}</MenuItem>))}
           </TextField>
           <TextField
             select fullWidth size="small" label="Course Section"

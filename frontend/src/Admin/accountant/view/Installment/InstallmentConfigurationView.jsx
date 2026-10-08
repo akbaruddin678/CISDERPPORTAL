@@ -434,8 +434,8 @@ const SetupPage = ({ data }) => {
               }`}
             >
               {hasExistingPreference
-                ? `Editing the existing plan for Semester ${activeSemesterNumber ?? "—"}.`
-                : `No installment plan set yet for Semester ${activeSemesterNumber ?? "—"} — saving will create one.`}
+                ? `Editing the existing plan for Section ${activeSemesterNumber ?? "—"}.`
+                : `No installment plan set yet for Section ${activeSemesterNumber ?? "—"} — saving will create one.`}
               {isLegacyUntaggedPreference && (
                 <span className="block text-xs font-normal text-emerald-700 mt-0.5">
                   This is an older plan set up before section tracking —
@@ -454,7 +454,7 @@ const SetupPage = ({ data }) => {
                 <CheckCircle2 size={13} />
                 {isAssigningSemester
                   ? "Assigning..."
-                  : `Assign to Semester ${activeSemesterNumber ?? ""}`}
+                  : `Assign to Section ${activeSemesterNumber ?? ""}`}
               </button>
             )}
             {pastPreferences.length > 0 && (
@@ -1172,7 +1172,7 @@ const MainPage = ({ data }) => {
       options: semesters,
       placeholder: "All sections",
       disabled: !filters.programId,
-      labelFn: (opt) => opt.name || `Semester ${opt.number}`,
+      labelFn: (opt) => opt.name || `Section ${opt.number}`,
     },
   ];
 

@@ -125,7 +125,7 @@ export async function buildStudentProfilePdf({
   sectionTitle("Academic Information");
   table([
     ["Program", student.program?.name || "N/A", "Department", student.department?.name || "N/A"],
-    ["Semester", student.semester?.number ? `Semester ${student.semester.number}` : "N/A", "Session", student.session?.name || "N/A"],
+    ["Section", student.semester?.number ? `Section ${student.semester.number}` : "N/A", "Session", student.session?.name || "N/A"],
     ["Status", student.status || "N/A", "Enrollment", enrollment?.status || "N/A"],
   ], { columnStyles: { 0: { fontStyle: "bold", cellWidth: 32 }, 2: { fontStyle: "bold", cellWidth: 32 } } });
 

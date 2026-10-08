@@ -68,7 +68,7 @@ const useExamCoordinationController = () => {
         <tr>
           <td>${e.courseId?.code || ""} - ${e.courseId?.title || ""}</td>
           <td>${e.programId?.name || ""}</td>
-          <td>Semester ${e.semesterId?.number ?? "?"}</td>
+          <td>Section ${e.semesterId?.number ?? "?"}</td>
           <td>${e.type}</td>
           <td>${formatDate(e.date)}</td>
           <td>${e.startTime || "TBD"}</td>

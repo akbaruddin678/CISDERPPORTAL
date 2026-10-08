@@ -185,7 +185,7 @@ const populateClearance = (q) =>
   q
     .populate("programId", "name code")
     .populate("departmentId", "name code")
-    .populate("semesterId", "number");
+    .populate("semesterId", "name number");
 
 // Sends the viewer's list scope as a Mongo filter (or throws when the caller
 // has no graduation role at all).
@@ -274,7 +274,7 @@ export const getCandidates = handle(async (req, res) => {
     feeActivated: { $ne: false },
   })
     .select("studentId programId semesterId")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .lean();
 
   const running = await GraduationClearance.find({

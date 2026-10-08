@@ -41,7 +41,7 @@ export class WebsitePortalFeeService {
     })
       .populate("termId", "name")
       .populate("programId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -266,7 +266,7 @@ export class WebsitePortalFeeService {
     })
       .populate("termId", "name")
       .populate("programId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .sort({ createdAt: -1 })
       .lean();
 

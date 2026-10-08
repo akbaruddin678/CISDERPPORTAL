@@ -261,7 +261,7 @@ const ChallanSettingsView = (props) => {
                     <thead className="bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
                       <tr>
                         <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">
-                          {isSemesterTab ? "Semester" : "Name / Reference"}
+                          {isSemesterTab ? "Section" : "Name / Reference"}
                         </th>
                         <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">
                           Total Amount

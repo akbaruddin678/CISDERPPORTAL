@@ -86,7 +86,7 @@ const MonitorFacultyView = ({
           </TextField>
           <TextField select size="small" label="Section" disabled={!filters.programId || isFetchingSemesters} value={filters.semesterId} onChange={(e) => handleFilterChange("semesterId", e.target.value)} sx={{ minWidth: 160, "& .MuiOutlinedInput-root": { fontSize: 13 } }}>
             <MenuItem value="" sx={{ fontSize: 13 }}>All Sections</MenuItem>
-            {semesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
+            {semesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Section ${s.number}`}</MenuItem>))}
           </TextField>
           <TextField
             size="small" placeholder="Search course or instructor..."
@@ -142,7 +142,7 @@ const MonitorFacultyView = ({
                       </TableCell>
                       <TableCell><Typography fontSize={13} color="#334155">{r.section}</Typography></TableCell>
                       <TableCell><Typography fontSize={13} fontWeight={700} color="#334155">{r.instructorName}</Typography></TableCell>
-                      <TableCell><Typography fontSize={13} color="#475569">Semester {r.semesterNumber ?? "?"}</Typography></TableCell>
+                      <TableCell><Typography fontSize={13} color="#475569">Section {r.semesterNumber ?? "?"}</Typography></TableCell>
                       <TableCell>
                         <Chip
                           size="small"

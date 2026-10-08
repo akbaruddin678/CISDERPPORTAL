@@ -71,7 +71,7 @@ const HodAssignCourseView = ({
           color="#0f172a"
           fontFamily="'Aleo', serif"
         >
-          Assign Courses — Semester {semesterNumber ?? "?"}
+          Assign Courses — Section {semesterNumber ?? "?"}
         </Typography>
       </Box>
 

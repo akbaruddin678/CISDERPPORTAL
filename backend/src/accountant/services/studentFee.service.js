@@ -153,7 +153,7 @@ export class StudentFeeService {
   static async getStudentFees(studentId) {
     return await StudentFeeStructure.find({ studentId, isActive: true })
       .populate("termId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .sort({ createdAt: -1 });
   }
 

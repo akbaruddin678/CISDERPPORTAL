@@ -188,7 +188,7 @@ const buildChallanCard = (challan, copyTitle) => {
   const programName = challan.programId?.name || "N/A";
   const sessionName = challan.termId?.name || "N/A";
   const semesterNum = challan.semesterId?.number
-    ? `Semester ${challan.semesterId.number}`
+    ? `Section ${challan.semesterId.number}`
     : "N/A";
 
   const invoiceSuffix =

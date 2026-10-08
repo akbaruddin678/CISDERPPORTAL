@@ -151,7 +151,7 @@ export class StudentService {
     const students = await StudentProfile.find(filter)
       .populate("departmentId", "name code")
       .populate("programId", "name code level")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("termId", "name code")
       .select(
         "studentId status remark departmentId programId semesterId termId createdAt admissionReviewCompleted admissionReviewCompletedAt admissionLifecycleStatus cancelledAt cancelledReason reAdmittedAt",
@@ -295,7 +295,7 @@ export class StudentService {
     const student = await StudentProfile.findById(studentId)
       .populate("departmentId", "name code")
       .populate("programId", "name code level durationSemesters")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("termId", "name code startDate endDate")
       .lean();
 
@@ -360,7 +360,7 @@ export class StudentService {
     const students = await StudentProfile.find(filter)
       .populate("departmentId", "name code")
       .populate("programId", "name code level")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("termId", "name code")
       .select("studentId departmentId programId semesterId termId")
       .lean();
@@ -462,7 +462,7 @@ export class StudentService {
     const students = await StudentProfile.find(filter)
       .populate("departmentId", "name code")
       .populate("programId", "name code")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .select("studentId departmentId programId semesterId status")
       .lean();
 

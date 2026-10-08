@@ -68,9 +68,6 @@ const StudentChallanManagementContainer = lazy(
   () => import("../../accountant/container/StudentChallanManagementContainer"),
 );
 
-const StudentAdmissionContainer = lazy(
-  () => import("../../accountant/container/StudentAdmissionContainer"),
-);
 
 
 const ScholarshipPlan = lazy(
@@ -84,9 +81,6 @@ const RevenueExplorerContainer = lazy(
 );
 const ReportGenerationContainer = lazy(
   () => import("../../accountant/container/ReportGenerationContainer"),
-);
-const ChallanGenerationRequest = lazy(
-  () => import("../../accountant/container/ChallanGenerationRequestContainer"),
 );
 const DepartmentChallan = lazy(
   () => import("../../accountant/container/DepartmentChallanContainer"),
@@ -460,12 +454,6 @@ const getAdminRoutes = () => {
       isProtected: true,
       requiredRoles: ["accountant", "headofaccount"],
     },
-    {
-      path: "/student-admission",
-      element: StudentAdmissionContainer,
-      isProtected: true,
-      requiredRoles: ["accountant", "headofaccount"],
-    },
 
     {
       path: "/student-installment-management",
@@ -500,12 +488,6 @@ const getAdminRoutes = () => {
     {
       path: "/challan-reports",
       element: ReportGenerationContainer,
-      isProtected: true,
-      requiredRoles: ["accountant", "headofaccount"],
-    },
-    {
-      path: "/challan-request",
-      element: ChallanGenerationRequest,
       isProtected: true,
       requiredRoles: ["accountant", "headofaccount"],
     },

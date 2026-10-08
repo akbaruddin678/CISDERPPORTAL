@@ -32,7 +32,7 @@ const findStudentProfileForAdmission = (admissionId) =>
   StudentProfile.findOne({ createdFromApplicationId: admissionId })
     .populate("departmentId", "name")
     .populate("programId", "name level")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .populate("termId", "name")
     .lean();
 
@@ -494,7 +494,7 @@ export const getAdmissionProcessStats = asyncHandler(async (req, res) => {
       createdFromApplicationId: { $ne: null },
     })
       .select("_id semesterId")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .lean(),
     DeletedStudentRecord.countDocuments({ status: "trashed" }),
   ]);

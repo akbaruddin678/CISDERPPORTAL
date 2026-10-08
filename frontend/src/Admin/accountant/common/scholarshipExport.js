@@ -47,7 +47,7 @@ const rowsFromApplications = (apps) =>
     cnic: a.studentCNIC || "—",
     department: a.studentDepartment || "—",
     program: a.studentProgram || "—",
-    semester: a.studentSemesterNumber ? `Semester ${a.studentSemesterNumber}` : "—",
+    semester: a.studentSemesterNumber ? `Section ${a.studentSemesterNumber}` : "—",
     plan: a.planTitle || "—",
     tuition: a.hasFeeSetup ? fmtRs(a.tuitionAmount) : "Not set up",
     deduction: a.hasFeeSetup ? fmtRs(a.scholarshipAmount) : "—",

@@ -13,7 +13,8 @@
     "create:admin": "node scripts/create-admin.mjs",
     "import:cisd-rawat": "node scripts/import-cisd-rawat-students.mjs",
     "sync:cisd-rawat-challan": "node scripts/sync-cisd-rawat-challan-students.mjs",
-    "audit:cisd-rawat-challan": "node scripts/sync-cisd-rawat-challan-students.mjs --audit"
+    "audit:cisd-rawat-challan": "node scripts/sync-cisd-rawat-challan-students.mjs --audit",
+    "reset:student-data": "node scripts/reset-student-data.mjs"
   },
   "keywords": [],
   "author": "",

@@ -385,7 +385,7 @@ const DateSheetView = ({
               sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
             >
               <MenuItem value="all" sx={{ fontStyle: "italic", fontSize: 13 }}>All Sections</MenuItem>
-              {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
+              {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Section ${s.number}`}</MenuItem>))}
             </TextField>
           </Box>
         </Paper>

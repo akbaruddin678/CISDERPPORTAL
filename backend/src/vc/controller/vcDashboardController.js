@@ -96,7 +96,7 @@ export const getVcDashboardStats = asyncHandler(async (req, res) => {
     // Admission Office's own dashboard.
     StudentProfile.find({ isTrashed: { $ne: true }, createdFromApplicationId: { $ne: null } })
       .select("_id semesterId")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .lean(),
   ]);
 

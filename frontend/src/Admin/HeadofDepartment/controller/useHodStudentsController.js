@@ -61,7 +61,7 @@ const useHodStudentsController = () => {
     students.forEach((student) => {
       const number = student.semester?.number ?? null;
       const key = number === null ? "none" : String(number);
-      if (!map.has(key)) map.set(key, { key, semesterNumber: number, label: number === null ? "No semester" : `Semester ${number}`, students: [] });
+      if (!map.has(key)) map.set(key, { key, semesterNumber: number, label: number === null ? "No semester" : `Section ${number}`, students: [] });
       map.get(key).students.push(student);
     });
     return [...map.values()].sort((a, b) => (a.semesterNumber ?? Number.MAX_SAFE_INTEGER) - (b.semesterNumber ?? Number.MAX_SAFE_INTEGER));

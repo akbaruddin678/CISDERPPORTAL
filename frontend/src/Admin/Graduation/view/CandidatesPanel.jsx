@@ -201,7 +201,7 @@ const SemesterBar = ({ number, total, isFinal }) => {
     <div className="w-full">
       <div className="flex items-center justify-between text-[10px] font-bold mb-1">
         <span className={isFinal ? "text-emerald-600" : "text-slate-500"}>
-          Semester {number}
+          Section {number}
           {total ? ` of ${total}` : ""}
         </span>
         {isFinal && <span className="text-emerald-600">Final</span>}

@@ -69,6 +69,20 @@ const normalizeProgram = (value) => {
   throw new Error(`Unrecognized program/group: ${value}`);
 };
 
+const existingProgramCodes = {
+  "09:FD": "FD001",
+  "09:GD": "GD001",
+  "10:FD": "FD002",
+  "10:GD": "GD002",
+  "11:GD": "GD003",
+  "12:FD": "FD004",
+  "12:GD": "GD004",
+  "SC:DM": "CISDSCDM",
+  "SC:OM": "CISDSCOM",
+  "SC:CA": "CISDSCCA",
+  "SC:BT": "CISDSCBT",
+};
+
 const parseShortCourseDate = (value) => {
   const source = normalizeText(value).replace(/^starting\s*/i, "");
   const normalized = source
@@ -117,12 +131,12 @@ const classifyGrade = (grade) => {
   if (/^10th\b/i.test(value)) {
     return {
       classKey: "10",
-      departmentName: "10thClass",
+      departmentName: "10th Class",
       departmentCode: "10TH",
       term: {
-        name: "Session 2025–2027",
-        code: "CISD-2025-2027",
-        termType: "annual",
+        name: "2025-2027",
+        code: "2025-2027",
+        termType: "semester",
         startDate: new Date("2025-01-01T00:00:00.000Z"),
         endDate: new Date("2027-12-31T00:00:00.000Z"),
       },
@@ -148,9 +162,9 @@ const classifyGrade = (grade) => {
       departmentName: "12th Class",
       departmentCode: "12TH",
       term: {
-        name: "Session 2025–2027",
-        code: "CISD-2025-2027",
-        termType: "annual",
+        name: "2025-2027",
+        code: "2025-2027",
+        termType: "semester",
         startDate: new Date("2025-01-01T00:00:00.000Z"),
         endDate: new Date("2027-12-31T00:00:00.000Z"),
       },
@@ -176,6 +190,10 @@ const sourceStudents = rows.slice(4).flatMap((row, index) => {
   if (!Number.isFinite(Number(row[0])) || !normalizeText(row[1])) return [];
   const grade = classifyGrade(row[5]);
   const program = normalizeProgram(row[4]);
+  const programCode = existingProgramCodes[`${grade.classKey}:${program.suffix}`];
+  if (!programCode) {
+    throw new Error(`No existing-program mapping for ${grade.classKey}/${program.name}`);
+  }
   const cnicDigits = digitsOnly(row[3]);
   return [{
     sourceRow: index + 5,
@@ -186,6 +204,7 @@ const sourceStudents = rows.slice(4).flatMap((row, index) => {
     validCnic: cnicDigits.length === 13 ? cnicDigits : null,
     programName: program.name,
     programSuffix: program.suffix,
+    programCode,
     ...grade,
     withdrawn: /withdraw/i.test(normalizeText(row[7])),
   }];
@@ -270,9 +289,9 @@ const ensureDepartment = async (student) => {
     (item) => normalizedDepartment(item) === normalizeName(student.departmentName),
   ) || null;
   if (!department) {
-    department = await Department.create({ name: student.departmentName, code: student.departmentCode });
-    summary.catalogsCreated.departments += 1;
-  } else if (department.code !== department.code.trim()) {
+    throw new Error(`Existing class not found: ${student.departmentName}`);
+  }
+  if (apply && department.code !== department.code.trim()) {
     department.code = department.code.trim();
     await department.save();
   }
@@ -280,30 +299,30 @@ const ensureDepartment = async (student) => {
 };
 
 const ensureProgram = async (student, department) => {
-  let program = await Program.findOne({
-    departmentId: department._id,
-    name: { $regex: `^${student.programName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
-  });
+  const program = await Program.findOne({ code: student.programCode });
   if (!program) {
-    program = await Program.create({
-      code: `CISD${student.classKey}${student.programSuffix}`,
-      name: student.programName,
-      level: student.classKey === "SC" ? "DIPLOMA" : "HSSC",
-      durationStages: 1,
-      departmentId: department._id,
-      isActive: true,
-    });
-    summary.catalogsCreated.programs += 1;
+    throw new Error(`Existing program not found: ${student.programCode} (${student.programName})`);
+  }
+  if (String(program.departmentId) !== String(department._id)) {
+    throw new Error(`Program ${student.programCode} is not assigned to ${student.departmentName}`);
+  }
+  if (apply && program.name !== student.programName) {
+    program.name = student.programName;
+    await program.save();
   }
   return program;
 };
 
 const ensureSection = async (program) => {
-  let section = await Semester.findOne({ programId: program._id, name: /^Section A$/i });
+  const sections = await Semester.find({ programId: program._id }).sort({ createdAt: 1 });
+  let section = sections.find((item) => ["a", "sectiona"].includes(normalizeName(item.name))) || null;
   if (!section) {
+    if (!apply) {
+      return { _id: null, name: "A", number: 1, programId: program._id, isActive: true };
+    }
     section = await Semester.create({
       programId: program._id,
-      name: "Section A",
+      name: "A",
       number: 1,
       isActive: true,
     });
@@ -313,10 +332,9 @@ const ensureSection = async (program) => {
 };
 
 const ensureTerm = async (definition) => {
-  let term = await Term.findOne({ code: definition.code });
+  const term = await Term.findOne({ code: definition.code });
   if (!term) {
-    term = await Term.create({ ...definition, isActive: true });
-    summary.catalogsCreated.sessions += 1;
+    throw new Error(`Existing session not found: ${definition.code}`);
   }
   return term;
 };
@@ -324,6 +342,17 @@ const ensureTerm = async (definition) => {
 try {
   const campus = await School.findOne({ name: /^CISD\s+RAWAT$/i, isActive: true });
   if (!campus) throw new Error("Active campus 'CISD RAWAT' was not found");
+
+  const academicCache = new Map();
+  for (const student of sourceStudents) {
+    const key = [student.departmentName, student.programCode, student.term.code].join("|");
+    if (academicCache.has(key)) continue;
+    const department = await ensureDepartment(student);
+    const program = await ensureProgram(student, department);
+    const section = await ensureSection(program);
+    const term = await ensureTerm(student.term);
+    academicCache.set(key, { department, program, section, term });
+  }
 
   const existingProfiles = await StudentProfile.find({ campusId: campus._id }).lean();
   const profileIds = existingProfiles.map((profile) => profile._id);
@@ -435,7 +464,7 @@ try {
         [!student.validCnic || digitsOnly(personal?.cnic) === student.validCnic, "source CNIC"],
         [normalizeName(profile?.departmentId?.name) === normalizeName(student.departmentName), "class"],
         [normalizeName(profile?.programId?.name) === normalizeName(student.programName), "program"],
-        [profile?.semesterId?.name === "Section A", "section"],
+        [["a", "sectiona"].includes(normalizeName(profile?.semesterId?.name)), "section"],
         [profile?.termId?.code === student.term.code, "session"],
         [String(profile?.admissionTermId) === String(profile?.termId?._id), "admission session"],
         [String(enrollment?.programId) === String(profile?.programId?._id), "enrollment program"],
@@ -471,21 +500,10 @@ try {
   if (!apply) {
     console.log(audit ? "Audit complete." : "Dry run complete. Re-run with --apply to synchronize the portal.");
   } else {
-    const academicCache = new Map();
-    for (const student of sourceStudents) {
-      const key = [student.departmentName, student.programName, student.term.code].join("|");
-      if (academicCache.has(key)) continue;
-      const department = await ensureDepartment(student);
-      const program = await ensureProgram(student, department);
-      const section = await ensureSection(program);
-      const term = await ensureTerm(student.term);
-      academicCache.set(key, { department, program, section, term });
-    }
-
     const defaultPasswordHash = await bcrypt.hash("Welcome123!", 12);
     for (const plan of plans) {
       const { student, existing } = plan;
-      const academic = academicCache.get([student.departmentName, student.programName, student.term.code].join("|"));
+      const academic = academicCache.get([student.departmentName, student.programCode, student.term.code].join("|"));
       let session;
       try {
         session = await startSessionWithRetry();

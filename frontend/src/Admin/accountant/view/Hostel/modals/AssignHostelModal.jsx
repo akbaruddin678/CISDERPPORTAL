@@ -492,7 +492,7 @@ export default function AssignHostelModal({
                               marginTop: 1,
                             }}
                           >
-                            {regNo} · {prog} · Sem {sem} · {dept}
+                            {regNo} · {prog} · Section {sem} · {dept}
                           </div>
                         </div>
                         <input

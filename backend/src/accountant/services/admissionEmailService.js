@@ -35,7 +35,7 @@ export async function sendAdmissionEmailForStudent(studentId, { challan } = {}) 
     .populate("departmentId", "name")
     .populate("programId", "name")
     .populate("termId", "name")
-    .populate("semesterId", "number")
+    .populate("semesterId", "name number")
     .lean();
   if (!student) return false;
 

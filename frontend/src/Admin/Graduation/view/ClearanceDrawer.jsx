@@ -122,7 +122,7 @@ const ClearanceDrawer = ({ c, onClose }) => {
                 <p className="text-base font-black text-slate-900 truncate">{clearance.student?.fullName}</p>
                 <p className="text-[11px] font-mono font-semibold text-slate-400 truncate">
                   {clearance.student?.regNo} · {clearance.program?.name || "—"}
-                  {clearance.semesterNumber != null ? ` · Semester ${clearance.semesterNumber}` : ""}
+                  {clearance.semesterNumber != null ? ` · Section ${clearance.semesterNumber}` : ""}
                 </p>
               </div>
             </div>

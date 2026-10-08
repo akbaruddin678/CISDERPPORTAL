@@ -168,7 +168,7 @@ const AdmitCardView = ({
             onChange={(e) => handleFilterChange("semesterId", e.target.value)}
             sx={{ "& .MuiOutlinedInput-root": { fontSize: 13 } }}
           >
-            {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Semester ${s.number}`}</MenuItem>))}
+            {availableSemesters.map((s) => (<MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>{s.name || `Section ${s.number}`}</MenuItem>))}
           </TextField>
           <TextField
             select fullWidth size="small" label="5. Exam Round"
@@ -361,7 +361,7 @@ const AdmitCardView = ({
                           <TableCell>
                             <Typography fontSize={13}>{availablePrograms.find((p) => String(p._id) === String(card.programId))?.name || "Program"}</Typography>
                             <Typography fontSize={11} color="#2563eb" fontWeight={700}>
-                              Semester {semestersList.find((s) => String(s._id) === String(card.semesterId))?.number || "?"}
+                              Section {semestersList.find((s) => String(s._id) === String(card.semesterId))?.number || "?"}
                             </Typography>
                           </TableCell>
                           <TableCell><Chip label={card.examType || "N/A"} size="small" variant="outlined" sx={{ fontWeight: 700, fontSize: 11 }} /></TableCell>

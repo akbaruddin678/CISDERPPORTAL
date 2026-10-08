@@ -151,7 +151,7 @@ export class ScholarshipService {
   static async getStudentFeeContext(studentId) {
     const student = await StudentProfile.findById(studentId)
       .select("semesterId termId")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .lean();
 
     const empty = {
@@ -713,7 +713,7 @@ export class ScholarshipService {
         .select("studentId departmentId programId semesterId")
         .populate("departmentId", "name")
         .populate("programId", "name")
-        .populate("semesterId", "number")
+        .populate("semesterId", "name number")
         .lean(),
       StudentFeeStructure.find({
         studentId: { $in: studentIds },

@@ -6,7 +6,6 @@ import {
   useGetChallansPaginatedQuery,
   useGetMonthlyFinanceReportQuery,
 } from "../../accountant/api/studentChallanApi";
-import { useGetNewAdmissionsSummaryQuery } from "../../accountant/api/accountantstudentApi";
 import {
   BarChart,
   Bar,
@@ -276,9 +275,6 @@ const AccountantDashboard = () => {
     useGetChallansPaginatedQuery({ status: "issued", limit: 1 });
   const pendingCount = pendingRes?.data?.totalItems || 0;
 
-  const { data: newAdmissionsRes, isLoading: newAdmissionsLoading } =
-    useGetNewAdmissionsSummaryQuery();
-  const newAdmissionsLast2Days = newAdmissionsRes?.data?.last2Days || 0;
 
   const { data: recentRes, isLoading: recentLoading } =
     useGetChallansPaginatedQuery({ limit: 5 });
@@ -651,16 +647,6 @@ const AccountantDashboard = () => {
             color="#059669"
             bg="#ecfdf5"
             loading={statsLoading}
-          />
-          <StatCard
-            label="New Admissions"
-            value={newAdmissionsLoading ? "—" : newAdmissionsLast2Days}
-            sub="Arrived in the last 2 days"
-            icon={<UserPlus size={14} />}
-            color="#4f46e5"
-            bg="#eef2ff"
-            loading={newAdmissionsLoading}
-            onClick={() => navigate("/student-admission")}
           />
         </div>
 

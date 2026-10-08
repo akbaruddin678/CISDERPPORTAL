@@ -189,7 +189,7 @@ const UFMView = ({
                   </MenuItem>
                   {availableSemesters.map((s) => (
                     <MenuItem key={s._id} value={s._id}>
-                      {s.name || `Semester ${s.number}`}
+                      {s.name || `Section ${s.number}`}
                     </MenuItem>
                   ))}
                 </TextField>

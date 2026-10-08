@@ -503,7 +503,7 @@ const StudentAcademicHistoryView = () => {
   const selectedDept = departments.find((d) => d._id === filters.departmentId);
   const selectedProgram = programs.find((p) => p._id === filters.programId);
   const selectedSemester = semesters.find((s) => s._id === filters.semesterId);
-  const batchLabel = [selectedDept?.name, selectedProgram?.name, selectedSemester ? `Sem ${selectedSemester.number}` : null]
+  const batchLabel = [selectedDept?.name, selectedProgram?.name, selectedSemester ? `Section ${selectedSemester.number}` : null]
     .filter(Boolean)
     .join(" · ") || "Selected Batch";
   const hasActiveFilters = Boolean(filters.departmentId || filters.programId || filters.semesterId);
@@ -701,11 +701,11 @@ const StudentAcademicHistoryView = () => {
               value={filters.semesterId || ""}
               onChange={(e) => handleFilterChange("semesterId", e.target.value)}
               sx={fieldSelectSx}
-              renderValue={(v) => (v ? (semesters.find((s) => s._id === v)?.name || `Semester ${semesters.find((s) => s._id === v)?.number}`) : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>Select Section</em>)}
+              renderValue={(v) => (v ? (semesters.find((s) => s._id === v)?.name || `Section ${semesters.find((s) => s._id === v)?.number}`) : <em style={{ color: "#94a3b8", fontStyle: "normal" }}>Select Section</em>)}
             >
               {semesters.map((s) => (
                 <MenuItem key={s._id} value={s._id} sx={{ fontSize: 13 }}>
-                  {s.name || `Semester ${s.number}`}
+                  {s.name || `Section ${s.number}`}
                 </MenuItem>
               ))}
             </Select>
@@ -879,7 +879,7 @@ const StudentAcademicHistoryView = () => {
                   {[
                     studentDetails?.department?.name,
                     studentDetails?.program?.name,
-                    studentDetails?.semester?.number ? `Semester ${studentDetails.semester.number}` : null,
+                    studentDetails?.semester?.number ? `Section ${studentDetails.semester.number}` : null,
                     studentDetails?.session?.name,
                   ]
                     .filter(Boolean)

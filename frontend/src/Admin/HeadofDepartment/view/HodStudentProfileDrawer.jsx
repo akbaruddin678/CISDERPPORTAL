@@ -161,7 +161,7 @@ const HodStudentProfileDrawer = ({
   const e = profile?.enrollment || {};
   const education = profile?.educationHistory || [];
   const age = ageFrom(p.dob);
-  const semesterLabel = profile?.semester?.number ? `Semester ${profile.semester.number}` : null;
+  const semesterLabel = profile?.semester?.number ? `Section ${profile.semester.number}` : null;
 
   return (
     <div className="fixed inset-0 z-[110]">

@@ -94,7 +94,7 @@ const CourseWithdrawalsView = ({
                       <Typography fontSize={13} fontWeight={700} color="#334155">{r.courseId?.title}</Typography>
                       <Typography fontSize={11} color="#059669" fontWeight={700}>{r.courseId?.code}</Typography>
                     </TableCell>
-                    <TableCell><Typography fontSize={13} color="#475569">Semester {r.semesterId?.number ?? "?"}</Typography></TableCell>
+                    <TableCell><Typography fontSize={13} color="#475569">Section {r.semesterId?.number ?? "?"}</Typography></TableCell>
                     <TableCell><Typography fontSize={13} color="#475569">{r.termId?.name}</Typography></TableCell>
                     <TableCell align="right">
                       <Button
