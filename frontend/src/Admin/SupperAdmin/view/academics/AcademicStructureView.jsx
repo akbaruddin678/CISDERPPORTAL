@@ -15,13 +15,26 @@ import { Building2 } from "lucide-react";
 import { Add } from "@mui/icons-material";
 
 import { DepartmentFormModal } from "./DepartmentFormModal";
+import { ProgramFormModal } from "./ProgramFormModal";
 import { SemesterFormModal } from "./SemesterFormModal";
 import { DepartmentListCard } from "./DepartmentListCard";
 
 export const AcademicStructureView = ({
   departments,
-  sectionsByClass,
+  programsByClass,
+  sectionsByProgram,
   isLoading,
+
+  // Program modal
+  isProgramModalOpen,
+  editingProg,
+  progForm,
+  programError,
+  handleOpenProgramModal,
+  handleCloseProgramModal,
+  onSubmitProgram,
+  handleDeleteProgram,
+  addSectionProgram,
 
   // Class modal
   isDeptModalOpen,
@@ -71,7 +84,7 @@ export const AcademicStructureView = ({
               Academic Management
             </Typography>
             <Typography variant="body2" className="text-gray-500">
-              Classes and their Sections
+              Classes, their Programs and Sections
             </Typography>
           </Box>
         </Box>
@@ -90,8 +103,12 @@ export const AcademicStructureView = ({
           <DepartmentListCard
             key={dept._id}
             department={dept}
-            sections={sectionsByClass[dept._id] || []}
+            programs={programsByClass[dept._id] || []}
+            sectionsByProgram={sectionsByProgram}
             onEditDept={handleOpenDeptModal}
+            onAddProgram={handleOpenProgramModal}
+            onEditProgram={(prog) => handleOpenProgramModal(dept, prog)}
+            onDeleteProgram={handleDeleteProgram}
             onAddSection={handleOpenAddSection}
             onEditSection={handleOpenSemesterModal}
           />
@@ -110,13 +127,26 @@ export const AcademicStructureView = ({
         editingDept={editingDept}
       />
 
+      <ProgramFormModal
+        open={isProgramModalOpen}
+        onClose={handleCloseProgramModal}
+        form={progForm}
+        departments={departments}
+        onSubmit={onSubmitProgram}
+        isLoading={isSubmitting}
+        editingProg={editingProg}
+        error={programError}
+      />
+
       <Dialog
         open={!!addSectionClass}
         onClose={handleCloseAddSection}
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>Add Section to {addSectionClass?.name}</DialogTitle>
+        <DialogTitle>
+          Add Section to {addSectionProgram?.name || addSectionClass?.name}
+        </DialogTitle>
         <form onSubmit={onSubmitAddSection}>
           <DialogContent>
             {addSectionError && (

@@ -14,9 +14,10 @@ import {
 import { Controller } from "react-hook-form";
 import InputField from "../../../../shared/InputField/UI/InputField";
 
+// Create / edit a program inside a class. Sections are added afterwards from
+// the program's own "Add Section" button.
 export const ProgramFormModal = ({
   open,
-  context,
   onClose,
   form,
   departments,
@@ -29,57 +30,7 @@ export const ProgramFormModal = ({
     control,
     formState: { errors },
   } = form;
-
-  const isCollege = context === "college";
   const isEditMode = !!editingProg;
-
-  const levelOptions = isEditMode
-    ? [
-        { value: "HSSC", label: "Intermediate (HSSC) - College" },
-        { value: "UG", label: "Undergraduate (BS) - University" },
-        { value: "MS", label: "Graduate (MS/MPhil) - University" },
-        { value: "PHD", label: "Doctorate (PhD) - University" },
-        { value: "DIPLOMA", label: "Diploma - University" },
-      ]
-    : isCollege
-      ? [{ value: "HSSC", label: "Intermediate (HSSC) - College" }]
-      : [
-          { value: "UG", label: "Undergraduate (BS) - University" },
-          { value: "MS", label: "Graduate (MS/MPhil) - University" },
-          { value: "PHD", label: "Doctorate (PhD) - University" },
-          { value: "DIPLOMA", label: "Diploma - University" },
-        ];
-
-  const unit = isCollege ? "Part" : "Semester";
-
-  // Live preview of what saving will do to the program's semesters.
-  const currentCount = editingProg
-    ? Number(
-        editingProg.durationStages ||
-          editingProg.durationSemesters ||
-          editingProg.duration,
-      ) || 0
-    : 0;
-  const newCount = Number(form.watch("durationStages")) || 0;
-  const label = (n) => `${unit} ${n}`;
-  let durationNote = "";
-  if (isEditMode && newCount >= 1 && currentCount) {
-    if (newCount > currentCount) {
-      durationNote = `Saving adds ${
-        newCount - currentCount === 1
-          ? label(newCount)
-          : `${label(currentCount + 1)} to ${label(newCount)}`
-      }.`;
-    } else if (newCount < currentCount) {
-      durationNote = `Saving removes ${
-        currentCount - newCount === 1
-          ? label(currentCount)
-          : `${label(newCount + 1)} to ${label(currentCount)}`
-      } — blocked if students, courses or fees still use ${
-        currentCount - newCount === 1 ? "it" : "them"
-      }.`;
-    }
-  }
 
   return (
     <Dialog
@@ -89,106 +40,60 @@ export const ProgramFormModal = ({
       fullWidth
       PaperProps={{ className: "rounded-xl" }}
     >
-      <DialogTitle
-        className={`border-b border-gray-100 pb-3 text-white ${
-          isCollege ? "bg-green-600" : "bg-blue-600"
-        }`}
-      >
+      <DialogTitle className="bg-blue-600 text-white">
         <Typography variant="h6" component="div" className="font-bold">
-          {isEditMode
-            ? "Update Program"
-            : `Add ${isCollege ? "College" : "University"} Program`}
+          {isEditMode ? "Edit Program" : "Add Program"}
+        </Typography>
+        <Typography variant="body2" className="opacity-80">
+          A program belongs to a class and holds its sections.
         </Typography>
       </DialogTitle>
       <form onSubmit={onSubmit}>
-        <DialogContent className="pt-6 space-y-4" sx={{ pb: 4 }}>
+        <DialogContent className="pt-6">
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <InputField
-                name="name"
-                label="Program Name"
-                control={control}
-                errors={errors}
-                placeholder="e.g. FSC Pre-Medical"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <InputField
-                name="code"
-                label="Program Code"
-                control={control}
-                errors={errors}
-                placeholder="e.g. FSC-PM"
-              />
-            </Grid>
+          <Grid container spacing={2.5} sx={{ mt: 0 }}>
             <Grid item xs={12}>
               <Controller
                 name="departmentId"
                 control={control}
                 render={({ field }) => (
                   <TextField
+                    {...field}
                     select
-                    label="Class"
                     fullWidth
+                    label="Class"
                     error={!!errors.departmentId}
                     helperText={errors.departmentId?.message}
-                    {...field}
                   >
-                    {departments?.map((dept) => (
-                      <MenuItem key={dept._id} value={dept._id}>
-                        {dept.name}
+                    {departments.map((d) => (
+                      <MenuItem key={d._id} value={d._id}>
+                        {d.name}
                       </MenuItem>
                     ))}
                   </TextField>
                 )}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Controller
-                name="level"
+            <Grid item xs={12} md={7}>
+              <InputField
+                name="name"
+                label="Program name"
                 control={control}
-                render={({ field }) => (
-                  <TextField
-                    select
-                    label="Academic Level"
-                    fullWidth
-                    error={!!errors.level}
-                    helperText={errors.level?.message}
-                    {...field}
-                  >
-                    {levelOptions.map((opt) => (
-                      <MenuItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
+                errors={errors}
+                placeholder="e.g. Pre-Medical"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Controller
-                name="durationStages"
+            <Grid item xs={12} md={5}>
+              <InputField
+                name="code"
+                label="Program code"
                 control={control}
-                render={({ field }) => (
-                  <TextField
-                    type="number"
-                    label={isCollege ? "Total Parts" : "Total Semesters"}
-                    fullWidth
-                    inputProps={{ min: 1, max: 14, step: 1 }}
-                    error={!!errors.durationStages}
-                    helperText={
-                      errors.durationStages?.message ||
-                      durationNote ||
-                      "Any number from 1 to 14"
-                    }
-                    {...field}
-                  />
-                )}
+                errors={errors}
+                placeholder="e.g. 11-PREMED"
               />
             </Grid>
           </Grid>
@@ -197,18 +102,8 @@ export const ProgramFormModal = ({
           <Button onClick={onClose} color="inherit" disabled={isLoading}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={isLoading}
-            color={isCollege && !isEditMode ? "success" : "primary"}
-            className="shadow-none"
-          >
-            {isLoading
-              ? "Saving..."
-              : isEditMode
-                ? "Save Changes"
-                : "Create Program"}
+          <Button type="submit" variant="contained" disabled={isLoading}>
+            {isEditMode ? "Save changes" : "Add Program"}
           </Button>
         </DialogActions>
       </form>

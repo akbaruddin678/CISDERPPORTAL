@@ -7,6 +7,10 @@ import {
   useGetAllDepartmentsQuery,
   useCreateDepartmentMutation,
   useUpdateDepartmentMutation,
+  useGetAllProgramsQuery,
+  useCreateProgramMutation,
+  useUpdateProgramMutation,
+  useDeleteProgramMutation,
   useGetAllSemestersQuery,
   useCreateSectionForClassMutation,
   useUpdateSemesterMutation,
@@ -17,6 +21,12 @@ import {
 const departmentSchema = yup.object().shape({
   name: yup.string().required("Class name is required"),
   code: yup.string().required("Class code is required"),
+});
+
+const programSchema = yup.object().shape({
+  name: yup.string().required("Program name is required"),
+  code: yup.string().required("Program code is required"),
+  departmentId: yup.string().required("Class is required"),
 });
 
 const semesterSchema = yup.object().shape({
@@ -30,7 +40,12 @@ export const useAcademicStructureController = () => {
   const [isDeptModalOpen, setIsDeptModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState(null);
 
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
+  const [editingProg, setEditingProg] = useState(null);
+  const [programError, setProgramError] = useState("");
+
   const [addSectionClass, setAddSectionClass] = useState(null);
+  const [addSectionProgram, setAddSectionProgram] = useState(null);
   const [newSectionName, setNewSectionName] = useState("");
   const [addSectionError, setAddSectionError] = useState("");
 
@@ -40,7 +55,11 @@ export const useAcademicStructureController = () => {
   // --- API Hooks ---
   const { data: deptData, isLoading: isDeptLoading } =
     useGetAllDepartmentsQuery();
+  const { data: progData, isLoading: isProgLoading } = useGetAllProgramsQuery();
   const { data: semData, isLoading: isSemLoading } = useGetAllSemestersQuery();
+  const [createProgram, { isLoading: isCreatingProg }] = useCreateProgramMutation();
+  const [updateProgram, { isLoading: isUpdatingProg }] = useUpdateProgramMutation();
+  const [deleteProgram, { isLoading: isDeletingProg }] = useDeleteProgramMutation();
 
   const [createDepartment, { isLoading: isCreatingDept }] =
     useCreateDepartmentMutation();
@@ -63,17 +82,23 @@ export const useAcademicStructureController = () => {
   const semesterUsage = editingSemester ? usageRes?.data || null : null;
 
   const departments = deptData?.data || deptData || [];
+  const allPrograms = progData?.data || progData || [];
   const allSemesters = semData?.data || semData || [];
 
-  // Sections grouped by class: Semester -> its (hidden) program -> department.
-  const sectionsByClass = {};
-  for (const sem of allSemesters) {
-    const dept = sem.programId?.departmentId;
-    const deptId = dept?._id || dept;
+  // Class -> its programs, and program -> its sections.
+  const programsByClass = {};
+  for (const prog of allPrograms) {
+    const deptId = prog.departmentId?._id || prog.departmentId;
     if (!deptId) continue;
-    (sectionsByClass[deptId] ||= []).push(sem);
+    (programsByClass[deptId] ||= []).push(prog);
   }
-  Object.values(sectionsByClass).forEach((list) =>
+  const sectionsByProgram = {};
+  for (const sem of allSemesters) {
+    const progId = sem.programId?._id || sem.programId;
+    if (!progId) continue;
+    (sectionsByProgram[progId] ||= []).push(sem);
+  }
+  Object.values(sectionsByProgram).forEach((list) =>
     list.sort((x, y) => (x.number || 0) - (y.number || 0)),
   );
 
@@ -81,6 +106,11 @@ export const useAcademicStructureController = () => {
   const deptForm = useForm({
     resolver: yupResolver(departmentSchema),
     defaultValues: { name: "", code: "" },
+  });
+
+  const progForm = useForm({
+    resolver: yupResolver(programSchema),
+    defaultValues: { name: "", code: "", departmentId: "" },
   });
 
   const semForm = useForm({
@@ -136,14 +166,64 @@ export const useAcademicStructureController = () => {
     }
   };
 
+  // --- Program Handlers ---
+  const handleOpenProgramModal = (dept, prog = null) => {
+    setProgramError("");
+    setEditingProg(prog);
+    progForm.reset({
+      name: prog?.name || "",
+      code: prog?.code || "",
+      departmentId: prog ? prog.departmentId?._id || prog.departmentId : dept?._id || "",
+    });
+    setIsProgramModalOpen(true);
+  };
+
+  const handleCloseProgramModal = () => {
+    setIsProgramModalOpen(false);
+    setEditingProg(null);
+    setProgramError("");
+  };
+
+  const onSubmitProgram = async (data) => {
+    try {
+      const body = {
+        name: data.name.trim(),
+        code: data.code.trim().toUpperCase(),
+        departmentId: data.departmentId,
+      };
+      if (editingProg) {
+        await updateProgram({ id: editingProg._id, ...body }).unwrap();
+        openAlert({ message: "Program updated successfully", severity: "success" });
+      } else {
+        await createProgram(body).unwrap();
+        openAlert({ message: "Program added. Now add its sections.", severity: "success" });
+      }
+      handleCloseProgramModal();
+    } catch (err) {
+      setProgramError(err?.data?.error || "Failed to save program");
+    }
+  };
+
+  const handleDeleteProgram = async (prog) => {
+    if (!window.confirm(`Delete the program "${prog.name}"?`)) return;
+    try {
+      await deleteProgram(prog._id).unwrap();
+      openAlert({ message: "Program deleted", severity: "success" });
+    } catch (err) {
+      openAlert({ message: err?.data?.error || "Failed to delete program", severity: "error" });
+    }
+  };
+
   // --- Add Section Handlers ---
-  const handleOpenAddSection = (dept) => {
+  const handleOpenAddSection = (dept, prog) => {
     setAddSectionError("");
     setNewSectionName("");
+    setAddSectionProgram(prog);
     setAddSectionClass(dept);
   };
   const handleCloseAddSection = () => {
     setAddSectionClass(null);
+    setAddSectionProgram(null);
     setNewSectionName("");
     setAddSectionError("");
   };
@@ -152,6 +232,7 @@ export const useAcademicStructureController = () => {
     try {
       await createSection({
         departmentId: addSectionClass._id,
+        programId: addSectionProgram?._id,
         name: newSectionName,
       }).unwrap();
       openAlert({ message: "Section added successfully", severity: "success" });
@@ -202,8 +283,19 @@ export const useAcademicStructureController = () => {
 
   return {
     departments,
-    sectionsByClass,
-    isLoading: isDeptLoading || isSemLoading,
+    programsByClass,
+    sectionsByProgram,
+    isLoading: isDeptLoading || isProgLoading || isSemLoading,
+
+    isProgramModalOpen,
+    editingProg,
+    progForm,
+    programError,
+    handleOpenProgramModal,
+    handleCloseProgramModal,
+    onSubmitProgram: progForm.handleSubmit(onSubmitProgram),
+    handleDeleteProgram,
+    addSectionProgram,
 
     isDeptModalOpen,
     editingDept,
@@ -213,6 +305,9 @@ export const useAcademicStructureController = () => {
     isSubmitting:
       isCreatingDept ||
       isUpdatingDept ||
+      isCreatingProg ||
+      isUpdatingProg ||
+      isDeletingProg ||
       isCreatingSection ||
       isUpdatingSem ||
       isDeletingSem,

@@ -21,7 +21,7 @@ const ensureDefaultProgram = async (department) => {
 };
 
 export const createSectionForClass = asyncHandler(async (req, res) => {
-  const { departmentId, name } = req.body;
+  const { departmentId, name, programId } = req.body;
   if (!departmentId || !name?.trim()) {
     return res.status(400).json({ success: false, error: "Class and section name are required." });
   }
@@ -29,7 +29,17 @@ export const createSectionForClass = asyncHandler(async (req, res) => {
   if (!department) {
     return res.status(404).json({ success: false, error: "Class not found" });
   }
-  const program = await ensureDefaultProgram(department);
+  // A section goes into a chosen program of the class; with no program given
+  // (older callers) it falls back to the class's first program.
+  let program;
+  if (programId) {
+    program = await Program.findById(programId);
+    if (!program || String(program.departmentId) !== String(department._id)) {
+      return res.status(400).json({ success: false, error: "That program does not belong to this class." });
+    }
+  } else {
+    program = await ensureDefaultProgram(department);
+  }
   const wanted = name.trim().toLowerCase();
   const siblings = await Semester.find({ programId: program._id }).select("name").lean();
   const dup = siblings.some((x) => String(x.name).trim().toLowerCase() === wanted);
@@ -140,11 +150,10 @@ const checkDeletable = async (semester) => {
       number: { $gt: semester.number },
     }),
   ]);
-  const program = await Program.findById(semester.programId).select("code").lean();
-  // Sections of a class (default "CLS-" program) are independent (A, B, C...),
-  // not a promotion sequence, so deleting a middle one leaves no hole.
-  const isClassSection = String(program?.code || "").startsWith(DEFAULT_PROGRAM_PREFIX);
-  if (!isClassSection && !isDuplicate && hasLater) {
+  // Only auto-numbered stages ("Semester 3", "Part 2") form a sequence.
+  // Named sections (A, B, Blue...) are independent, so any of them can go.
+  const isSequenceStage = /^(semester|part)\s*\d+$/i.test(String(semester.name || "").trim());
+  if (isSequenceStage && !isDuplicate && hasLater) {
     return {
       canDelete: false,
       blockers: [],

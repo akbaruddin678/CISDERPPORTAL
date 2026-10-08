@@ -1018,7 +1018,7 @@ export class StudentChallanService {
       { path: "programId", select: "name _id" },
       { path: "semesterId", select: "name number _id" },
       { path: "departmentId", select: "name _id" },
-      { path: "personalInfo", select: "fullName phone email" },
+      { path: "personalInfo", select: "fullName cnic phone email" },
     ];
 
     let students = [];
@@ -1512,7 +1512,7 @@ export class StudentChallanService {
             studentId: student._id,
             status: { $in: ["issued", "overdue", "partial"] },
             isDeleted: false,
-          }).populate("semesterId", "number");
+          }).populate("semesterId", "name number");
 
           for (const uc of unpaidChallans) {
             const sel = selMap.get(String(uc._id));
@@ -1533,7 +1533,7 @@ export class StudentChallanService {
             studentId: student._id,
             status: { $in: ["issued", "overdue", "partial"] },
             isDeleted: false,
-          }).populate("semesterId", "number");
+          }).populate("semesterId", "name number");
 
           for (const uc of unpaidChallans) {
             if (applyMergeItem(uc, mergeBase, carryFine)) await uc.save();
@@ -1693,7 +1693,7 @@ export class StudentChallanService {
       studentId: { $in: studentIds },
       status: { $in: ["issued", "overdue", "partial"] },
       isDeleted: false,
-    }).populate("semesterId", "number");
+    }).populate("semesterId", "name number");
 
     const perStudent = {};
     for (const uc of unpaidChallans) {
@@ -1767,7 +1767,7 @@ export class StudentChallanService {
 
     const students = await StudentProfile.find(studentQuery)
       .select("_id semesterId personalInfo")
-      .populate({ path: "personalInfo", select: "fullName" });
+      .populate({ path: "personalInfo", select: "fullName cnic" });
 
     if (!students.length) return { totalStudents: 0, candidates: [] };
 
@@ -2141,13 +2141,35 @@ export class StudentChallanService {
           path: "studentId",
           populate: [{ path: "personalInfo", select: "fullName cnic phone email" }],
         })
-        .populate("programId termId semesterId")
+        .populate("departmentId programId termId semesterId")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
+      // Father's name is in the FamilyInfo collection — attach it so the
+      // printed challan can show it (otherwise it always printed blank).
+      const FamilyInfoModel =
+        mongoose.models.FamilyInfo || mongoose.model("FamilyInfo");
+      const profileIds = [
+        ...new Set(data.map((d) => String(d.studentId?._id || "")).filter(Boolean)),
+      ];
+      const families = profileIds.length
+        ? await FamilyInfoModel.find({ studentId: { $in: profileIds } })
+            .select("studentId fatherName")
+            .lean()
+        : [];
+      const familyByStudent = new Map(families.map((f) => [String(f.studentId), f]));
+      const challansWithFamily = data.map((d) => {
+        // toJSON (not toObject) so the feeDetails Map is flattened as before.
+        const obj = d.toJSON();
+        if (obj.studentId) {
+          obj.studentId.familyInfo = familyByStudent.get(String(obj.studentId._id)) || null;
+        }
+        return obj;
+      });
+
       return {
-        challans: data,
+        challans: challansWithFamily,
         totalItems: stats[0]?.totalCount || 0,
         totalFines: stats[0]?.totalFines || 0,
         totalPages: Math.ceil((stats[0]?.totalCount || 0) / limit),
@@ -2574,9 +2596,9 @@ export class StudentChallanService {
       .populate({
         path: "studentId",
         select: "studentId",
-        populate: [{ path: "personalInfo", select: "fullName" }],
+        populate: [{ path: "personalInfo", select: "fullName cnic" }],
       })
-      .populate("termId programId semesterId")
+      .populate("departmentId termId programId semesterId")
       .sort({ createdAt: -1 });
 
     await Promise.all(c.map((x) => this.recalculateFine(x)));
@@ -2745,7 +2767,7 @@ export class StudentChallanService {
       .populate({
         path: "studentId",
         select: "studentId personalInfo",
-        populate: { path: "personalInfo", select: "fullName" },
+        populate: { path: "personalInfo", select: "fullName cnic" },
       })
       .sort({ dueDate: 1 })
       .lean();
@@ -3097,7 +3119,7 @@ export class StudentChallanService {
         .populate({
           path: "studentId",
           select: "studentId",
-          populate: [{ path: "personalInfo", select: "fullName phone" }],
+          populate: [{ path: "personalInfo", select: "fullName cnic phone" }],
         })
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -3434,7 +3456,7 @@ export class StudentChallanService {
       .populate("programId", "name code")
       .populate("departmentId", "name")
       .populate("termId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("personalInfo", "fullName cnic phone email")
       .lean();
 
@@ -3592,7 +3614,7 @@ export class StudentChallanService {
         : challanBaseMatch;
 
     const challans = await StudentChallan.find(challanMatch)
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .populate("termId", "name")
       .sort({ studentId: 1, dueDate: -1 })
       .lean();
@@ -4029,12 +4051,12 @@ export class StudentChallanService {
         .populate({
           path: "studentId",
           select: "studentId personalInfo",
-          populate: [{ path: "personalInfo", select: "fullName" }],
+          populate: [{ path: "personalInfo", select: "fullName cnic" }],
         })
         .populate({ path: "programId", select: "name _id" })
         .populate({ path: "departmentId", select: "name _id" })
         .populate({ path: "termId", select: "name _id" })
-        .populate({ path: "semesterId", select: "number _id" })
+        .populate({ path: "semesterId", select: "name number _id" })
         .sort({ dueDate: 1 })
         .lean();
 
@@ -4217,7 +4239,7 @@ export class StudentChallanService {
       .populate("programId", "name")
       .populate("departmentId", "name")
       .populate("termId", "name")
-      .populate("semesterId", "number")
+      .populate("semesterId", "name number")
       .sort({ createdAt: 1 })
       .lean();
   }

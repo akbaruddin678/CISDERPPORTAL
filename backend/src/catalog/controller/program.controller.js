@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { asyncHandler } from "../../core/utils/asyncHandler.js";
 import Program from "../model/Program.js";
 import Semester from "../model/Semester.js";
+import StudentProfile from "../../student/models/StudentProfile.js";
 import { semesterUsage, describeSemesterUsage } from "../utils/semesterUsage.js";
 
 const MAX_STAGES = 14;
@@ -11,7 +12,7 @@ export const getAllPrograms = async (req, res) => {
     const {
       context,
       page = 1,
-      limit = 50,
+      limit = 1000,
       search = "",
       departmentId,
     } = req.query;
@@ -108,21 +109,41 @@ export const getProgramById = asyncHandler(async (req, res) => {
 export const createProgram = asyncHandler(async (req, res) => {
   const { name, code, departmentId, level, durationStages } = req.body;
 
-  const stages = Number(durationStages);
-  if (!Number.isInteger(stages) || stages < 1 || stages > MAX_STAGES) {
+  if (!name?.trim() || !code?.trim() || !departmentId) {
+    return res.status(400).json({
+      success: false,
+      error: "Program name, code and class are required.",
+    });
+  }
+
+  // `durationStages` is optional: a program created without it starts with
+  // no sections and you add them by name (A, B, ...). Passing a number still
+  // auto-generates that many numbered sections, as before.
+  const hasDuration =
+    durationStages !== undefined && durationStages !== null && durationStages !== "";
+  const stages = hasDuration ? Number(durationStages) : 0;
+  if (hasDuration && (!Number.isInteger(stages) || stages < 1 || stages > MAX_STAGES)) {
     return res.status(400).json({
       success: false,
       error: `Number of semesters must be a whole number between 1 and ${MAX_STAGES}.`,
     });
   }
 
-  const program = await Program.create({
-    name,
-    code,
-    departmentId,
-    level,
-    durationStages: stages,
-  });
+  let program;
+  try {
+    program = await Program.create({
+      name: name.trim(),
+      code: code.trim().toUpperCase(),
+      departmentId,
+      level: level || "UG",
+      durationStages: stages || 1,
+    });
+  } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(409).json({ success: false, error: "That program code is already in use." });
+    }
+    throw error;
+  }
 
   const semestersToCreate = [];
   for (let i = 1; i <= stages; i++) {
@@ -296,6 +317,22 @@ export const toggleProgramStatus = asyncHandler(async (req, res) => {
 });
 
 export const deleteProgram = asyncHandler(async (req, res) => {
+  const [sections, students] = await Promise.all([
+    Semester.countDocuments({ programId: req.params.id }),
+    StudentProfile.countDocuments({ programId: req.params.id }),
+  ]);
+  if (students > 0) {
+    return res.status(409).json({
+      success: false,
+      error: `This program still has ${students} student(s). Move them to another program first.`,
+    });
+  }
+  if (sections > 0) {
+    return res.status(409).json({
+      success: false,
+      error: `This program still has ${sections} section(s). Delete its sections first.`,
+    });
+  }
   await Program.findByIdAndDelete(req.params.id);
   res.status(200).json({ success: true, message: "Program deleted" });
 });

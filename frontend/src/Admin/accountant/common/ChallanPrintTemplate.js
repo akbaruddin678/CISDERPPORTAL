@@ -233,7 +233,13 @@ const buildChallanCard = (challan, copyTitle) => {
   const className =
     challan.departmentId?.name || student.departmentId?.name || challan.programId?.name || "N/A";
   const sectionName = challan.semesterId?.name || (challan.semesterId?.number ? `Section ${challan.semesterId.number}` : "N/A");
-  const sessionName = challan.termId?.name || "";
+  const programName = challan.programId?.name || student.programId?.name || "N/A";
+  const sessionName = challan.termId?.name || student.termId?.name || "N/A";
+  // ID card number: 13 digits are shown as 12345-1234567-1.
+  const rawCnic = String(personal.cnic || student.cnic || "").replace(/\D/g, "");
+  const cnicText = rawCnic.length === 13
+    ? `${rawCnic.slice(0, 5)}-${rawCnic.slice(5, 12)}-${rawCnic.slice(12)}`
+    : rawCnic || "—";
   const issueDate = fmtDate(challan.issueDate || challan.createdAt);
 
   const total = challan.netAmount || 0;
@@ -263,10 +269,12 @@ const buildChallanCard = (challan, copyTitle) => {
       <tr><td class="lbl">Issue Date:</td><td class="val">${issueDate}</td><td class="lbl sm">Due Date:</td><td class="val">${fmtDate(challan.dueDate)}</td></tr>
       <tr><td class="lbl">Student Name:</td><td class="val" colspan="3">${esc(personal.fullName || "N/A")}</td></tr>
       <tr><td class="lbl">Father Name:</td><td class="val" colspan="3">${esc(fatherName)}</td></tr>
-      <tr><td class="lbl">ID Card No:</td><td class="val" colspan="3">${esc(personal.cnic || "—")}</td></tr>
+      <tr><td class="lbl">ID Card No:</td><td class="val" colspan="3">${esc(cnicText)}</td></tr>
       <tr><td class="lbl">Reg. ID:</td><td class="val" colspan="3">${esc(student.studentId || "N/A")}</td></tr>
       <tr><td class="lbl">Class:</td><td class="val" colspan="3">${esc(className)}</td></tr>
-      <tr><td class="lbl">Section:</td><td class="val" colspan="3">${esc(sectionName)}${sessionName ? ` &nbsp;·&nbsp; ${esc(sessionName)}` : ""}</td></tr>
+      <tr><td class="lbl">Program:</td><td class="val" colspan="3">${esc(programName)}</td></tr>
+      <tr><td class="lbl">Section:</td><td class="val" colspan="3">${esc(sectionName)}</td></tr>
+      <tr><td class="lbl">Session:</td><td class="val" colspan="3">${esc(sessionName)}</td></tr>
     </table>
 
     <div class="month-line"><span>Fee For The Month(s) of:</span><b>${monthLabel(challan)}</b></div>
