@@ -653,7 +653,9 @@ const SetupPage = ({ data }) => {
                     <div className="flex items-center justify-between mb-0.5">
                       <p className="text-sm font-semibold text-slate-900">Monthly plan</p>
                       <span className="text-sm font-bold text-slate-900">
-                        Monthly fee: Rs {Number(totalFee || 0).toLocaleString()}
+                        {isSingleStudent
+                          ? `Monthly fee: Rs ${Number(totalFee || 0).toLocaleString()}`
+                          : "Each student's own monthly fee"}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mb-4">
@@ -763,7 +765,9 @@ const SetupPage = ({ data }) => {
                               <td className="px-3 py-1.5 font-medium text-slate-800">{m}</td>
                               {perMonth > 1 && <td className="px-3 py-1.5 text-slate-500">{(i % perMonth) + 1} of {perMonth}</td>}
                               <td className="px-3 py-1.5 text-right font-semibold tabular-nums">
-                                Rs {Math.round((Number(totalFee || 0) * Number(customPercentages[i] || 0)) / 100).toLocaleString()}
+                                {isSingleStudent
+                                  ? `Rs ${Math.round((Number(totalFee || 0) * Number(customPercentages[i] || 0)) / 100).toLocaleString()}`
+                                  : `${Number(customPercentages[i] || 0)}%`}
                               </td>
                             </tr>
                           ))}
@@ -1241,6 +1245,15 @@ const MainPage = ({ data }) => {
           </div>
 
           <div className="ml-auto flex items-center gap-3">
+            {filters.departmentId && (
+              <button
+                onClick={() => toggleSelectAll(true)}
+                className="px-3 py-2 border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-sm font-medium rounded-lg transition-colors"
+                title="Selects every student in the chosen class, across all its programs and sections (or only the program/section you filtered)"
+              >
+                Select entire {filters.programId ? "filtered group" : "class"}
+              </button>
+            )}
             <span className="text-sm text-slate-500 hidden sm:inline">
               {selectedStudents.length} selected
             </span>

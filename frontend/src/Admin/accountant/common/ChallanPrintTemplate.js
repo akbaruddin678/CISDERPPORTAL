@@ -97,9 +97,18 @@ const lateFineRows = (challan, total) => {
   }).join("");
 };
 
-const COLLEGE_NAME_1 = "College of International";
-const COLLEGE_NAME_2 = "Skills Development";
+const COLLEGE_NAME = "College of International Skills Development";
 const COLLEGE_PHONE = "051-3757665";
+
+// Bank account the fee is deposited into.
+const BANK = {
+  name: "Faysal Bank",
+  title: "College of International Skill Development",
+  iban: "PK91FAYS3551499000008207",
+};
+
+const BANK_LOGO_URL = window.location.origin + "/faysal-bank-logo.png";
+const BANK_LOGO_FALLBACK_URL = window.location.origin + "/faysal-bank-logo.svg";
 
 const getPrintStyles = () => `
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
@@ -113,45 +122,55 @@ const getPrintStyles = () => `
   }
   .challan-page { width: 297mm; min-height: 209mm; padding: 5mm; margin: 0 auto; }
   .challan-row { display: flex; gap: 0; width: 100%; height: 199mm; }
-  .challan-card { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 0 2.2mm; border-right: 0.3mm dashed #777; }
+  .challan-card { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 0 2.4mm; border-right: 0.3mm dashed #777; }
   .challan-card:last-child { border-right: none; }
 
-  .banner { display: flex; align-items: center; gap: 6px; background: #0b2a6b; color: #fff; padding: 5px 7px; border-radius: 3px; }
-  .banner .logo { width: 34px; height: 34px; background: #fff; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .banner .logo img { width: 28px; height: 28px; object-fit: contain; }
-  .banner .name { font-size: 12.5px; font-weight: 800; line-height: 1.15; letter-spacing: 0.1px; }
-  .tel { text-align: center; font-size: 9px; font-weight: 600; margin-top: 3px; color: #333; }
-  .copy-title { text-align: center; font-size: 11px; font-weight: 800; color: #c62828; margin: 1px 0 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  /* Header: CISD logo (left) · college name · Faysal Bank logo (right) */
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 5px; padding-bottom: 4px; border-bottom: 0.5mm solid #0b2a6b; }
+  .head .logo-box { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .head .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .head .bank-box { width: 62px; height: 40px; }
+  .head .mid { flex: 1; text-align: center; min-width: 0; }
+  .head .name { font-size: 10.5px; font-weight: 800; line-height: 1.2; color: #0b2a6b; text-transform: uppercase; letter-spacing: 0.1px; }
+  .head .tel { font-size: 8px; font-weight: 600; color: #444; margin-top: 2px; }
+  .copy-title { text-align: center; font-size: 10px; font-weight: 800; color: #fff; background: #c62828; margin: 4px 0; padding: 2px 0; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Bank deposit details */
+  .bank { border: 0.35mm solid #0a7a4b; border-radius: 3px; margin-bottom: 4px; overflow: hidden; }
+  .bank .bank-h { background: #0a7a4b; color: #fff; font-size: 8px; font-weight: 800; text-align: center; padding: 2px 0; letter-spacing: 0.4px; text-transform: uppercase; }
+  .bank table td { padding: 2px 4px; font-size: 8.5px; border-top: 0.2mm solid #cfe6da; vertical-align: top; }
+  .bank table tr:first-child td { border-top: none; }
+  .bank .k { width: 24%; font-weight: 700; color: #0a7a4b; }
+  .bank .v { font-weight: 700; word-break: break-word; }
+  .bank .iban { font-family: 'Consolas', 'Courier New', monospace; font-size: 9.5px; letter-spacing: 0.3px; }
 
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .info td { border: 0.3mm solid #000; padding: 3px 4px; font-size: 9px; vertical-align: middle; word-wrap: break-word; }
-  .info .lbl { width: 24%; background: #f3f6e9; font-size: 8.5px; }
+  .info td { border: 0.25mm solid #444; padding: 2.5px 4px; font-size: 8.8px; vertical-align: middle; word-wrap: break-word; }
+  .info .lbl { width: 24%; background: #eef2fa; font-size: 8.3px; font-weight: 600; color: #0b2a6b; }
   .info .val { font-weight: 700; }
   .info .lbl.sm { width: 20%; }
 
-  .month-line { display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; margin: 5px 2px 4px; }
-  .month-line b { font-size: 10.5px; }
+  .month-line { display: flex; justify-content: space-between; align-items: center; font-size: 9px; margin: 4px 2px; padding: 2px 5px; background: #fff7e0; border: 0.25mm solid #e5c96a; border-radius: 2px; }
+  .month-line b { font-size: 10px; }
 
-  .fees td, .fees th { border: 0.3mm solid #000; padding: 3px 5px; font-size: 9px; }
-  .fees th { background: #eef3dc; font-size: 9px; font-weight: 800; text-align: center; }
+  .fees td, .fees th { border: 0.25mm solid #444; padding: 2.5px 5px; font-size: 8.8px; }
+  .fees th { background: #0b2a6b; color: #fff; font-size: 8.8px; font-weight: 800; text-align: center; }
   .fees .sr { width: 11%; text-align: center; }
   .fees .amt { width: 28%; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
   .fees .neg { color: #15803d; }
   .fees .pos-red { color: #b91c1c; }
-  .fees tr.total td { background: #e6ecd3; font-weight: 800; font-size: 10px; }
-  .fees tr.after td { font-weight: 700; }
-  .fees td.empty-row { height: 15px; }
+  .fees tr.total td { background: #dfe7f7; font-weight: 800; font-size: 10px; color: #0b2a6b; }
+  .fees tr.after td { font-weight: 700; font-size: 8.3px; background: #fdecec; }
+  .fees td.empty-row { height: 13px; }
 
-  .words { font-size: 8px; margin: 4px 0; padding: 3px 4px; border: 0.3mm solid #bbb; background: #fafafa; line-height: 1.25; }
-  .notes { font-size: 8px; line-height: 1.35; margin-top: 3px; color: #222; }
-  .notes b { font-size: 8.5px; }
+  .words { font-size: 8px; margin: 4px 0; padding: 3px 4px; border: 0.25mm solid #bbb; background: #fafafa; line-height: 1.25; }
+  .notes { font-size: 7.8px; line-height: 1.35; margin-top: 2px; color: #222; }
+  .notes b { font-size: 8.3px; }
   .spacer { flex: 1; }
-  .sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; padding: 4px 2px 2px; }
+  .sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 4px 2px 2px; }
   .sign .box { width: 48%; text-align: center; }
-  .sign .box img { height: 32px; width: auto; object-fit: contain; display: block; margin: 0 auto 1px; }
-  .sign .line { border-top: 0.3mm solid #000; margin-top: 18px; padding-top: 2px; font-size: 8.5px; font-weight: 700; }
-  .sign .box.stamp .line { margin-top: 2px; }
-  .challan-no { font-size: 8px; color: #555; text-align: center; margin-top: 3px; letter-spacing: 0.3px; }
+  .sign .line { border-top: 0.3mm solid #000; margin-top: 22px; padding-top: 2px; font-size: 8.3px; font-weight: 700; }
+  .challan-no { font-size: 8px; color: #333; text-align: center; margin-top: 3px; letter-spacing: 0.3px; font-weight: 600; }
 `;
 
 const esc = (v) =>
@@ -281,12 +300,24 @@ const buildChallanCard = (challan, copyTitle) => {
   const fillerRows = Array.from({ length: fillers }, () => `<tr><td class="sr empty-row"></td><td></td><td></td></tr>`).join("");
 
   return `<div class="challan-card">
-    <div class="banner">
-      <div class="logo"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
-      <div class="name">${COLLEGE_NAME_1}<br/>${COLLEGE_NAME_2}</div>
+    <div class="head">
+      <div class="logo-box"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
+      <div class="mid">
+        <div class="name">${COLLEGE_NAME}</div>
+        <div class="tel">Tel: ${COLLEGE_PHONE}</div>
+      </div>
+      <div class="logo-box bank-box"><img src="${BANK_LOGO_URL}" alt="${BANK.name}" onerror="this.onerror=null;this.src='${BANK_LOGO_FALLBACK_URL}'" /></div>
     </div>
-    <div class="tel">Tel: ${COLLEGE_PHONE}</div>
     <div class="copy-title">${copyTitle}</div>
+
+    <div class="bank">
+      <div class="bank-h">Deposit in ${BANK.name} only</div>
+      <table>
+        <tr><td class="k">Bank:</td><td class="v">${BANK.name}</td></tr>
+        <tr><td class="k">Title:</td><td class="v">${BANK.title}</td></tr>
+        <tr><td class="k">IBAN:</td><td class="v iban">${BANK.iban}</td></tr>
+      </table>
+    </div>
 
     <table class="info">
       <tr><td class="lbl">Issue Date:</td><td class="val">${issueDate}</td><td class="lbl sm">Due Date:</td><td class="val">${fmtDate(challan.dueDate)}</td></tr>

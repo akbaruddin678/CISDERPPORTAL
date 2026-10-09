@@ -4,6 +4,7 @@ import { useGetCompleteCatalogQuery } from "../api/depsemtermpro";
 import {
   useGetStudentsQuery,
   useGetStudentDetailsQuery,
+  useLazyGetStudentsQuery,
 } from "../api/accountantstudentApi";
 import {
   useSaveStudentPreferenceMutation,
@@ -191,6 +192,7 @@ const InstallmentConfigurationController = ({ children }) => {
     setPage((p) => p + 1);
   }, [isStudentsLoading, isStudentsFetching, hasMore]);
 
+  const [fetchAllStudents] = useLazyGetStudentsQuery();
   const [savePreference, { isLoading: isSaving }] =
     useSaveStudentPreferenceMutation();
   const [assignPreferenceSemester, { isLoading: isAssigningSemester }] =
@@ -422,11 +424,31 @@ const InstallmentConfigurationController = ({ children }) => {
     });
   };
 
-  const toggleSelectAll = (isChecked) => {
+  const toggleSelectAll = async (isChecked) => {
     if (isChecked) {
+      // The list is paginated (infinite scroll), so "select all" must fetch
+      // EVERY student matching the filters — not just the pages loaded so far
+      // — or a whole-class selection silently covers only the first batch.
+      let all = studentsList;
+      try {
+        const res = await fetchAllStudents({
+          termId: filters.termId,
+          departmentId: filters.departmentId,
+          programId: filters.programId,
+          semesterId: filters.semesterId,
+          search: debouncedSearch,
+          excludeLevel: "HSSC",
+          page: 1,
+          limit: 10000,
+        }).unwrap();
+        const fetched = res?.data?.data || res?.data?.students || res?.data;
+        if (Array.isArray(fetched) && fetched.length) all = fetched;
+      } catch (e) {
+        console.error("Select-all fetch failed, using loaded students", e);
+      }
       setSelectedStudents((prev) => {
         const ids = new Set(prev.map((s) => s._id));
-        const toAdd = studentsList.filter((s) => !ids.has(s._id));
+        const toAdd = all.filter((s) => !ids.has(s._id));
         return [...prev, ...toAdd];
       });
     } else {
@@ -590,9 +612,24 @@ const InstallmentConfigurationController = ({ children }) => {
     if (selectedStudents.length === 0)
       return alert("Select at least one student.");
 
-    if (!activeSemesterId) {
+    // Each student's plan is bound to THEIR OWN current section, so a whole
+    // class (or a mixed selection) is saved per section instead of forcing
+    // one Section filter onto everybody.
+    const semesterOf = (s) =>
+      String(s.semesterId?._id || s.semesterId || "") ||
+      (selectedStudents.length === 1 ? activeSemesterId : filters.semesterId) ||
+      "";
+    const bySemester = new Map();
+    selectedStudents.forEach((s) => {
+      const sem = semesterOf(s);
+      if (!sem) return;
+      if (!bySemester.has(sem)) bySemester.set(sem, []);
+      bySemester.get(sem).push(s._id);
+    });
+    const withoutSemester = selectedStudents.filter((s) => !semesterOf(s));
+    if (withoutSemester.length > 0) {
       return alert(
-        "Please select a Semester from the filters. Installment configurations must be bound to a specific semester.",
+        `${withoutSemester.length} selected student(s) have no section assigned, so the plan can't be applied to them. Remove them or pick a Section filter.`,
       );
     }
 
@@ -626,15 +663,17 @@ const InstallmentConfigurationController = ({ children }) => {
     }
 
     try {
-      await savePreference({
-        studentIds: selectedStudents.map((s) => s._id),
-        semesterId: activeSemesterId,
-        numberOfInstallments: parseInt(installmentCount),
-        customPercentages: strictPercentages,
-        customMonths: customMonths,
-        feeBasis,
-        installmentsPerMonth: feeBasis === "monthly" ? perMonth : 1,
-      }).unwrap();
+      for (const [semesterId, studentIds] of bySemester) {
+        await savePreference({
+          studentIds,
+          semesterId,
+          numberOfInstallments: parseInt(installmentCount),
+          customPercentages: strictPercentages,
+          customMonths: customMonths,
+          feeBasis,
+          installmentsPerMonth: feeBasis === "monthly" ? perMonth : 1,
+        }).unwrap();
+      }
 
       setSaveSuccess(true);
       setTimeout(() => {
