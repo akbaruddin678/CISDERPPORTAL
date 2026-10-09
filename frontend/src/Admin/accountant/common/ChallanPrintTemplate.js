@@ -72,7 +72,7 @@ const toWords = (n) => {
 
 // Used only for older challans created before the Late Fine setting existed.
 // New challans carry their own late-fine schedule.
-export const LATE_FEE = 2000;
+export const LATE_FEE = 0;
 
 const lateFineRows = (challan, total) => {
   const tiers = Array.isArray(challan.lateFineTiers) && challan.lateFineTiers.length
@@ -127,9 +127,11 @@ const getPrintStyles = () => `
 
   /* Header: CISD logo (left) · college name · Faysal Bank logo (right) */
   .head { display: flex; align-items: center; justify-content: space-between; gap: 5px; padding-bottom: 4px; border-bottom: 0.5mm solid #0b2a6b; }
-  .head .logo-box { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .head .logo-box { width: 46px; height: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  /* The CISD logo has white lettering, so it sits on a navy tile to stay visible on white paper. */
+  .head .cisd-box { background: #0b2a6b; border-radius: 6px; padding: 3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .head .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .head .bank-box { width: 62px; height: 40px; }
+  .head .bank-box { width: 46px; height: 46px; }
   .head .mid { flex: 1; text-align: center; min-width: 0; }
   .head .name { font-size: 10.5px; font-weight: 800; line-height: 1.2; color: #0b2a6b; text-transform: uppercase; letter-spacing: 0.1px; }
   .head .tel { font-size: 8px; font-weight: 600; color: #444; margin-top: 2px; }
@@ -301,7 +303,7 @@ const buildChallanCard = (challan, copyTitle) => {
 
   return `<div class="challan-card">
     <div class="head">
-      <div class="logo-box"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
+      <div class="logo-box cisd-box"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
       <div class="mid">
         <div class="name">${COLLEGE_NAME}</div>
         <div class="tel">Tel: ${COLLEGE_PHONE}</div>

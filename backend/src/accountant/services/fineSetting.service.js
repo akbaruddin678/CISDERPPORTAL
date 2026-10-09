@@ -1,8 +1,8 @@
 import FineSetting from "../model/FineSetting.js";
 
-// What the system charged before this setting existed. Used only until an
-// accountant saves a value, so nothing changes silently on upgrade.
-export const DEFAULT_LATE_FINE = 2000;
+// No fine unless an accountant configures one in Late Fine settings. Used only until one is
+// saved, so nothing is ever charged by surprise.
+export const DEFAULT_LATE_FINE = 0;
 
 const roundNonNegative = (value, field) => {
   const number = Number(value);
