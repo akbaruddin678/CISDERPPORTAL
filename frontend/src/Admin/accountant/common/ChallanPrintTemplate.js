@@ -74,7 +74,7 @@ const toWords = (n) => {
 // New challans carry their own late-fine schedule.
 export const LATE_FEE = 0;
 
-const lateFineRows = (challan, total) => {
+const lateFineStages = (challan, total) => {
   const tiers = Array.isArray(challan.lateFineTiers) && challan.lateFineTiers.length
     ? challan.lateFineTiers
     : [{ durationDays: null, amount: challan.lateFeeAmount ?? LATE_FEE }];
@@ -88,13 +88,13 @@ const lateFineRows = (challan, total) => {
     const isLast = index === tiers.length - 1 || tier.durationDays === null;
     const duration = isLast ? null : Math.max(1, Number(tier.durationDays) || 1);
     const label = isLast
-      ? `Payable from overdue day ${startDay}`
-      : `Payable on overdue days ${startDay}-${startDay + duration - 1}`;
+      ? `From day ${startDay} after due date`
+      : startDay === startDay + duration - 1
+        ? `Day ${startDay} after due date`
+        : `Days ${startDay}-${startDay + duration - 1} after due date`;
     if (duration) startDay += duration;
-    return cumulativeFine > 0
-      ? [`<tr class="after"><td></td><td style="text-align:right">${label}</td><td class="amt">${num(base + cumulativeFine)}</td></tr>`]
-      : [];
-  }).join("");
+    return cumulativeFine > 0 ? [{ label, amount: base + cumulativeFine }] : [];
+  });
 };
 
 const COLLEGE_NAME = "College of International Skills Development";
@@ -111,68 +111,93 @@ const BANK_LOGO_URL = window.location.origin + "/faysal-bank-logo.png";
 const BANK_LOGO_FALLBACK_URL = window.location.origin + "/faysal-bank-logo.svg";
 
 const getPrintStyles = () => `
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-  body { background: #fff; color: #111; }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root { --navy: #0b2a6b; --navy2: #14408f; --green: #0a7a4b; --ink: #111827; --muted: #6b7280; --line: #e5e7eb; --soft: #f3f6fb; }
+  body { background: #fff; color: var(--ink); }
   @media print {
     @page { size: A4 landscape; margin: 0 !important; }
-    body { margin: 0 !important; padding: 0 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { margin: 0 !important; padding: 0 !important; }
     .challan-page { width: 297mm !important; height: 209mm !important; padding: 5mm !important; page-break-after: always; }
     .challan-page:last-child { page-break-after: auto; }
     .no-print { display: none !important; }
   }
   .challan-page { width: 297mm; min-height: 209mm; padding: 5mm; margin: 0 auto; }
-  .challan-row { display: flex; gap: 0; width: 100%; height: 199mm; }
-  .challan-card { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 0 2.4mm; border-right: 0.3mm dashed #777; }
+  .challan-row { display: flex; width: 100%; height: 199mm; }
+  .challan-card { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 0 3mm; border-right: 0.3mm dashed #9ca3af; }
   .challan-card:last-child { border-right: none; }
+  .challan-card:first-child { padding-left: 0; }
+  .challan-card:last-child { padding-right: 0; }
 
-  /* Header: CISD logo (left) · college name · Faysal Bank logo (right) */
-  .head { display: flex; align-items: center; justify-content: space-between; gap: 5px; padding-bottom: 4px; border-bottom: 0.5mm solid #0b2a6b; }
-  .head .logo-box { width: 46px; height: 46px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  /* The CISD logo has white lettering, so it sits on a navy tile to stay visible on white paper. */
-  .head .cisd-box { background: #0b2a6b; border-radius: 6px; padding: 3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .head .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-  .head .bank-box { width: 46px; height: 46px; }
+  /* Header */
+  .head { display: flex; align-items: center; gap: 7px; padding: 0 0 7px; border-bottom: 0.6mm solid var(--navy); }
+  .head .tile { width: 48px; height: 48px; flex-shrink: 0; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+  .head .tile img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .head .tile.cisd { background: var(--navy); padding: 4px; }
+  .head .tile.bank { background: #fff; border: 0.3mm solid var(--line); padding: 3px; }
   .head .mid { flex: 1; text-align: center; min-width: 0; }
-  .head .name { font-size: 10.5px; font-weight: 800; line-height: 1.2; color: #0b2a6b; text-transform: uppercase; letter-spacing: 0.1px; }
-  .head .tel { font-size: 8px; font-weight: 600; color: #444; margin-top: 2px; }
-  .copy-title { text-align: center; font-size: 10px; font-weight: 800; color: #fff; background: #c62828; margin: 4px 0; padding: 2px 0; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .head .name { font-size: 11px; font-weight: 800; line-height: 1.2; color: var(--navy); text-transform: uppercase; letter-spacing: 0.2px; }
+  .head .tel { font-size: 8.5px; color: var(--muted); margin-top: 2px; font-weight: 600; }
 
-  /* Bank deposit details */
-  .bank { border: 0.35mm solid #0a7a4b; border-radius: 3px; margin-bottom: 4px; overflow: hidden; }
-  .bank .bank-h { background: #0a7a4b; color: #fff; font-size: 8px; font-weight: 800; text-align: center; padding: 2px 0; letter-spacing: 0.4px; text-transform: uppercase; }
-  .bank table td { padding: 2px 4px; font-size: 8.5px; border-top: 0.2mm solid #cfe6da; vertical-align: top; }
-  .bank table tr:first-child td { border-top: none; }
-  .bank .k { width: 24%; font-weight: 700; color: #0a7a4b; }
-  .bank .v { font-weight: 700; word-break: break-word; }
-  .bank .iban { font-family: 'Consolas', 'Courier New', monospace; font-size: 9.5px; letter-spacing: 0.3px; }
+  .meta { display: flex; justify-content: space-between; align-items: center; margin: 7px 0 8px; }
+  .meta .copy { background: var(--navy); color: #fff; font-size: 8.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; }
+  .meta .no { font-size: 8.5px; color: var(--muted); font-weight: 600; }
+  .meta .no b { color: var(--ink); letter-spacing: 0.3px; }
 
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .info td { border: 0.25mm solid #444; padding: 2.5px 4px; font-size: 8.8px; vertical-align: middle; word-wrap: break-word; }
-  .info .lbl { width: 24%; background: #eef2fa; font-size: 8.3px; font-weight: 600; color: #0b2a6b; }
-  .info .val { font-weight: 700; }
-  .info .lbl.sm { width: 20%; }
+  /* Amount hero */
+  .hero { background: linear-gradient(135deg, var(--navy), var(--navy2)); color: #fff; border-radius: 8px; padding: 9px 11px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .hero .lab { font-size: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; opacity: .8; }
+  .hero .amt { font-size: 22px; font-weight: 800; line-height: 1.1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .hero .amt small { font-size: 11px; font-weight: 700; opacity: .85; margin-right: 3px; }
+  .hero .due { text-align: right; }
+  .hero .due .d { font-size: 12px; font-weight: 800; margin-top: 2px; }
+  .words { font-size: 8.3px; color: var(--muted); margin: 4px 2px 0; line-height: 1.3; font-style: italic; }
 
-  .month-line { display: flex; justify-content: space-between; align-items: center; font-size: 9px; margin: 4px 2px; padding: 2px 5px; background: #fff7e0; border: 0.25mm solid #e5c96a; border-radius: 2px; }
-  .month-line b { font-size: 10px; }
+  /* Section titles */
+  .sec { font-size: 8.5px; font-weight: 800; letter-spacing: 0.9px; text-transform: uppercase; color: var(--navy); margin: 10px 0 4px; display: flex; align-items: center; gap: 6px; }
+  .sec::after { content: ""; flex: 1; height: 0.25mm; background: var(--line); }
 
-  .fees td, .fees th { border: 0.25mm solid #444; padding: 2.5px 5px; font-size: 8.8px; }
-  .fees th { background: #0b2a6b; color: #fff; font-size: 8.8px; font-weight: 800; text-align: center; }
-  .fees .sr { width: 11%; text-align: center; }
-  .fees .amt { width: 28%; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+  /* Student details */
+  .kv { width: 100%; border-collapse: collapse; }
+  .kv td { padding: 3.2px 0; font-size: 9.5px; border-bottom: 0.2mm solid var(--line); vertical-align: top; }
+  .kv td.k { width: 33%; color: var(--muted); font-weight: 600; }
+  .kv td.v { font-weight: 700; color: var(--ink); word-break: break-word; }
+  .kv tr:last-child td { border-bottom: none; }
+  .kv td.v.big { font-size: 11px; color: var(--navy); }
+
+  /* Fee breakdown */
+  .month { display: flex; justify-content: space-between; align-items: center; background: var(--soft); border-radius: 6px; padding: 5px 9px; font-size: 9.3px; color: var(--muted); font-weight: 600; margin-bottom: 4px; }
+  .month b { color: var(--navy); font-size: 11px; }
+  .fees { width: 100%; border-collapse: collapse; }
+  .fees th { text-align: left; font-size: 8px; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 3px 5px; border-bottom: 0.3mm solid var(--navy); }
+  .fees th.r, .fees td.r { text-align: right; }
+  .fees td { padding: 4.2px 5px; font-size: 9.6px; border-bottom: 0.2mm solid var(--line); }
+  .fees tr:nth-child(even) td { background: #fafbfd; }
+  .fees td.r { font-weight: 700; font-variant-numeric: tabular-nums; }
   .fees .neg { color: #15803d; }
-  .fees .pos-red { color: #b91c1c; }
-  .fees tr.total td { background: #dfe7f7; font-weight: 800; font-size: 10px; color: #0b2a6b; }
-  .fees tr.after td { font-weight: 700; font-size: 8.3px; background: #fdecec; }
-  .fees td.empty-row { height: 13px; }
+  .fees .red { color: #b91c1c; }
+  .fees tr.total td { background: var(--soft); border-top: 0.4mm solid var(--navy); border-bottom: none; font-weight: 800; font-size: 11px; color: var(--navy); padding: 6px 5px; }
 
-  .words { font-size: 8px; margin: 4px 0; padding: 3px 4px; border: 0.25mm solid #bbb; background: #fafafa; line-height: 1.25; }
-  .notes { font-size: 7.8px; line-height: 1.35; margin-top: 2px; color: #222; }
-  .notes b { font-size: 8.3px; }
-  .spacer { flex: 1; }
-  .sign { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; padding: 4px 2px 2px; }
-  .sign .box { width: 48%; text-align: center; }
-  .sign .line { border-top: 0.3mm solid #000; margin-top: 22px; padding-top: 2px; font-size: 8.3px; font-weight: 700; }
-  .challan-no { font-size: 8px; color: #333; text-align: center; margin-top: 3px; letter-spacing: 0.3px; font-weight: 600; }
+  /* Late fine */
+  .late { margin-top: 7px; border: 0.3mm solid #f1c0c0; background: #fff6f6; border-radius: 6px; padding: 5px 8px; }
+  .late .t { font-size: 8px; font-weight: 800; color: #b91c1c; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 2px; }
+  .late .r { display: flex; justify-content: space-between; font-size: 9px; padding: 1.5px 0; color: #7f1d1d; }
+  .late .r b { font-variant-numeric: tabular-nums; }
+
+  /* Bank */
+  .bank { margin-top: 10px; border: 0.3mm solid #b7dfca; border-left: 1.2mm solid var(--green); background: #f4fbf7; border-radius: 6px; padding: 6px 9px; }
+  .bank .t { font-size: 8px; font-weight: 800; color: var(--green); letter-spacing: .8px; text-transform: uppercase; margin-bottom: 3px; }
+  .bank .r { display: flex; gap: 6px; font-size: 9.3px; padding: 1.5px 0; }
+  .bank .r span:first-child { width: 17%; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .bank .r span:last-child { font-weight: 700; word-break: break-word; }
+  .bank .iban { font-family: Consolas, 'Courier New', monospace; font-size: 10.5px; letter-spacing: .4px; color: var(--green); }
+
+  .notes { font-size: 8.3px; line-height: 1.5; margin-top: 8px; color: #4b5563; padding-left: 10px; }
+  .notes li { margin-bottom: 1px; }
+  .spacer { flex: 1; min-height: 6px; }
+  .sign { display: flex; justify-content: space-between; gap: 14px; padding: 0 2px; }
+  .sign .box { flex: 1; text-align: center; }
+  .sign .line { border-top: 0.3mm solid #111; margin-top: 26px; padding-top: 3px; font-size: 8.5px; font-weight: 700; color: #374151; }
+  .foot { text-align: center; font-size: 7.5px; color: #9ca3af; margin-top: 7px; letter-spacing: .3px; }
 `;
 
 const esc = (v) =>
@@ -287,75 +312,94 @@ const buildChallanCard = (challan, copyTitle) => {
   const issueDate = fmtDate(challan.issueDate || challan.createdAt);
 
   const total = challan.netAmount || 0;
-  const fineScheduleRows = lateFineRows(challan, total);
-  const rows = buildParticulars(challan);
-  const minRows = 5;
-  const fillers = Math.max(0, minRows - rows.length);
+  const stages = lateFineStages(challan, total);
+  // Only the heads that actually carry an amount are printed.
+  let rows = buildParticulars(challan).filter((r) => r.amount);
+  if (!rows.length) rows = [{ label: "Monthly Fee", amount: 0 }];
 
   const feeRows = rows
     .map((r, i) => {
-      const amt = r.amount < 0 ? `(${num(-r.amount)})` : r.amount ? num(r.amount) : "";
-      const cls = r.tone === "green" ? "neg" : r.tone === "red" ? "pos-red" : "";
-      return `<tr><td class="sr">${i + 1}</td><td>${r.label}</td><td class="amt ${cls}">${amt}</td></tr>`;
+      const amt = r.amount < 0 ? `(${num(-r.amount)})` : num(r.amount);
+      const cls = r.tone === "green" ? "neg" : r.tone === "red" ? "red" : "";
+      return `<tr><td style="width:9%;color:#9ca3af">${i + 1}</td><td>${r.label}</td><td class="r ${cls}">${amt}</td></tr>`;
     })
     .join("");
-  const fillerRows = Array.from({ length: fillers }, () => `<tr><td class="sr empty-row"></td><td></td><td></td></tr>`).join("");
+
+  const lateBox = stages.length
+    ? `<div class="late"><div class="t">Late fine — payable after due date</div>${stages
+        .map((s) => `<div class="r"><span>${s.label}</span><b>Rs ${num(s.amount)}</b></div>`)
+        .join("")}</div>`
+    : "";
 
   return `<div class="challan-card">
     <div class="head">
-      <div class="logo-box cisd-box"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
+      <div class="tile cisd"><img src="${LOGO_URL}" alt="CISD" onerror="this.style.display='none'" /></div>
       <div class="mid">
         <div class="name">${COLLEGE_NAME}</div>
         <div class="tel">Tel: ${COLLEGE_PHONE}</div>
       </div>
-      <div class="logo-box bank-box"><img src="${BANK_LOGO_URL}" alt="${BANK.name}" onerror="this.onerror=null;this.src='${BANK_LOGO_FALLBACK_URL}'" /></div>
+      <div class="tile bank"><img src="${BANK_LOGO_URL}" alt="${BANK.name}" onerror="this.onerror=null;this.src='${BANK_LOGO_FALLBACK_URL}'" /></div>
     </div>
-    <div class="copy-title">${copyTitle}</div>
+
+    <div class="meta">
+      <span class="copy">${copyTitle}</span>
+      <span class="no">Challan No: <b>${esc(challan.challanNo)}</b></span>
+    </div>
+
+    <div class="hero">
+      <div>
+        <div class="lab">Amount payable</div>
+        <div class="amt"><small>PKR</small>${num(total)}</div>
+      </div>
+      <div class="due">
+        <div class="lab">Due date</div>
+        <div class="d">${fmtDate(challan.dueDate)}</div>
+      </div>
+    </div>
+    <div class="words">${toWords(total)}</div>
+
+    <div class="sec">Student details</div>
+    <table class="kv">
+      <tr><td class="k">Name</td><td class="v big">${esc(personal.fullName || "N/A")}</td></tr>
+      <tr><td class="k">Father name</td><td class="v">${esc(fatherName)}</td></tr>
+      <tr><td class="k">ID card no</td><td class="v">${esc(cnicText)}</td></tr>
+      <tr><td class="k">Reg. ID</td><td class="v">${esc(student.studentId || "N/A")}</td></tr>
+      <tr><td class="k">Class</td><td class="v">${esc(className)}</td></tr>
+      <tr><td class="k">Program</td><td class="v">${esc(programName)}</td></tr>
+      <tr><td class="k">Section</td><td class="v">${esc(sectionName)}</td></tr>
+      <tr><td class="k">Session</td><td class="v">${esc(sessionName)}</td></tr>
+      <tr><td class="k">Issue date</td><td class="v">${issueDate}</td></tr>
+    </table>
+
+    <div class="sec">Fee details</div>
+    <div class="month"><span>Fee for the month of</span><b>${monthLabel(challan)}</b></div>
+    <table class="fees">
+      <tr><th>#</th><th>Particulars</th><th class="r">Amount (Rs)</th></tr>
+      ${feeRows}
+      <tr class="total"><td></td><td>Total payable</td><td class="r">${num(total)}</td></tr>
+    </table>
+    ${lateBox}
 
     <div class="bank">
-      <div class="bank-h">Deposit in ${BANK.name} only</div>
-      <table>
-        <tr><td class="k">Bank:</td><td class="v">${BANK.name}</td></tr>
-        <tr><td class="k">Title:</td><td class="v">${BANK.title}</td></tr>
-        <tr><td class="k">IBAN:</td><td class="v iban">${BANK.iban}</td></tr>
-      </table>
+      <div class="t">Deposit in ${BANK.name} only</div>
+      <div class="r"><span>Bank</span><span>${BANK.name}</span></div>
+      <div class="r"><span>Title</span><span>${BANK.title}</span></div>
+      <div class="r"><span>IBAN</span><span class="iban">${BANK.iban}</span></div>
     </div>
 
-    <table class="info">
-      <tr><td class="lbl">Issue Date:</td><td class="val">${issueDate}</td><td class="lbl sm">Due Date:</td><td class="val">${fmtDate(challan.dueDate)}</td></tr>
-      <tr><td class="lbl">Student Name:</td><td class="val" colspan="3">${esc(personal.fullName || "N/A")}</td></tr>
-      <tr><td class="lbl">Father Name:</td><td class="val" colspan="3">${esc(fatherName)}</td></tr>
-      <tr><td class="lbl">ID Card No:</td><td class="val" colspan="3">${esc(cnicText)}</td></tr>
-      <tr><td class="lbl">Reg. ID:</td><td class="val" colspan="3">${esc(student.studentId || "N/A")}</td></tr>
-      <tr><td class="lbl">Class:</td><td class="val" colspan="3">${esc(className)}</td></tr>
-      <tr><td class="lbl">Program:</td><td class="val" colspan="3">${esc(programName)}</td></tr>
-      <tr><td class="lbl">Section:</td><td class="val" colspan="3">${esc(sectionName)}</td></tr>
-      <tr><td class="lbl">Session:</td><td class="val" colspan="3">${esc(sessionName)}</td></tr>
-    </table>
-
-    <div class="month-line"><span>Fee For The Month(s) of:</span><b>${monthLabel(challan)}</b></div>
-
-    <table class="fees">
-      <tr><th class="sr">Sr.</th><th>Particulars</th><th class="amt" style="text-align:center">Amount</th></tr>
-      ${feeRows}${fillerRows}
-      <tr class="total"><td></td><td>Total =</td><td class="amt">${num(total)}</td></tr>
-      ${fineScheduleRows}
-    </table>
-
-    <div class="words"><b>In words:</b> ${toWords(total)}</div>
-
-    <div class="notes">
-      <b>Note:</b><br/>
-      ${fineScheduleRows ? "Late fine increases according to the overdue-day stages shown above.<br/>" : ""}
-      This fee challan is valid up to the 25th of this month.
-    </div>
+    <ul class="notes">
+      ${stages.length ? "<li>Late fine is added automatically after the due date, as shown above.</li>" : ""}
+      <li>This challan is valid up to the 25th of the month.</li>
+      <li>Please keep the stamped student copy as proof of payment.</li>
+    </ul>
 
     <div class="spacer"></div>
 
     <div class="sign">
-      <div class="box"><div class="line">Depositor / Bank</div></div>
+      <div class="box"><div class="line">Depositor</div></div>
+      <div class="box"><div class="line">Bank stamp &amp; signature</div></div>
     </div>
-    <div class="challan-no">Challan No: ${esc(challan.challanNo)}</div>
+    <div class="foot">${COLLEGE_NAME} · Tel ${COLLEGE_PHONE}</div>
   </div>`;
 };
 
