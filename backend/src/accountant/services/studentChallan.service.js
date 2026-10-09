@@ -6,7 +6,7 @@ import Counter from "../model/Counter.js";
 import StudentFeeStructure from "../../accountant/model/StudentFeeStructure.js";
 import StudentFeePreference from "../../accountant/model/StudentFeePreference.js";
 import { ScholarshipService } from "./scholarship.service.js";
-import { getLateFineAmount } from "./fineSetting.service.js";
+import { calculateLateFine, getLateFineAmount, normalizeLateFineTiers } from "./fineSetting.service.js";
 import { AppError } from "../middleware/errorHandler.js";
 import { uploadToR2 } from "../../core/utils/cloudflareR2.js";
 
@@ -33,8 +33,9 @@ const buildPreviousDuesSourceLabel = (uc, currentSemesterId) => {
     String(uc.semesterId?._id || uc.semesterId || "") ===
     String(currentSemesterId || "");
   const semSuffix =
-    !sameSem && uc.semesterId?.number ? ` (Semester ${uc.semesterId.number})` : "";
-  if (uc.isInstallment) return `Installment ${uc.installmentNumber} Fee${semSuffix}`;
+    !sameSem && uc.semesterId?.number ? ` (Section ${uc.semesterId.number})` : "";
+  if (uc.isInstallment)
+    return `Monthly Fee Part ${uc.installmentNumber}${semSuffix}`;
   const humanType = (uc.challanType || "Fee")
     .split(/[_\s]+/)
     .filter(Boolean)
@@ -116,6 +117,14 @@ export class StudentChallanService {
   // the College/Intermediate Studies module also needs to call for its
   // own students without being blocked by the university-only filter.
   static async getProgramIdsForScope(scope = "university") {
+    if (scope === "all") {
+      const ProgramModel =
+        mongoose.models.Program || mongoose.model("Program");
+      const programs = await ProgramModel.find({ isActive: { $ne: false } })
+        .select("_id")
+        .lean();
+      return programs.map((p) => p._id);
+    }
     if (scope === "college") {
       const ProgramModel =
         mongoose.models.Program || mongoose.model("Program");
@@ -989,7 +998,8 @@ export class StudentChallanService {
       feeTypes.length === 1 &&
       (feeTypes.includes("general") || feeTypes.includes("misc"));
 
-    if (!termId && !isOnlyMisc) {
+    const hasExplicitStudents = Boolean(studentId || studentIds?.length);
+    if (!termId && !isOnlyMisc && !hasExplicitStudents) {
       throw new AppError(
         "Term/Session is required for academic challans.",
         400,
@@ -1018,6 +1028,7 @@ export class StudentChallanService {
       { path: "programId", select: "name _id" },
       { path: "semesterId", select: "name number _id" },
       { path: "departmentId", select: "name _id" },
+      { path: "termId", select: "name code _id" },
       { path: "personalInfo", select: "fullName cnic phone email" },
     ];
 
@@ -1111,6 +1122,13 @@ export class StudentChallanService {
         const sProgId = student.programId?._id || student.programId;
         const sSemId = student.semesterId?._id || student.semesterId;
         const sDeptId = student.departmentId?._id || student.departmentId;
+        const sTermId = student.termId?._id || student.termId || termId;
+
+        if (!sTermId && !isOnlyMisc) {
+          throw new Error(
+            "No session is assigned in this student's academic profile.",
+          );
+        }
 
         let grandTotal = 0,
           feeDetails = {},
@@ -1133,7 +1151,7 @@ export class StudentChallanService {
               isActive: true,
             };
             if (sSemId) q.semesterId = sSemId;
-            else q.termId = termId;
+            else q.termId = sTermId;
             if (examTitles && examTitles.length > 0) {
               q.$or = [
                 { title: { $in: examTitles } },
@@ -1172,7 +1190,7 @@ export class StudentChallanService {
               isActive: true,
             };
             if (category === "ACADEMIC" && sSemId) q.semesterId = sSemId;
-            else q.termId = termId;
+            else q.termId = sTermId;
             let fs = await StudentFeeStructure.findOne(q);
             // Legacy fallback: no semester-tagged ACADEMIC (tuition) fee
             // setup for this student's current semester — if they have
@@ -1261,7 +1279,7 @@ export class StudentChallanService {
           const scholarshipData =
             await ScholarshipService.getStudentActiveScholarship(
               student._id,
-              termId,
+              sTermId,
               sSemId,
             );
           if (scholarshipData) {
@@ -1347,7 +1365,7 @@ export class StudentChallanService {
           // hadn't generated any yet.
           existingInstallments = await StudentChallan.find({
             studentId: student._id,
-            termId,
+            termId: sTermId,
             ...(sSemId ? { semesterId: sSemId } : {}),
             isInstallment: true,
             isDeleted: false,
@@ -1360,7 +1378,7 @@ export class StudentChallanService {
           // sits unpaid and unrenewed.
           if (existingInstallments.length > 0 && existingInstallments[0].status === "overdue") {
             throw new Error(
-              `Installment #${existingInstallments[0].installmentNumber} is overdue — renew it before generating the next installment.`,
+              `Monthly fee part #${existingInstallments[0].installmentNumber} is overdue — renew it before generating the next monthly part.`,
             );
           }
 
@@ -1375,7 +1393,7 @@ export class StudentChallanService {
 
           if (instToGenerate > count) {
             throw new Error(
-              `All ${count} installments have already been generated for this session.`,
+              `All ${count} monthly fee parts have already been generated for this session.`,
             );
           }
 
@@ -1389,7 +1407,7 @@ export class StudentChallanService {
           );
           if (alreadyGenerated) {
             throw new Error(
-              `Installment #${instToGenerate} has already been generated for this session.`,
+              `Monthly fee part #${instToGenerate} has already been generated for this session.`,
             );
           }
 
@@ -1403,7 +1421,7 @@ export class StudentChallanService {
             billingMonth.toLowerCase() !== targetConfiguredMonth.toLowerCase()
           ) {
             throw new Error(
-              `Installment #${instToGenerate} is scheduled for ${targetConfiguredMonth}, not ${billingMonth}. Skipped.`,
+              `Monthly fee part #${instToGenerate} is scheduled for ${targetConfiguredMonth}, not ${billingMonth}. Skipped.`,
             );
           }
 
@@ -1431,7 +1449,7 @@ export class StudentChallanService {
         // ✅ Check if a challan for this EXACT month already exists
         await this.checkStrictLock(
           student._id,
-          termId,
+          sTermId,
           feeTypes,
           allowMultipleTuition,
           shouldSplit,
@@ -1541,7 +1559,7 @@ export class StudentChallanService {
         }
 
         if (shouldSplit) {
-          const groupRefId = `GRP-${student._id.toString().slice(-4)}-${termId.toString().slice(-4)}`;
+          const groupRefId = `GRP-${student._id.toString().slice(-4)}-${sTermId.toString().slice(-4)}`;
           let runningOriginal = 0,
             runningScholarship = 0,
             monthRunningOriginal = 0,
@@ -1598,14 +1616,14 @@ export class StudentChallanService {
               );
               if (!wasGenerated && mergeBase && thisNet > 0) {
                 mergedBaseAmount += thisNet;
-                const key = `Installment ${currentInstNum} Fee (Previous)`;
+                const key = `Monthly Fee Part ${currentInstNum} (Previous)`;
                 mergedItems[key] = (mergedItems[key] || 0) + thisNet;
               }
             }
 
             if (currentInstNum === instToGenerate) {
               let finalFeeDetails = {
-                [`Installment ${currentInstNum} Fee`]: thisOriginal,
+                [`Monthly Fee Part ${currentInstNum}`]: thisOriginal,
                 ...mergedItems,
                 ...mergedFineItems,
               };
@@ -1613,7 +1631,7 @@ export class StudentChallanService {
               const child = await StudentChallan.create({
                 challanNo: await this.generateChallanNo(),
                 studentId: student._id,
-                termId,
+                termId: sTermId,
                 programId: sProgId,
                 departmentId: sDeptId,
                 semesterId: sSemId,
@@ -1632,7 +1650,7 @@ export class StudentChallanService {
                 billingMonth: finalBillingMonth, // ✅ Saves the matched month to DB
                 status: "issued",
                 feeDetails: finalFeeDetails,
-                remarks: `Installment ${currentInstNum} of ${count} (${pct}%)`,
+                remarks: `Monthly fee part ${currentInstNum} of ${count} (${pct}%)`,
                 feeSetupRemark: combinedFeeSetupRemark,
                 scholarshipId,
                 issuedAt: issuedAtDate,
@@ -1648,7 +1666,7 @@ export class StudentChallanService {
           const newChallan = await StudentChallan.create({
             challanNo: await this.generateChallanNo(),
             studentId: student._id,
-            termId: termId || null,
+            termId: sTermId || null,
             programId: sProgId,
             departmentId: sDeptId,
             semesterId: sSemId,
@@ -2192,12 +2210,21 @@ export class StudentChallanService {
 
     let isModified = false;
     if (today > due) {
-      // Late fine comes from the Late Fine setting (snapshotted on the
-      // challan when it was created). 0 means no fine is ever imposed.
-      const lateFine =
-        challan.lateFeeAmount ?? (await getLateFineAmount(challan.campusId || null));
-      if (lateFine > 0 && (!challan.fineAmount || challan.fineAmount === 0)) {
-        challan.fineAmount = lateFine;
+      const daysOverdue = Math.max(1, Math.floor((today - due) / 86400000));
+      // The schedule is snapshotted when the challan is generated. Older
+      // challans fall back to their legacy one-time lateFeeAmount.
+      const schedule = normalizeLateFineTiers(
+        challan.lateFineTiers,
+        challan.lateFeeAmount ?? (await getLateFineAmount(challan.campusId || null)),
+      );
+      const targetAutoFine = calculateLateFine(schedule, daysOverdue);
+      const currentAutoFine = Math.max(0, challan.autoLateFineAmount || 0);
+      if (targetAutoFine !== currentAutoFine) {
+        challan.fineAmount = Math.max(
+          0,
+          (challan.fineAmount || 0) - currentAutoFine + targetAutoFine,
+        );
+        challan.autoLateFineAmount = targetAutoFine;
         isModified = true;
       }
       if (challan.status === "issued" || challan.status === "partial") {
@@ -2214,7 +2241,9 @@ export class StudentChallanService {
       // was fetched, since a not-yet-due "issued" challan with a real fine
       // looked identical to a stale auto-fine to this check.
       if (challan.status === "overdue") {
-        challan.fineAmount = 0;
+        const currentAutoFine = Math.max(0, challan.autoLateFineAmount || 0);
+        challan.fineAmount = Math.max(0, (challan.fineAmount || 0) - currentAutoFine);
+        challan.autoLateFineAmount = 0;
         challan.status = "issued";
         isModified = true;
       }
@@ -2229,7 +2258,7 @@ export class StudentChallanService {
       const todayMidnight = new Date();
       todayMidnight.setHours(0, 0, 0, 0);
       const expiredChallans = await StudentChallan.find({
-        status: "issued",
+        status: { $in: ["issued", "partial", "overdue"] },
         isDeleted: false,
         dueDate: { $lt: todayMidnight },
       });
@@ -2929,9 +2958,9 @@ export class StudentChallanService {
     const netAmount = oldBase + targetBase + combinedFine;
 
     const feeDetails = {
-      [`Installment ${conflictingChallan.installmentNumber} Fee (${conflictingChallan.billingMonth})`]:
+      [`Monthly Fee Part ${conflictingChallan.installmentNumber} (${conflictingChallan.billingMonth})`]:
         targetBase,
-      [`Installment ${oldChallan.installmentNumber} Fee (${oldChallan.billingMonth}) (Merged)`]:
+      [`Monthly Fee Part ${oldChallan.installmentNumber} (${oldChallan.billingMonth}) (Merged)`]:
         oldBase,
     };
     if (combinedFine > 0) feeDetails["Fine (Merged)"] = combinedFine;
@@ -2958,7 +2987,7 @@ export class StudentChallanService {
       dueDate: conflictingChallan.dueDate,
       billingMonth: conflictingChallan.billingMonth,
       status: "issued",
-      remarks: `Merged from ${oldChallan.challanNo} (Installment ${oldChallan.installmentNumber}) and ${conflictingChallan.challanNo} (Installment ${conflictingChallan.installmentNumber}) on ${new Date().toLocaleDateString()}`,
+      remarks: `Merged from ${oldChallan.challanNo} (Monthly Fee Part ${oldChallan.installmentNumber}) and ${conflictingChallan.challanNo} (Monthly Fee Part ${conflictingChallan.installmentNumber}) on ${new Date().toLocaleDateString()}`,
     });
 
     // Matches applyMergeItem's own convention elsewhere in this file: a
@@ -3239,7 +3268,7 @@ export class StudentChallanService {
         remainingAmount: item.amount,
         dueDate: new Date(item.dueDate),
         status: "issued",
-        feeDetails: { [`Installment ${i + 1}`]: item.amount },
+        feeDetails: { [`Payment Part ${i + 1}`]: item.amount },
         feeSetupRemark: org.feeSetupRemark || "",
       });
     }
@@ -3873,7 +3902,7 @@ export class StudentChallanService {
               ? pref.customAmounts
               : null;
           installmentMonths = pct.map((p, i) => ({
-            month: pref.customMonths?.[i] || `Installment ${i + 1}`,
+            month: pref.customMonths?.[i] || `Monthly Fee Part ${i + 1}`,
             amount: fixedAmounts
               ? Math.round(fixedAmounts[i])
               : Math.round((configuredTotalFee * p) / 100),
@@ -4152,7 +4181,7 @@ export class StudentChallanService {
           department: c.departmentId?.name || "N/A",
           session: c.termId?.name || "N/A",
           semester: c.semesterId?.number
-            ? `Semester ${c.semesterId.number}`
+            ? `Section ${c.semesterId.number}`
             : "N/A",
           type: mappedCategory,
           // Table display keeps the "paid as an installment" detail even
@@ -4161,7 +4190,7 @@ export class StudentChallanService {
           // different fee category.
           displayType:
             mappedCategory === "ACADEMIC" && c.isInstallment
-              ? `Academic (Inst. #${c.installmentNumber || "-"})`
+              ? `Academic (Monthly Part #${c.installmentNumber || "-"})`
               : mappedCategory,
           rawType: c.challanType || "UNKNOWN",
           status: c.status,

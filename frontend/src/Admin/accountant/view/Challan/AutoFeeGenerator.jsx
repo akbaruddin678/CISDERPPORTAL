@@ -148,7 +148,7 @@ const AutoFeeGenerator = ({
     : "All Programs";
   const semLabel = filters.semesterId
     ? `Section ${semesters.find((s) => s._id === filters.semesterId)?.number}`
-    : "All Semesters";
+    : "All Sections";
 
   const goToReview = () => {
     if (!filters.termId) return alert("Please select a Session first.");
@@ -300,7 +300,7 @@ const AutoFeeGenerator = ({
                   ) : (
                     <span className="text-xs font-bold text-indigo-700">
                       {preview?.totalStudents ?? 0} student(s) in this scope —{" "}
-                      {preview?.studentsWithPlan ?? 0} with a saved fee/installment plan
+                      {preview?.studentsWithPlan ?? 0} with a saved monthly fee plan
                     </span>
                   )}
                 </div>
@@ -457,7 +457,7 @@ const AutoFeeGenerator = ({
             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex items-start gap-2.5">
               <ShieldCheck size={16} className="text-indigo-600 shrink-0 mt-0.5" />
               <p className="text-xs text-indigo-800 font-medium">
-                Only students whose saved fee/installment plan is actually due in{" "}
+                Only students whose saved monthly fee plan is actually due in{" "}
                 <b>{billingMonth || "this month"}</b> will get a challan. Everyone else is left
                 untouched — nothing is generated blindly.
               </p>

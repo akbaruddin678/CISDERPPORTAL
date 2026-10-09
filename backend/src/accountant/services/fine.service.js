@@ -319,83 +319,12 @@ export class FineService {
   }
 
   static async processOverdue() {
-    const today = new Date();
-    const gracePeriodDays = 7; // 7 days grace period
-
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-      // Find challans that are overdue beyond grace period
-      const gracePeriodDate = new Date(today);
-      gracePeriodDate.setDate(gracePeriodDate.getDate() - gracePeriodDays);
-
-      const overdueChallans = await StudentChallan.find({
-        status: { $in: ["issued", "partial"] },
-        dueDate: { $lt: gracePeriodDate },
-        remainingAmount: { $gt: 0 },
-      }).session(session);
-
-      let processedCount = 0;
-      let totalFineApplied = 0;
-
-      for (const challan of overdueChallans) {
-        const daysOverdue = Math.floor(
-          (today - challan.dueDate) / (1000 * 60 * 60 * 24),
-        );
-
-        if (daysOverdue > gracePeriodDays && challan.fineAmount === 0) {
-          // Calculate fine (example: 1% per week after grace period)
-          const fineWeeks = Math.floor((daysOverdue - gracePeriodDays) / 7);
-          const fineAmount = Math.round(
-            challan.remainingAmount * 0.01 * fineWeeks,
-          );
-
-          if (fineAmount > 0) {
-            challan.fineAmount = fineAmount;
-            challan.netAmount =
-              challan.originalTotal -
-              (challan.scholarshipAmount || 0) +
-              fineAmount;
-            challan.remainingAmount =
-              challan.netAmount - (challan.paidAmount || 0);
-
-            challan.remarks =
-              `${challan.remarks || ""} Auto fine applied: ₹${fineAmount} for ${daysOverdue} days overdue.`.trim();
-
-            await challan.save({ session });
-
-            // Record fine history
-            const fineHistory = new FineHistory({
-              challanId: challan._id,
-              studentId: challan.studentId,
-              fineAmount,
-              reason: `Auto fine: ${daysOverdue} days overdue`,
-              calculatedAt: new Date(),
-              status: "pending",
-            });
-
-            await fineHistory.save({ session });
-
-            processedCount++;
-            totalFineApplied += fineAmount;
-          }
-        }
-      }
-
-      await session.commitTransaction();
-
-      return {
-        processed: processedCount,
-        totalFineApplied,
-        message: `Processed ${processedCount} overdue challans with ₹${totalFineApplied} in fines`,
-      };
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
-    }
+    const result = await StudentChallanService.processOverdueChallansAutomatically();
+    return {
+      processed: result.processedCount,
+      cancelledAdmissions: result.cancelledAdmissions,
+      message: `Updated ${result.processedCount} overdue challans using their saved fine schedules`,
+    };
   }
 
   static async getFineHistory(filters = {}) {

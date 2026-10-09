@@ -2,24 +2,25 @@ import { asyncHandler } from '../middleware/asyncHandler.js';
 import { FineService } from '../services/fine.service.js';
 import StudentChallan from '../model/StudentChallan.js';
 import FineSetting from '../model/FineSetting.js';
-import { getLateFineAmount, saveLateFineAmount } from '../services/fineSetting.service.js';
+import { getLateFineSchedule, saveLateFineSchedule } from '../services/fineSetting.service.js';
 
 // Late fine charged after a challan's due date. 0 = no fine.
 export const getFineSettings = asyncHandler(async (req, res) => {
   const campusId = req.campus?.campusId || null;
-  const lateFineAmount = await getLateFineAmount(campusId);
+  const lateFineTiers = await getLateFineSchedule(campusId);
+  const lateFineAmount = lateFineTiers[0]?.amount || 0;
   const hasOwnSetting = Boolean(await FineSetting.exists({ campusId }));
-  res.status(200).json({ success: true, data: { lateFineAmount, hasOwnSetting, campusId } });
+  res.status(200).json({ success: true, data: { lateFineAmount, lateFineTiers, hasOwnSetting, campusId } });
 });
 
 export const updateFineSettings = asyncHandler(async (req, res) => {
   const campusId = req.campus?.campusId || null;
-  const lateFineAmount = await saveLateFineAmount(campusId, req.body.lateFineAmount, req.user?._id);
+  const lateFineTiers = await saveLateFineSchedule(campusId, req.body.lateFineTiers, req.user?._id);
+  const lateFineAmount = lateFineTiers[0]?.amount || 0;
 
-  // Challans that are still open and not yet overdue pick up the new amount,
-  // so what is printed ("Payable after due date") and what is charged match.
-  // Challans that already went overdue keep the fine they were charged.
-  const filter = { isDeleted: false, status: { $in: ['issued', 'partial', 'draft'] } };
+  // Every open challan picks up the schedule. Overdue challans are recalculated
+  // immediately; paid/cancelled challans keep their historical charge.
+  const filter = { isDeleted: false, status: { $in: ['issued', 'partial', 'draft', 'overdue'] } };
   if (campusId) {
     filter.campusId = campusId;
   } else {
@@ -27,14 +28,38 @@ export const updateFineSettings = asyncHandler(async (req, res) => {
     const own = await FineSetting.find({ campusId: { $ne: null } }).select('campusId').lean();
     filter.campusId = { $nin: own.map((o) => o.campusId) };
   }
-  const result = await StudentChallan.updateMany(filter, { $set: { lateFeeAmount: lateFineAmount } });
+  // Mark the automatic portion on legacy overdue challans before replacing
+  // their old flat snapshot, otherwise the new stage-one fine would be added
+  // on top of the same fine a second time.
+  await StudentChallan.updateMany(
+    {
+      ...filter,
+      status: 'overdue',
+      autoLateFineAmount: { $in: [null, 0] },
+      fineAmount: { $gt: 0 },
+    },
+    [
+      {
+        $set: {
+          autoLateFineAmount: {
+            $min: ['$fineAmount', { $ifNull: ['$lateFeeAmount', '$fineAmount'] }],
+          },
+        },
+      },
+    ],
+  );
+
+  const result = await StudentChallan.updateMany(filter, {
+    $set: { lateFeeAmount: lateFineAmount, lateFineTiers },
+  });
+  await FineService.processOverdue();
 
   res.status(200).json({
     success: true,
-    message: lateFineAmount > 0
-      ? `Late fine set to Rs ${lateFineAmount}.`
+    message: lateFineTiers.some((tier) => tier.amount > 0)
+      ? 'Three-stage late fine schedule saved.'
       : 'Late fine turned off. No fine will be imposed after the due date.',
-    data: { lateFineAmount, updatedChallans: result.modifiedCount || 0 },
+    data: { lateFineAmount, lateFineTiers, updatedChallans: result.modifiedCount || 0 },
   });
 });
 

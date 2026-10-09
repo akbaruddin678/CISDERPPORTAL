@@ -103,13 +103,11 @@ const StudentChallanManagementController = ({ children }) => {
     debouncedSearch,
   ]);
 
-  // University-only tool — excludeLevel:"HSSC" scopes the whole catalog to
-  // non-college departments/programs/terms/semesters, same pattern as the
-  // Student Report / Student Fee Management / Installment Configuration
-  // pages. Replaces the old per-filter hooks plus DashboardView's/
-  // BulkChallanManager's hand-rolled string-matching HSSC filters.
+  // Challan Management is shared by every school/class on the active campus.
+  // Academic dropdowns narrow the student list; selected students provide
+  // their own authoritative class/program/section/session at generation.
   const { data: catalogRes, isFetching: isCatalogLoading } =
-    useGetCompleteCatalogQuery({ excludeLevel: "HSSC" });
+    useGetCompleteCatalogQuery({});
   const catalog = catalogRes?.data || {
     departments: [],
     programs: [],
@@ -143,7 +141,6 @@ const StudentChallanManagementController = ({ children }) => {
   const { data: studRes, isFetching: isStudLoading } = useGetStudentsQuery({
     ...filters,
     search: debouncedSearch,
-    excludeLevel: "HSSC",
     page: pagination.page,
     limit: pagination.limit,
   });
@@ -392,11 +389,11 @@ const StudentChallanManagementController = ({ children }) => {
     generateSingle: async (form) => {
       try {
         const activeTermId =
-          filters.termId ||
           selectedStudent?.termId?._id ||
           selectedStudent?.termId ||
           selectedStudent?.term?._id ||
-          selectedStudent?.term;
+          selectedStudent?.term ||
+          filters.termId;
 
         const isOnlyMisc =
           form.feeTypes.length === 1 &&
@@ -408,6 +405,7 @@ const StudentChallanManagementController = ({ children }) => {
         const res = await genSingle({
           studentId: selectedStudent._id,
           termId: activeTermId || null,
+          scope: "all",
           dueDate: form.dueDate,
           billingMonth: form.billingMonth,
           feeTypes: form.feeTypes,
@@ -432,7 +430,7 @@ const StudentChallanManagementController = ({ children }) => {
 
     generateBulk: async (payload) => {
       try {
-        const res = await genBulk({ ...filters, ...payload }).unwrap();
+        const res = await genBulk({ ...filters, ...payload, scope: "all" }).unwrap();
         notify("success", res.message || "Bulk Generation Processed");
         return true;
       } catch (e) {
@@ -478,7 +476,7 @@ const StudentChallanManagementController = ({ children }) => {
     createInstallments: async (id, installmentsData) => {
       try {
         await createInst({ id, installments: installmentsData }).unwrap();
-        notify("success", "Installments Created");
+        notify("success", "Payment parts created");
         refetchStudent();
         return true;
       } catch (e) {
@@ -521,10 +519,10 @@ const StudentChallanManagementController = ({ children }) => {
     },
     onPay: (id) => setPayModalId(id),
     onDelete: (id) => setConfirmModal({ open: true, type: "delete", id }),
-    onEditDate: (id) => {},
-    onDiscount: (id) => {},
-    onInstallment: (id) => {},
-    onPrint: (id) => {},
+    onEditDate: () => {},
+    onDiscount: () => {},
+    onInstallment: () => {},
+    onPrint: () => {},
     // Opens the due-date prompt instead of renewing immediately — the
     // actual mutation fires from confirmRenewDueDate once the accountant
     // confirms the date. oldDueDate seeds the dialog's suggested default.

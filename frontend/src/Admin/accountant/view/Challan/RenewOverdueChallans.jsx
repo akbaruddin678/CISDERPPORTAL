@@ -155,7 +155,7 @@ const RenewOverdueChallans = ({
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
             <AlertTriangle size={16} className="text-rose-500" />
-            Overdue Installments ({rows.length})
+            Overdue Monthly Fee Parts ({rows.length})
           </h3>
           <button
             disabled={selection.length === 0 || isProcessing}
@@ -181,7 +181,7 @@ const RenewOverdueChallans = ({
                   </button>
                 </th>
                 <th className="p-4">Student</th>
-                <th className="p-4">Installment</th>
+                <th className="p-4">Monthly Fee Part</th>
                 <th className="p-4">Month Shift</th>
                 <th className="p-4">Fine</th>
                 <th className="p-4">Remaining</th>
@@ -193,7 +193,7 @@ const RenewOverdueChallans = ({
               {!filters.termId ? (
                 <tr>
                   <td colSpan="8" className="p-12 text-center text-slate-400">
-                    Select a session to see overdue installments.
+                    Select a session to see overdue monthly fee parts.
                   </td>
                 </tr>
               ) : isFetching ? (
@@ -205,7 +205,7 @@ const RenewOverdueChallans = ({
               ) : rows.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="p-12 text-center text-slate-400">
-                    No overdue installments in this scope.
+                    No overdue monthly fee parts in this scope.
                   </td>
                 </tr>
               ) : (

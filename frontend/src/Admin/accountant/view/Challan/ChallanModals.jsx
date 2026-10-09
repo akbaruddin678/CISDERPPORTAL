@@ -301,11 +301,11 @@ export const GenerateModal = ({
           if (selectedTypes.length === 0) return alert("Select at least one fee type");
           if (monthApplicable && !derivedBillingMonth)
             return alert(
-              "This installment plan has no configured month for the selected installment — check the plan setup.",
+              "This monthly fee plan has no configured month for the selected payment part — check the monthly setup.",
             );
           if (monthApplicable && isTargetInstallmentPaid)
             return alert(
-              `Installment #${effectiveInstallmentNumber} (${derivedBillingMonth}) is already paid — choose a different installment.`,
+              `Monthly fee part #${effectiveInstallmentNumber} (${derivedBillingMonth}) is already paid — choose a different part.`,
             );
 
           // Independent per item: base/fine can be rolled forward, deleted,
@@ -498,7 +498,7 @@ export const GenerateModal = ({
         {isInstStudent && feeTypes.tuition && (
           <div className="bg-purple-50 border border-purple-200 p-4 rounded-xl">
             <label className="block text-xs font-bold text-purple-700 uppercase mb-1.5 ml-1">
-              Select Specific Installment ({totalInst} Parts Configured)
+              Select Monthly Fee Part ({totalInst} Parts Configured)
             </label>
             <select
               value={targetInstallment}
@@ -506,7 +506,7 @@ export const GenerateModal = ({
               className="w-full p-2.5 bg-white border border-purple-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 outline-none text-purple-900 font-bold mb-3 cursor-pointer"
             >
               <option value="auto">
-                Auto (Generate Next Sequence — #{nextAutoInstallment})
+                Auto (Generate Next Monthly Part — #{nextAutoInstallment})
               </option>
               {Array.from({ length: totalInst }).map((_, i) => {
                 const num = i + 1;
@@ -516,7 +516,7 @@ export const GenerateModal = ({
                 );
                 return (
                   <option key={num} value={num} disabled={isPaid}>
-                    Installment {num}
+                    Monthly Fee Part {num}
                     {month ? ` (${month})` : ""}
                     {isPaid ? " — Paid" : ""}
                   </option>
@@ -641,7 +641,7 @@ export const DetailModal = ({ isOpen, onClose, data, student }) => {
       ? data.feeDetails.toJSON()
       : data.feeDetails || {};
 
-  const allFees = Object.entries(feeObj).filter(([key, val]) => val > 0);
+  const allFees = Object.entries(feeObj).filter(([, val]) => val > 0);
   const currentFees = allFees.filter(
     ([key]) =>
       !key.toLowerCase().includes("arrears") &&
@@ -666,7 +666,9 @@ export const DetailModal = ({ isOpen, onClose, data, student }) => {
     if (label.toLowerCase().includes("Final Exam Fee")) {
       return "Exam Fee";
     }
-    return label;
+    return label
+      .replace(/Installment/gi, "Monthly Fee Part")
+      .replace(/Semester/gi, "Section");
   };
 
   return (
@@ -1124,7 +1126,7 @@ export const InstallmentModal = ({
   if (!isOpen) return null;
 
   return (
-    <ModalOverlay title="Create Installments" onClose={onClose}>
+    <ModalOverlay title="Create Payment Parts" onClose={onClose}>
       <div className="space-y-4">
         <div className="bg-slate-50 p-3 rounded-lg flex justify-between font-bold text-slate-700">
           <span>Total:</span>
@@ -1133,7 +1135,7 @@ export const InstallmentModal = ({
 
         <div>
           <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
-            Number of Installments
+            Number of Payment Parts
           </label>
           <select
             className="w-full border p-2.5 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -1142,7 +1144,7 @@ export const InstallmentModal = ({
           >
             {[2, 3, 4, 5].map((n) => (
               <option key={n} value={n}>
-                {n} Installments
+                {n} Parts
               </option>
             ))}
           </select>

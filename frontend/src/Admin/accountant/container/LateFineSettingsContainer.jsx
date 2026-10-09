@@ -1,52 +1,109 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AlarmClock, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
 import {
   useGetFineSettingsQuery,
   useUpdateFineSettingsMutation,
 } from "../api/fineManagementApi";
 
-const QUICK_AMOUNTS = [0, 100, 200, 500, 1000, 2000];
+const EMPTY_TIERS = [
+  { durationDays: "5", amount: "0" },
+  { durationDays: "6", amount: "0" },
+  { durationDays: null, amount: "0" },
+];
 
-// Late fine charged after a challan's due date. 0 = no fine at all.
+const normalizeForForm = (tiers, legacyAmount = 0) => {
+  if (!Array.isArray(tiers) || tiers.length !== 3) {
+    return [
+      { durationDays: "5", amount: String(legacyAmount || 0) },
+      { durationDays: "6", amount: "0" },
+      { durationDays: null, amount: "0" },
+    ];
+  }
+  return tiers.map((tier, index) => ({
+    durationDays: index === 2 ? null : String(tier.durationDays ?? ""),
+    amount: String(tier.amount ?? 0),
+  }));
+};
+
+const toPayload = (tiers) =>
+  tiers.map((tier, index) => ({
+    durationDays: index === 2 ? null : Number(tier.durationDays),
+    amount: Number(tier.amount),
+  }));
+
 const LateFineSettingsContainer = () => {
   const { data, isLoading, isError } = useGetFineSettingsQuery();
   const [updateSettings, { isLoading: saving }] = useUpdateFineSettingsMutation();
-  const [amount, setAmount] = useState("");
-  const [message, setMessage] = useState(null); // { type, text }
+  const [tiers, setTiers] = useState(EMPTY_TIERS);
+  const [message, setMessage] = useState(null);
 
-  const saved = data?.data?.lateFineAmount;
+  const savedTiers = data?.data?.lateFineTiers;
+  const legacyAmount = data?.data?.lateFineAmount;
 
   useEffect(() => {
-    if (saved !== undefined) setAmount(String(saved));
-  }, [saved]);
+    if (savedTiers || legacyAmount !== undefined) {
+      setTiers(normalizeForForm(savedTiers, legacyAmount));
+    }
+  }, [savedTiers, legacyAmount]);
 
-  const value = amount === "" ? NaN : Number(amount);
-  const invalid = !Number.isFinite(value) || value < 0;
-  const unchanged = !invalid && value === saved;
+  const parsed = useMemo(() => toPayload(tiers), [tiers]);
+  const invalid = parsed.some(
+    (tier, index) =>
+      !Number.isFinite(tier.amount) ||
+      tier.amount < 0 ||
+      (index < 2 && (!Number.isInteger(tier.durationDays) || tier.durationDays < 1)),
+  );
+  const unchanged =
+    !invalid &&
+    JSON.stringify(parsed) ===
+      JSON.stringify(toPayload(normalizeForForm(savedTiers, legacyAmount)));
+
+  const updateTier = (index, field, value) => {
+    setMessage(null);
+    setTiers((current) =>
+      current.map((tier, tierIndex) =>
+        tierIndex === index ? { ...tier, [field]: value } : tier,
+      ),
+    );
+  };
 
   const save = async () => {
     setMessage(null);
     try {
-      const res = await updateSettings({ lateFineAmount: value }).unwrap();
+      const res = await updateSettings({ lateFineTiers: parsed }).unwrap();
       setMessage({
         type: "success",
         text: `${res.message} ${res.data.updatedChallans} open challan(s) updated.`,
       });
     } catch (err) {
-      setMessage({ type: "error", text: err?.data?.error || err?.data?.message || "Could not save the setting." });
+      setMessage({
+        type: "error",
+        text: err?.data?.error || err?.data?.message || "Could not save the setting.",
+      });
     }
   };
 
+  let startDay = 1;
+  const stageDescriptions = parsed.map((tier, index) => {
+    if (index === 2) return `Day ${startDay} onward`;
+    const endDay = startDay + (Number.isFinite(tier.durationDays) ? tier.durationDays : 0) - 1;
+    const text = `Days ${startDay}–${Math.max(startDay, endDay)}`;
+    startDay = endDay + 1;
+    return text;
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-8">
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex items-center gap-3">
           <div className="rounded-xl bg-rose-100 p-3 text-rose-600">
             <AlarmClock size={22} />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Late Fine</h1>
-            <p className="text-sm text-slate-500">The fine charged on a challan after its due date.</p>
+            <p className="text-sm text-slate-500">
+              Add up to three fine stages as a challan remains overdue.
+            </p>
           </div>
         </div>
 
@@ -59,70 +116,90 @@ const LateFineSettingsContainer = () => {
             <p className="text-sm text-rose-600">Could not load the current setting.</p>
           ) : (
             <>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Fine after due date (Rs)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-400">Rs</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-3 text-lg font-bold outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                />
-              </div>
-
-              <div className="mt-3 flex flex-wrap gap-2">
-                {QUICK_AMOUNTS.map((q) => (
-                  <button
-                    key={q}
-                    type="button"
-                    onClick={() => setAmount(String(q))}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                      Number(amount) === q && amount !== ""
-                        ? "border-rose-500 bg-rose-50 text-rose-700"
-                        : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                    }`}
+              <div className="grid gap-4 md:grid-cols-3">
+                {tiers.map((tier, index) => (
+                  <section
+                    key={`late-fine-stage-${index + 1}`}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
                   >
-                    {q === 0 ? "No fine" : `Rs ${q.toLocaleString()}`}
-                  </button>
+                    <div className="mb-4 flex items-center justify-between gap-2">
+                      <h2 className="font-bold text-slate-900">Fine stage {index + 1}</h2>
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-rose-700">
+                        {stageDescriptions[index]}
+                      </span>
+                    </div>
+
+                    {index < 2 ? (
+                      <label className="mb-4 block">
+                        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Applies for how many days
+                        </span>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={tier.durationDays}
+                            onChange={(event) => updateTier(index, "durationDays", event.target.value)}
+                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 pr-14 font-bold outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400">
+                            days
+                          </span>
+                        </div>
+                      </label>
+                    ) : (
+                      <div className="mb-4 rounded-xl bg-white px-3 py-3 text-sm text-slate-600">
+                        Final stage continues until the challan is paid.
+                      </div>
+                    )}
+
+                    <label className="block">
+                      <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        Additional fine (Rs)
+                      </span>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-400">
+                          Rs
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={tier.amount}
+                          onChange={(event) => updateTier(index, "amount", event.target.value)}
+                          className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-3 text-lg font-bold outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+                        />
+                      </div>
+                    </label>
+                  </section>
                 ))}
               </div>
 
-              <div
-                className={`mt-5 flex items-start gap-2 rounded-xl px-4 py-3 text-sm ${
-                  !invalid && value === 0 ? "bg-emerald-50 text-emerald-800" : "bg-slate-50 text-slate-600"
-                }`}
-              >
-                {!invalid && value === 0 ? (
-                  <>
-                    <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
-                    <span>With 0, no fine is imposed. Challans simply turn overdue after the due date.</span>
-                  </>
-                ) : (
-                  <span>
-                    A challan not paid by its due date gets a one-time fine of{" "}
-                    <b>Rs {invalid ? "—" : value.toLocaleString()}</b> added to its total. The challan prints it as
-                    &quot;Payable after due date&quot;.
-                  </span>
-                )}
+              <div className="mt-5 rounded-xl bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                Each stage is added once. For example, Rs 200 for the first 5 days and an additional
+                Rs 400 for the next 6 days makes the total late fine Rs 600 from day 6.
               </div>
 
               <ul className="mt-4 list-disc space-y-1 pl-5 text-xs text-slate-500">
-                <li>Saving updates challans that are still open and not yet overdue.</li>
-                <li>Challans that already went overdue keep the fine they were charged. Use Fines &amp; Due Dates to waive one.</li>
-                <li>New challans use the amount that is set when they are created.</li>
+                <li>Use Rs 0 for any stage you do not want to charge.</li>
+                <li>New challans keep a copy of this schedule when they are generated.</li>
+                <li>Saving also updates open challans; overdue fines then increase automatically by stage.</li>
               </ul>
 
               {message && (
                 <div
                   className={`mt-4 flex items-start gap-2 rounded-xl px-4 py-3 text-sm ${
-                    message.type === "success" ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-700"
+                    message.type === "success"
+                      ? "bg-emerald-50 text-emerald-800"
+                      : "bg-rose-50 text-rose-700"
                   }`}
                 >
-                  {message.type === "success" ? <CheckCircle2 size={16} className="mt-0.5" /> : <AlertTriangle size={16} className="mt-0.5" />}
+                  {message.type === "success" ? (
+                    <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+                  ) : (
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                  )}
                   <span>{message.text}</span>
                 </div>
               )}
@@ -134,7 +211,7 @@ const LateFineSettingsContainer = () => {
                 className="mt-6 inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white transition hover:bg-slate-700 disabled:opacity-40"
               >
                 {saving && <Loader2 size={14} className="animate-spin" />}
-                Save
+                Save fine schedule
               </button>
             </>
           )}

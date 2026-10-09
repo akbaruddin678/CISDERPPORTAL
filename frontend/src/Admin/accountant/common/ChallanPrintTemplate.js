@@ -71,8 +71,31 @@ const toWords = (n) => {
 };
 
 // Used only for older challans created before the Late Fine setting existed.
-// New challans carry their own `lateFeeAmount` (0 = no fine).
+// New challans carry their own late-fine schedule.
 export const LATE_FEE = 2000;
+
+const lateFineRows = (challan, total) => {
+  const tiers = Array.isArray(challan.lateFineTiers) && challan.lateFineTiers.length
+    ? challan.lateFineTiers
+    : [{ durationDays: null, amount: challan.lateFeeAmount ?? LATE_FEE }];
+  const base = Math.max(0, total - (challan.autoLateFineAmount || 0));
+  let cumulativeFine = 0;
+  let startDay = 1;
+
+  return tiers.flatMap((tier, index) => {
+    const amount = Math.max(0, Number(tier.amount) || 0);
+    cumulativeFine += amount;
+    const isLast = index === tiers.length - 1 || tier.durationDays === null;
+    const duration = isLast ? null : Math.max(1, Number(tier.durationDays) || 1);
+    const label = isLast
+      ? `Payable from overdue day ${startDay}`
+      : `Payable on overdue days ${startDay}-${startDay + duration - 1}`;
+    if (duration) startDay += duration;
+    return cumulativeFine > 0
+      ? [`<tr class="after"><td></td><td style="text-align:right">${label}</td><td class="amt">${num(base + cumulativeFine)}</td></tr>`]
+      : [];
+  }).join("");
+};
 
 const COLLEGE_NAME_1 = "College of International";
 const COLLEGE_NAME_2 = "Skills Development";
@@ -243,7 +266,7 @@ const buildChallanCard = (challan, copyTitle) => {
   const issueDate = fmtDate(challan.issueDate || challan.createdAt);
 
   const total = challan.netAmount || 0;
-  const lateFee = challan.lateFeeAmount ?? LATE_FEE;
+  const fineScheduleRows = lateFineRows(challan, total);
   const rows = buildParticulars(challan);
   const minRows = 5;
   const fillers = Math.max(0, minRows - rows.length);
@@ -283,14 +306,14 @@ const buildChallanCard = (challan, copyTitle) => {
       <tr><th class="sr">Sr.</th><th>Particulars</th><th class="amt" style="text-align:center">Amount</th></tr>
       ${feeRows}${fillerRows}
       <tr class="total"><td></td><td>Total =</td><td class="amt">${num(total)}</td></tr>
-      ${lateFee > 0 ? `<tr class="after"><td></td><td style="text-align:right">Payable after due date</td><td class="amt">${num(total + lateFee)}</td></tr>` : ""}
+      ${fineScheduleRows}
     </table>
 
     <div class="words"><b>In words:</b> ${toWords(total)}</div>
 
     <div class="notes">
       <b>Note:</b><br/>
-      ${lateFee > 0 ? "After the due date a fine will be charged.<br/>" : ""}
+      ${fineScheduleRows ? "Late fine increases according to the overdue-day stages shown above.<br/>" : ""}
       This fee challan is valid up to the 25th of this month.
     </div>
 
@@ -318,7 +341,7 @@ export const openPrintWindow = (
     );
     return;
   }
-  const htmlTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><title>${title}</title><style>${getPrintStyles()}</style></head><body>${bodyHTML || "<h2 style='text-align:center; margin-top: 50px;'>Error: No content generated.</h2>"}<script>window.onload = function() { setTimeout(function() { window.print(); }, 800); };<\/script></body></html>`;
+  const htmlTemplate = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><title>${title}</title><style>${getPrintStyles()}</style></head><body>${bodyHTML || "<h2 style='text-align:center; margin-top: 50px;'>Error: No content generated.</h2>"}<script>window.onload = function() { setTimeout(function() { window.print(); }, 800); };</script></body></html>`;
   win.document.open();
   win.document.write(htmlTemplate);
   win.document.close();

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { campusScopedPlugin, getCampusContext } from "../../core/middleware/campusContext.js";
-import { getLateFineAmount } from "../services/fineSetting.service.js";
+import { calculateLateFine, getLateFineSchedule } from "../services/fineSetting.service.js";
 
 const StudentChallanSchema = new mongoose.Schema(
   {
@@ -43,6 +43,19 @@ const StudentChallanSchema = new mongoose.Schema(
     // setting when the challan is created (0 = no fine). Printed on the
     // challan as "Payable after due date".
     lateFeeAmount: { type: Number, min: 0 },
+    lateFineTiers: {
+      type: [
+        {
+          durationDays: { type: Number, min: 1, default: null },
+          amount: { type: Number, min: 0, required: true },
+          _id: false,
+        },
+      ],
+      default: undefined,
+    },
+    // Portion of fineAmount created by the automatic overdue schedule.
+    // Keeping it separate lets staff add/waive a manual fine safely.
+    autoLateFineAmount: { type: Number, default: 0, min: 0 },
 
     // Arrears is now just a static number if you ever want to add it manually,
     // but logic won't auto-calculate it from previous challans anymore.
@@ -137,11 +150,27 @@ StudentChallanSchema.methods.recalculateTotals = function () {
 };
 
 StudentChallanSchema.pre("save", async function (next) {
-  if (this.isNew && (this.lateFeeAmount === undefined || this.lateFeeAmount === null)) {
+  if (this.isNew && (!Array.isArray(this.lateFineTiers) || this.lateFineTiers.length === 0)) {
     try {
-      this.lateFeeAmount = await getLateFineAmount(this.campusId || getCampusContext().campusId || null);
+      const schedule = await getLateFineSchedule(this.campusId || getCampusContext().campusId || null);
+      this.lateFineTiers = schedule;
+      this.lateFeeAmount = schedule[0]?.amount || 0;
     } catch (err) {
       return next(err);
+    }
+  }
+  // If staff intentionally generates a challan with a past due date, apply
+  // the correct saved stage immediately instead of waiting for the cron job.
+  if (this.isNew && this.dueDate && !["paid", "cancelled", "draft", "merged"].includes(this.status)) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(this.dueDate);
+    due.setHours(0, 0, 0, 0);
+    if (today > due) {
+      const daysOverdue = Math.max(1, Math.floor((today - due) / 86400000));
+      const automaticFine = calculateLateFine(this.lateFineTiers, daysOverdue);
+      this.autoLateFineAmount = automaticFine;
+      this.fineAmount = (this.fineAmount || 0) + automaticFine;
     }
   }
   this.recalculateTotals();

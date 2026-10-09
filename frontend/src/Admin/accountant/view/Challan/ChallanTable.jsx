@@ -145,7 +145,7 @@ const ChallanTable = ({ challans, actions, onRowClick }) => {
                         <span
                           className={`px-2 py-0.5 rounded border text-[10px] font-bold uppercase flex items-center gap-1 w-fit ${isVoid ? "bg-slate-100 text-slate-400 border-slate-200" : "bg-purple-50 text-purple-700 border-purple-100"}`}
                         >
-                          <Layers size={10} /> Installment {c.installmentNumber}
+                          <Layers size={10} /> Monthly Fee Part {c.installmentNumber}
                         </span>
                       ) : (
                         <span
@@ -287,7 +287,7 @@ const ChallanTable = ({ challans, actions, onRowClick }) => {
                               <button
                                 onClick={() => actions.onInstallment(c._id)}
                                 className="p-1.5 bg-purple-50 text-purple-600 rounded hover:bg-purple-100 border border-purple-100"
-                                title="Split into Installments"
+                                title="Split into Payment Parts"
                               >
                                 <Percent size={14} />
                               </button>

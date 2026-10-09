@@ -1,4 +1,5 @@
 import StudentFeeStructure from "../model/StudentFeeStructure.js";
+import StudentProfile from "../../student/models/StudentProfile.js";
 import { AppError } from "../middleware/errorHandler.js";
 
 export class StudentFeeService {
@@ -99,6 +100,32 @@ export class StudentFeeService {
       throw new AppError("No students selected", 400);
     }
 
+    // Filters are only a way to find students. Once explicit students have
+    // been selected, their own profiles are the source of truth for the fee
+    // scope. In particular, two programs can both call their section "A"
+    // while using different Semester documents, so copying the first
+    // student's semesterId to an entire class creates incorrectly-scoped
+    // fee records.
+    const uniqueStudentIds = [...new Set(studentIds.map(String))];
+    const profiles = await StudentProfile.find({
+      _id: { $in: uniqueStudentIds },
+      isTrashed: { $ne: true },
+    })
+      .select("_id studentId termId semesterId")
+      .lean();
+    const profileById = new Map(
+      profiles.map((profile) => [String(profile._id), profile]),
+    );
+    const missingStudentIds = uniqueStudentIds.filter(
+      (studentId) => !profileById.has(studentId),
+    );
+    if (missingStudentIds.length) {
+      throw new AppError(
+        `${missingStudentIds.length} selected student record(s) could not be found. Refresh the list and try again.`,
+        400,
+      );
+    }
+
     const formattedItems = (feeItems || []).map((item) => ({
       headId: item.headId || null,
       headName: item.headName || "Fee",
@@ -108,19 +135,38 @@ export class StudentFeeService {
     const finalTitle = title || name;
     const semesterScoped = this.isSemesterScoped(category);
 
-    const records = studentIds.map((sId) => ({
-      studentId: sId,
-      termId: termId || null,
-      semesterId: semesterScoped ? semesterId || null : null,
-      category,
-      title: finalTitle,
-      totalAmount: Number(totalAmount),
-      feeItems: formattedItems,
-      remarks: remarks || name,
-      feeSetupRemark: (feeSetupRemark || "").trim(),
-      isActive: true,
-      createdBy: userId,
-    }));
+    const records = uniqueStudentIds.map((sId) => {
+      const profile = profileById.get(sId);
+      const ownTermId = profile.termId || termId || null;
+      const ownSemesterId = profile.semesterId || semesterId || null;
+
+      if (!ownTermId) {
+        throw new AppError(
+          `Student ${profile.studentId || sId} has no session assigned. Update the student's academic profile first.`,
+          400,
+        );
+      }
+      if (semesterScoped && !ownSemesterId) {
+        throw new AppError(
+          `Student ${profile.studentId || sId} has no section assigned. Update the student's academic profile first.`,
+          400,
+        );
+      }
+
+      return {
+        studentId: sId,
+        termId: ownTermId,
+        semesterId: semesterScoped ? ownSemesterId : null,
+        category,
+        title: finalTitle,
+        totalAmount: Number(totalAmount),
+        feeItems: formattedItems,
+        remarks: remarks || name,
+        feeSetupRemark: (feeSetupRemark || "").trim(),
+        isActive: true,
+        createdBy: userId,
+      };
+    });
 
     if (category === "MISC") {
       return await StudentFeeStructure.insertMany(records);

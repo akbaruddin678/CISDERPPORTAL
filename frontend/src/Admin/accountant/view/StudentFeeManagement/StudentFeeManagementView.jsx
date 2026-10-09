@@ -116,7 +116,10 @@ const GlobalMiscModal = ({
       await onCreate({ title, name: title, amount: Number(amount) }).unwrap();
       setTitle("");
       setAmount("");
-    } catch (err) {}
+    } catch {
+      setLoading(false);
+      return;
+    }
     setLoading(false);
   };
 
@@ -670,6 +673,7 @@ const MainPage = (props) => {
     selectedStudents,
     toggleStudentSelect,
     selectAll,
+    clearSelectedStudents,
     termOptions,
     selectedTerm,
     setSelectedTerm,
@@ -697,6 +701,9 @@ const MainPage = (props) => {
     studentsList.every((s) =>
       selectedStudents.some((sel) => sel._id === s._id),
     );
+  const anyVisibleSelected = studentsList.some((s) =>
+    selectedStudents.some((sel) => sel._id === s._id),
+  );
 
   const sentinelRef = useRef(null);
   const loaderCb = useCallback(
@@ -833,8 +840,17 @@ const MainPage = (props) => {
 
           <div className="flex items-center gap-3">
             {selectedStudents.length > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 rounded-lg border border-indigo-100 text-sm font-semibold text-indigo-700">
+              <div className="flex items-center gap-1.5 pl-3 pr-1.5 py-1 bg-indigo-50 rounded-lg border border-indigo-100 text-sm font-semibold text-indigo-700">
                 <Check size={14} /> {selectedStudents.length} selected
+                <button
+                  type="button"
+                  onClick={clearSelectedStudents}
+                  className="p-1 rounded-md text-indigo-400 hover:text-indigo-700 hover:bg-indigo-100 transition-colors"
+                  title="Clear selected students"
+                  aria-label="Clear selected students"
+                >
+                  <X size={13} />
+                </button>
               </div>
             )}
 
@@ -865,10 +881,13 @@ const MainPage = (props) => {
                   <Checkbox
                     size="small"
                     checked={allVisibleSelected}
-                    indeterminate={
-                      selectedStudents.length > 0 && !allVisibleSelected
-                    }
+                    indeterminate={anyVisibleSelected && !allVisibleSelected}
                     onChange={selectAll}
+                    title={
+                      anyVisibleSelected
+                        ? "Deselect visible students"
+                        : "Select visible students"
+                    }
                   />
                 </th>
                 {[

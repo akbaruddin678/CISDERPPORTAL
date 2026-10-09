@@ -31,9 +31,6 @@ const StudentDetailView = ({ data }) => {
     clearStudent,
     isProcessing,
     activeScholarship,
-    terms,
-    semesters,
-    filters,
     miscFeesList,
     studentFees,
     currentSemesterId,
@@ -69,16 +66,6 @@ const StudentDetailView = ({ data }) => {
       (a, b) => (b.number || 0) - (a.number || 0),
     );
   }, [studentChallans, currentSemesterId]);
-
-  if (!data || !data.selectedStudent) {
-    return (
-      <div className="p-8 text-center text-slate-500">
-        Loading Student Data...
-      </div>
-    );
-  }
-
-  const currentSessionName = terms?.find((t) => t._id === filters.termId)?.name;
 
   const handlePrintChallan = (challanId) => {
     const challanData = studentChallans.find((c) => c._id === challanId);
@@ -150,7 +137,7 @@ const StudentDetailView = ({ data }) => {
         .map((c) => ({
           challanId: c._id,
           label: c.isInstallment
-            ? `Installment ${c.installmentNumber} Fee${
+            ? `Monthly Fee Part ${c.installmentNumber}${
                 c.semesterId?.number ? ` (Section ${c.semesterId.number})` : ""
               }`
             : `${(c.challanType || "Fee").replace(/_/g, " ")}${
@@ -165,6 +152,14 @@ const StudentDetailView = ({ data }) => {
     (s, i) => s + i.baseAmount + i.fineAmount,
     0,
   );
+
+  if (!data || !data.selectedStudent) {
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Loading Student Data...
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in slide-in-from-right duration-300">
@@ -225,13 +220,13 @@ const StudentDetailView = ({ data }) => {
             {hasInstallmentPlanSetup ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-bold rounded border border-emerald-100">
                 <CheckCircle2 size={13} />
-                Installment Plan Done
+                Monthly Fee Plan Done
                 {currentInstallmentPref?.defaultInstallments > 1 &&
                   ` (${currentInstallmentPref.defaultInstallments} parts)`}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-bold rounded border border-amber-100">
-                <AlertTriangle size={13} /> Installment Plan Not Set Up
+                <AlertTriangle size={13} /> Monthly Fee Plan Not Set Up
               </span>
             )}
           </div>
@@ -403,11 +398,5 @@ const StudentDetailView = ({ data }) => {
     </div>
   );
 };
-
-// ==========================================
-// PRINT GENERATION HELPERS
-// ==========================================
-const formatCurrency = (amount) =>
-  amount ? amount.toLocaleString("en-PK") : "0";
 
 export default StudentDetailView;

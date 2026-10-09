@@ -14,7 +14,6 @@ import {
   CheckCircle2,
   FileText,
   Settings,
-  User,
 } from "lucide-react";
 
 import { useGetStudentsQuery } from "../../api/accountantstudentApi";
@@ -94,29 +93,23 @@ const BulkChallanManager = ({
   const [bulkExamTitle, setBulkExamTitle] = useState("");
 
   const { data: studentsRes, isFetching: isFetchingStudents } =
-    useGetStudentsQuery(
-      { ...filters, excludeLevel: "HSSC", limit: 500 },
-      { skip: !filters.departmentId },
-    );
+    useGetStudentsQuery({ ...filters, limit: 500 });
 
   const { data: challansRes, isFetching: isFetchingChallans } =
     useGetChallansQuery(
-      filters.termId && filters.departmentId
-        ? {
-            termId: filters.termId,
-            departmentId: filters.departmentId,
-            limit: 1000,
-          }
-        : { skip: true },
+      {
+        termId: filters.termId || undefined,
+        departmentId: filters.departmentId || undefined,
+        limit: 1000,
+      },
+      { skip: !filters.termId && !filters.departmentId },
     );
 
-  // Whether each currently-selected student has a real (>1 installment)
-  // plan for the filtered semester — drives the same Billing Month
-  // required/disabled rule used in the single-generate modal. Requires a
-  // semester filter to be meaningful (an installment plan is per-semester).
+  // Each selected student's current section is resolved by the backend, so
+  // Billing Month works even when no Section filter was chosen.
   const { data: installmentStatusRes } = useGetBatchInstallmentStatusQuery(
-    { studentIds: selection, semesterId: filters.semesterId },
-    { skip: selection.length === 0 || !filters.semesterId },
+    { studentIds: selection },
+    { skip: selection.length === 0 },
   );
   // Billing Month is a TUITION-only concept — Admission/Readmission/Exam/
   // Misc fee setups have no month at all, so this must also require
@@ -139,11 +132,7 @@ const BulkChallanManager = ({
   const studentsWithPreviousDuesCount =
     prevDuesRes?.data?.totalStudentsWithDues || 0;
 
-  // programsAll/semestersAll are the full, already university-only catalog
-  // (excludeLevel:"HSSC" applied once in the parent controller) — cascade
-  // them against this component's OWN independent Department/Program
-  // selection rather than re-fetching + re-filtering HSSC entities here.
-  const universityPrograms = useMemo(() => {
+  const availablePrograms = useMemo(() => {
     if (!filters.departmentId) return [];
     return programsAll.filter(
       (p) =>
@@ -152,16 +141,18 @@ const BulkChallanManager = ({
     );
   }, [programsAll, filters.departmentId]);
 
-  const semesters = useMemo(() => {
-    if (!filters.programId) return [];
+  const sections = useMemo(() => {
+    if (!filters.departmentId && !filters.programId) return [];
+    const programIds = new Set(availablePrograms.map((p) => String(p._id)));
     return semestersAll
-      .filter(
-        (s) =>
-          String(s.programId?._id || s.programId) ===
-          String(filters.programId),
-      )
+      .filter((s) => {
+        const sectionProgramId = String(s.programId?._id || s.programId);
+        return filters.programId
+          ? sectionProgramId === String(filters.programId)
+          : programIds.has(sectionProgramId);
+      })
       .sort((a, b) => (a.number || 0) - (b.number || 0));
-  }, [semestersAll, filters.programId]);
+  }, [semestersAll, filters.departmentId, filters.programId, availablePrograms]);
 
   const students = useMemo(() => {
     const list =
@@ -242,11 +233,6 @@ const BulkChallanManager = ({
   const handleAction = async () => {
     const selectedTypes = Object.keys(feeTypes).filter((k) => feeTypes[k]);
 
-    const isOnlyMisc =
-      selectedTypes.length === 1 && selectedTypes.includes("general");
-    if (!filters.termId && !isOnlyMisc)
-      return alert("Please select a Session/Term first.");
-
     if (selection.length === 0) return alert("No students selected.");
 
     if (mode === "generate") {
@@ -255,7 +241,7 @@ const BulkChallanManager = ({
       // an installment plan for this semester — same rule as single-generate.
       if (anySelectedHasInstallmentPlan && !billingMonth)
         return alert(
-          "Billing Month required — at least one selected student is on an installment plan.",
+          "Billing Month required — at least one selected student has a monthly fee plan.",
         );
       if (selectedTypes.length === 0)
         return alert("Select at least one fee type.");
@@ -273,16 +259,15 @@ const BulkChallanManager = ({
       // ✅ PASS dueDate AND billingMonth TO THE GENERATOR
       await actions.generateBulk({
         studentIds: selection,
-        termId: filters.termId || null,
+        // Selected students carry their own session/class/program/section.
+        // The dropdowns above only determine which students are selected.
+        termId: null,
         dueDate: actionDate,
         // Never send a billingMonth for a batch that doesn't include
         // tuition at all — even a stale value typed earlier (before
         // tuition was unchecked) must not leak into an Exam/Admission/
         // Misc-only batch.
         billingMonth: feeTypes.tuition ? billingMonth || null : null,
-        departmentId: filters.departmentId,
-        programId: filters.programId,
-        semesterId: filters.semesterId,
         feeTypes: selectedTypes,
         miscFeeIds: selectedMiscFees,
         examTitles: bulkExamTitle.trim() ? [bulkExamTitle.trim()] : [],
@@ -356,7 +341,7 @@ const BulkChallanManager = ({
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase">
-                Session <span className="text-rose-500">*</span>
+                Session
               </label>
               <select
                 className="w-full p-2.5 text-sm border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
@@ -374,7 +359,7 @@ const BulkChallanManager = ({
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-500 uppercase">
-                Class <span className="text-rose-500">*</span>
+                Class
               </label>
               <select
                 className="w-full p-2.5 text-sm border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
@@ -406,7 +391,7 @@ const BulkChallanManager = ({
                   }
                 >
                   <option value="">All</option>
-                  {universityPrograms.map((p) => (
+                  {availablePrograms.map((p) => (
                     <option key={p._id} value={p._id}>
                       {p.name}
                     </option>
@@ -420,15 +405,18 @@ const BulkChallanManager = ({
                 <select
                   className="w-full p-2.5 text-sm border border-slate-200 rounded-lg disabled:bg-slate-50 outline-none focus:ring-2 focus:ring-indigo-500 font-medium text-slate-700"
                   value={filters.semesterId}
-                  disabled={!filters.programId}
+                  disabled={!filters.departmentId}
                   onChange={(e) =>
                     handleFilterChange("semesterId", e.target.value)
                   }
                 >
                   <option value="">All</option>
-                  {semesters.map((s) => (
+                  {sections.map((s) => (
                     <option key={s._id} value={s._id}>
-                      Section {s.number}
+                      {s.name || `Section ${s.number}`}
+                      {!filters.programId && s.programId?.name
+                        ? ` (${s.programId.name})`
+                        : ""}
                     </option>
                   ))}
                 </select>
@@ -635,7 +623,7 @@ const BulkChallanManager = ({
                     <p className="text-[9px] text-amber-700 font-medium">
                       Applies to every selected student — rolls their own
                       unpaid challans into their new one as itemized lines
-                      (e.g. "Installment 1 Fee", "Fine on Admission Fee").
+                      (e.g. "Monthly Fee Part 1", "Fine on Admission Fee").
                     </p>
 
                     <button
@@ -804,18 +792,7 @@ const BulkChallanManager = ({
         </div>
 
         <div className="flex-1 overflow-auto bg-slate-50/30">
-          {!filters.departmentId && students.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400">
-              <User size={48} className="mb-4 opacity-20 text-slate-500" />
-              <p className="font-medium text-slate-600">
-                Select a Class to load students.
-              </p>
-              <p className="text-xs mt-1">
-                Bulk operations require class-level filtering to prevent
-                system overload.
-              </p>
-            </div>
-          ) : (
+          {(
             <table className="w-full text-left text-sm">
               <thead className="bg-white text-slate-500 font-bold uppercase text-[11px] tracking-wider sticky top-0 border-b border-slate-200 z-10 shadow-sm">
                 <tr>
@@ -906,8 +883,10 @@ const BulkChallanManager = ({
                             {s.programId?.name || s.program?.name || "N/A"}
                           </div>
                           <div className="text-[10px] font-bold text-slate-500 mt-0.5">
-                            Sem{" "}
-                            {s.semesterId?.number || s.semester?.number || "-"}
+                            Class: {s.departmentId?.name || "-"} · Section: {s.semesterId?.name || s.semester?.name || s.semesterId?.number || s.semester?.number || "-"}
+                          </div>
+                          <div className="text-[10px] font-medium text-slate-500 mt-0.5">
+                            Session: {s.termId?.name || "-"}
                           </div>
                         </td>
                         <td className="p-4 whitespace-nowrap text-right">

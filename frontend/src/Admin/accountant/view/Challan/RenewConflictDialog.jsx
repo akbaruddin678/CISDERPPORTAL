@@ -26,7 +26,7 @@ const RenewConflictDialog = ({ data, isSubmitting, onResolve, onClose }) => {
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-sm">
-                Installment Already Set Up
+                Monthly Fee Part Already Set Up
               </h3>
               <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide">
                 {targetMonth}
@@ -44,7 +44,7 @@ const RenewConflictDialog = ({ data, isSubmitting, onResolve, onClose }) => {
 
         <div className="p-6 space-y-4">
           <p className="text-sm text-slate-600 leading-relaxed">
-            There is already an installment set up for <strong>{targetMonth}</strong>
+            There is already a monthly fee part set up for <strong>{targetMonth}</strong>
             {conflictingChallan?.challanNo ? ` (${conflictingChallan.challanNo})` : ""}.
             Choose how to proceed:
           </p>
@@ -53,7 +53,7 @@ const RenewConflictDialog = ({ data, isSubmitting, onResolve, onClose }) => {
             <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 flex items-center justify-between text-sm">
               <div>
                 <p className="font-bold text-slate-700">
-                  Installment #{conflictingChallan.installmentNumber}
+                  Monthly Fee Part #{conflictingChallan.installmentNumber}
                 </p>
                 <p className="text-xs text-slate-500">{conflictingChallan.billingMonth}</p>
               </div>
@@ -73,7 +73,7 @@ const RenewConflictDialog = ({ data, isSubmitting, onResolve, onClose }) => {
                   Shift All Months Forward
                 </span>
                 <span className="block text-xs text-indigo-600">
-                  Move this and every later installment one month later.
+                  Move this and every later monthly fee part one month later.
                 </span>
               </span>
             </button>
@@ -86,7 +86,7 @@ const RenewConflictDialog = ({ data, isSubmitting, onResolve, onClose }) => {
               <GitMerge size={20} className="text-purple-600 shrink-0" />
               <span>
                 <span className="block text-sm font-bold text-purple-900">
-                  Merge Both Installments
+                  Merge Both Monthly Parts
                 </span>
                 <span className="block text-xs text-purple-600">
                   Combine both amounts and the fine into one challan for {targetMonth}.

@@ -63,16 +63,10 @@ const useStudentFeeController = () => {
   }, [debouncedSearch, selectedTerm, selectedDept, selectedProg, selectedSem]);
 
   // --- Dropdown Data Fetching ---
-  // This is a university-only tool — excludeLevel:"HSSC" scopes the whole
-  // catalog to non-college departments/programs/terms/semesters, same as
-  // the Student Report page. A single scoped call + client-side cascading
-  // filters also fixes a real bug where department→program filtering was
-  // silently broken (the old per-filter queries here passed a raw string
-  // where the endpoint expected a params object, so departmentId was never
-  // actually sent).
-  const { data: catalogRes } = useGetCompleteCatalogQuery({
-    excludeLevel: "HSSC",
-  });
+  // Fee setup is shared by every school/class on the active campus. The
+  // dropdowns only narrow the directory; they never define the academic
+  // scope of a saved fee. That scope comes from each selected student.
+  const { data: catalogRes } = useGetCompleteCatalogQuery({});
   const catalog = catalogRes?.data || {
     departments: [],
     programs: [],
@@ -135,7 +129,6 @@ const useStudentFeeController = () => {
       departmentId: selectedDept,
       programId: selectedProg,
       semesterId: selectedSem,
-      excludeLevel: "HSSC",
       page: page,
       limit: 30,
     });
@@ -268,10 +261,10 @@ const useStudentFeeController = () => {
 
   const selectAll = () => {
     const allVisibleIds = studentsList.map((s) => s._id);
-    const allSelected = allVisibleIds.every((id) =>
+    const anyVisibleSelected = allVisibleIds.some((id) =>
       selectedStudents.some((s) => s._id === id),
     );
-    if (allSelected) {
+    if (anyVisibleSelected) {
       setSelectedStudents((prev) =>
         prev.filter((s) => !allVisibleIds.includes(s._id)),
       );
@@ -284,6 +277,8 @@ const useStudentFeeController = () => {
       setSelectedStudents(newSelection);
     }
   };
+
+  const clearSelectedStudents = () => setSelectedStudents([]);
 
   const getDerivedTermId = (student) => {
     if (!student) return null;
@@ -316,11 +311,9 @@ const useStudentFeeController = () => {
   };
 
   const handleAdd = () => {
-    const hasTerm =
-      selectedTerm || getDerivedTermId(singleStudent || selectedStudents[0]);
-    if (!hasTerm)
+    if (selectedStudents.length === 0)
       return openAlert({
-        message: "Please select a Session/Term from filters first.",
+        message: "Select at least one student first.",
         severity: "warning",
       });
 
@@ -381,7 +374,7 @@ const useStudentFeeController = () => {
     try {
       await deleteFee(id).unwrap();
       refetchFees();
-    } catch (e) {
+    } catch {
       openAlert({ message: "Deletion Failed", severity: "error" });
     }
   };
@@ -452,21 +445,28 @@ const useStudentFeeController = () => {
 
   const onSubmit = async (data) => {
     try {
+      const isBulk = selectedStudents.length > 1;
       // In single-student mode, `singleStudent` is the freshly-fetched
       // record (see above) — use it over the raw list selection so a
       // just-promoted student's fee gets tagged with their real current
       // term/semester, not whatever was cached when they were selected.
-      const termId =
-        selectedTerm || getDerivedTermId(singleStudent || selectedStudents[0]);
-      const semesterId =
-        selectedSem ||
-        getDerivedSemesterId(singleStudent || selectedStudents[0]);
+      // Class/program/section/session dropdowns are search filters only.
+      // A selected student's own profile supplies these IDs. For bulk
+      // setup the backend resolves them independently for every student,
+      // which safely supports one class containing multiple programs and
+      // separate Section A documents.
+      const termId = isBulk
+        ? null
+        : getDerivedTermId(singleStudent || selectedStudents[0]);
+      const semesterId = isBulk
+        ? null
+        : getDerivedSemesterId(singleStudent || selectedStudents[0]);
       const categoryMap = ["ACADEMIC", "ADMISSION", "READMISSION", "EXAM"];
       const category = categoryMap[activeTab];
       let payloadBase = {};
 
       if (activeTab === 1 || activeTab === 2) {
-        if (!termId)
+        if (!isBulk && !termId)
           return openAlert({ message: "Term ID missing", severity: "error" });
 
         const admFee = Number(data.admissionFee || 0);
@@ -523,12 +523,12 @@ const useStudentFeeController = () => {
           feeSetupRemark: data.feeSetupRemark?.trim() || "",
         };
       } else {
-        if (!termId)
+        if (!isBulk && !termId)
           return openAlert({ message: "Term ID missing", severity: "error" });
-        if (!semesterId)
+        if (!isBulk && !semesterId)
           return openAlert({
             message:
-              "Select a Section from filters (or a single student) first — Tuition/Exam fees are set per section.",
+              "This student has no Section assigned in their academic profile.",
             severity: "warning",
           });
 
@@ -581,7 +581,10 @@ const useStudentFeeController = () => {
       if (selectedStudents.length === 1) refetchFees();
       closeModal();
     } catch (err) {
-      openAlert({ message: "Failed to save", severity: "error" });
+      openAlert({
+        message: err?.data?.message || "Failed to save",
+        severity: "error",
+      });
     }
   };
 
@@ -681,6 +684,7 @@ const useStudentFeeController = () => {
     setActiveTab,
     selectedStudents: displaySelectedStudents,
     setSelectedStudents,
+    clearSelectedStudents,
     toggleStudentSelect,
     selectAll,
     studentsList,

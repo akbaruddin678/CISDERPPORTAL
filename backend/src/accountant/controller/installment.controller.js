@@ -144,7 +144,7 @@ export const saveStudentPreferences = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message:
-        "Semester ID is required to ensure configurations are properly separated by semester.",
+        "Section ID is required to keep monthly fee configurations properly separated by section.",
     });
   }
 
@@ -224,7 +224,7 @@ export const saveStudentPreferences = asyncHandler(async (req, res) => {
     .status(200)
     .json({
       success: true,
-      message: "Preferences securely updated for the selected semester.",
+      message: "Monthly fee preferences updated for the selected section.",
     });
 });
 
@@ -255,7 +255,7 @@ export const getStudentPreference = asyncHandler(async (req, res) => {
   if (!studentId || !semesterId) {
     return res.status(400).json({
       success: false,
-      message: "studentId and semesterId are required",
+      message: "Student and section are required",
     });
   }
 
@@ -307,7 +307,7 @@ export const assignPreferenceSemester = asyncHandler(async (req, res) => {
   if (preference.semesterId) {
     return res.status(400).json({
       success: false,
-      message: "This preference is already assigned to a semester.",
+      message: "This preference is already assigned to a section.",
     });
   }
 
@@ -320,7 +320,7 @@ export const assignPreferenceSemester = asyncHandler(async (req, res) => {
     return res.status(409).json({
       success: false,
       message:
-        "This student already has an installment preference for that semester — cannot assign.",
+        "This student already has a monthly fee preference for that section — cannot assign.",
     });
   }
 
@@ -329,7 +329,7 @@ export const assignPreferenceSemester = asyncHandler(async (req, res) => {
 
   res
     .status(200)
-    .json({ success: true, message: "Semester assigned", data: preference });
+    .json({ success: true, message: "Section assigned", data: preference });
 });
 
 // Bulk version of getStudentPreference — for a batch of students being
@@ -410,7 +410,7 @@ export const generateSpecificInstallment = asyncHandler(async (req, res) => {
   const { assignmentId, installmentNumber } = req.params;
   
   if (!assignmentId || !installmentNumber) {
-    return res.status(400).json({ success: false, message: "Assignment ID and Installment Number are required." });
+    return res.status(400).json({ success: false, message: "Assignment ID and payment-part number are required." });
   }
 
   const challan = await InstallmentService.generateSpecificInstallmentChallan(
@@ -420,7 +420,7 @@ export const generateSpecificInstallment = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: `Installment ${installmentNumber} generated successfully. Arrears applied.`,
+    message: `Monthly fee part ${installmentNumber} generated successfully. Previous dues applied.`,
     data: challan
   });
 });
