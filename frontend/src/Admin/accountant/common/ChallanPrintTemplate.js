@@ -404,7 +404,7 @@ const buildChallanCard = (challan, copyTitle) => {
 };
 
 export const buildChallanPage = (challan) =>
-  `<div class="challan-page"><div class="challan-row">${buildChallanCard(challan, "Head Office Copy")}${buildChallanCard(challan, "College Copy")}${buildChallanCard(challan, "Student Copy")}</div></div>`;
+  `<div class="challan-page"><div class="challan-row">${buildChallanCard(challan, "Bank Copy")}${buildChallanCard(challan, "College Copy")}${buildChallanCard(challan, "Student Copy")}</div></div>`;
 
 export const openPrintWindow = (
   bodyHTML,
