@@ -30,6 +30,7 @@ export const studentApi = createApi({
           onlyAcceptedAdmission = false,
           excludeCollege = false,
           excludeWithdrawn = false,
+          includeAll = false,
         } = params;
 
         const queryParams = new URLSearchParams();
@@ -46,6 +47,7 @@ export const studentApi = createApi({
         if (onlyAcceptedAdmission) queryParams.append("onlyAcceptedAdmission", "true");
         if (excludeCollege) queryParams.append("excludeCollege", "true");
         if (excludeWithdrawn) queryParams.append("excludeWithdrawn", "true");
+        if (includeAll) queryParams.append("includeAll", "true");
 
         return `/student?${queryParams.toString()}`;
       },

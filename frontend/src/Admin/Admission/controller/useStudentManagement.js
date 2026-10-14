@@ -76,6 +76,10 @@ export const useStudentManagement = () => {
     // Withdrawn students get their own dedicated tab below instead of
     // being mixed into the main directory.
     excludeWithdrawn: true,
+    // This is the admission team's own directory: it must list EVERY student,
+    // including manual / walk-in admissions that have no paid challan yet
+    // (feeActivated: false), which other modules deliberately hide.
+    includeAll: true,
     // Maps the "New Admissions Only" toggle onto getAllStudents' own
     // onlyAcceptedAdmission flag — when off, omit the key entirely so the
     // endpoint's default (feeActivated-gated) behavior is unchanged.
@@ -99,7 +103,7 @@ export const useStudentManagement = () => {
     isFetching: withdrawnLoading,
     refetch: refetchWithdrawn,
   } = useGetAllStudentsQuery(
-    { ...withdrawnFilters, limit: 10, status: "withdrawn" },
+    { ...withdrawnFilters, limit: 10, status: "withdrawn", includeAll: true },
     { refetchOnMountOrArgChange: true, skip: activeView !== "withdrawn" },
   );
   const withdrawnStudents = useMemo(() => withdrawnData?.data?.students || [], [withdrawnData]);
