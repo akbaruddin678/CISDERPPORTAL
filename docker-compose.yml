@@ -1,4 +1,62 @@
 services:
+  # Local MongoDB. Its files live on the host in /var/www/data/mongo (a bind
+  # mount, not a Docker volume), so rebuilding images, `docker compose down`
+  # or removing containers can never delete the database.
+  mongo:
+    image: mongo:7
+    container_name: cisd_mongo
+    restart: unless-stopped
+    network_mode: bridge
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-cisd}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?set MONGO_ROOT_PASSWORD in the .env next to this file}
+    volumes:
+      - /var/www/data/mongo:/data/db
+    # Reachable only from this server's Docker bridge (host.docker.internal),
+    # never from the internet.
+    ports:
+      - "172.17.0.1:27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # Daily compressed backup at 02:00 server time into /var/www/data/backup,
+  # keeping the newest 30. Restore one with scripts/restore-local-backup.sh.
+  mongo_backup:
+    image: mongo:7
+    container_name: cisd_mongo_backup
+    restart: unless-stopped
+    network_mode: bridge
+    depends_on:
+      - mongo
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      MONGO_ROOT_USER: ${MONGO_ROOT_USER:-cisd}
+      MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_DB: ${MONGO_DB:-cisdcollege}
+      KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    volumes:
+      - /var/www/data/backup:/backup
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        while true; do
+          now=$$(date +%s); next=$$(date -d "02:00 today" +%s)
+          [ "$$next" -le "$$now" ] && next=$$(date -d "02:00 tomorrow" +%s)
+          sleep $$((next - now))
+          f=/backup/daily/$$MONGO_DB-$$(date +%F_%H%M).archive.gz
+          mkdir -p /backup/daily
+          if mongodump --host host.docker.internal --username "$$MONGO_ROOT_USER" --password "$$MONGO_ROOT_PASSWORD" --authenticationDatabase admin --db "$$MONGO_DB" --archive="$$f.part" --gzip; then
+            mv "$$f.part" "$$f"; echo "backup ok: $$f"
+            find /backup/daily -name '*.archive.gz' -mtime +$$KEEP_DAYS -delete
+          else
+            rm -f "$$f.part"; echo "BACKUP FAILED" >&2
+          fi
+        done
+
   backend:
     build: ./backend
     container_name: cisd_backend
@@ -7,6 +65,8 @@ services:
     env_file: ./backend/.env
     environment:
       - PORT=5000
+    depends_on:
+      - mongo
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

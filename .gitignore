@@ -30,3 +30,6 @@ Thumbs.db
 # Backed-up nested repos
 .git.bak/
 
+
+# Database exports (contain student data)
+backup/
