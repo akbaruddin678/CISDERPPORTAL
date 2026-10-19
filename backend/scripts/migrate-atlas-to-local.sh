@@ -26,6 +26,10 @@ docker compose up -d mongo
 echo "Waiting for local MongoDB..."
 until [ "$(docker inspect -f '{{.State.Health.Status}}' cisd_mongo)" = healthy ]; do sleep 3; done
 
+# 3a. The running backend image predates these scripts — rebuild it first
+#     (build only; nothing is restarted, the live site is untouched).
+docker compose build backend
+
 # 3. Export EVERYTHING from Atlas (still the active MONGO_URI) into a dated backup
 docker compose run --rm -v "$DATA/backup:/backup" backend \
   node scripts/db-backup.mjs --out "/backup/atlas-$STAMP"
