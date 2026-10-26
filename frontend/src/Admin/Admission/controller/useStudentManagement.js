@@ -319,15 +319,23 @@ export const useStudentManagement = () => {
         clearSelection();
       }
       closeDeleteModal();
-      refetchStudents();
-      refetchWithdrawn();
     } catch (error) {
       openAlert({
         message: error.data?.message || "Failed to delete — please try again.",
         severity: "error",
       });
+      return;
+    }
+    // refetch() throws on a skipped query, so only refetch the visible list —
+    // and never let it report a failed delete.
+    try {
+      if (activeView === "withdrawn") await refetchWithdrawn();
+      else await refetchStudents();
+    } catch {
+      /* list refresh is best-effort */
     }
   }, [
+    activeView,
     deleteTarget,
     deleteRemark,
     deletePassword,
