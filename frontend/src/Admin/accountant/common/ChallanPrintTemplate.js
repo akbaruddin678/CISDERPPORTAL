@@ -79,6 +79,14 @@ const lateFineStages = (challan, total) => {
     ? challan.lateFineTiers
     : [{ durationDays: null, amount: challan.lateFeeAmount ?? LATE_FEE }];
   const base = Math.max(0, total - (challan.autoLateFineAmount || 0));
+  const due = new Date(challan.dueDate);
+  const hasDue = !Number.isNaN(due.getTime());
+  // Calendar date that is `n` days after the due date.
+  const dateAt = (n) => {
+    const d = new Date(due);
+    d.setDate(d.getDate() + n);
+    return fmtDate(d);
+  };
   let cumulativeFine = 0;
   let startDay = 1;
 
@@ -87,13 +95,24 @@ const lateFineStages = (challan, total) => {
     cumulativeFine += amount;
     const isLast = index === tiers.length - 1 || tier.durationDays === null;
     const duration = isLast ? null : Math.max(1, Number(tier.durationDays) || 1);
-    const label = isLast
-      ? `From day ${startDay} after due date`
-      : startDay === startDay + duration - 1
-        ? `Day ${startDay} after due date`
-        : `Days ${startDay}-${startDay + duration - 1} after due date`;
+    const endDay = duration ? startDay + duration - 1 : null;
+    let label;
+    if (hasDue) {
+      if (isLast) label = `From ${dateAt(startDay)} onwards`;
+      else if (startDay === endDay) label = `On ${dateAt(startDay)}`;
+      else label = `${dateAt(startDay)} to ${dateAt(endDay)}`;
+    } else {
+      label = isLast
+        ? `From day ${startDay} after due date`
+        : startDay === endDay
+          ? `Day ${startDay} after due date`
+          : `Days ${startDay}-${endDay} after due date`;
+    }
     if (duration) startDay += duration;
-    return cumulativeFine > 0 ? [{ label, amount: base + cumulativeFine }] : [];
+    // A stage that adds nothing on top of the previous one is not a new stage.
+    return amount > 0 || cumulativeFine > 0
+      ? [{ label, fine: cumulativeFine, amount: base + cumulativeFine }]
+      : [];
   });
 };
 
@@ -180,8 +199,12 @@ const getPrintStyles = () => `
   /* Late fine */
   .late { margin-top: 7px; border: 0.3mm solid #f1c0c0; background: #fff6f6; border-radius: 6px; padding: 5px 8px; }
   .late .t { font-size: 8px; font-weight: 800; color: #b91c1c; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 2px; }
-  .late .r { display: flex; justify-content: space-between; font-size: 9px; padding: 1.5px 0; color: #7f1d1d; }
-  .late .r b { font-variant-numeric: tabular-nums; }
+  .lt { width: 100%; border-collapse: collapse; }
+  .lt th { text-align: left; font-size: 7.5px; letter-spacing: .5px; text-transform: uppercase; color: #991b1b; font-weight: 700; padding: 2px 3px; border-bottom: 0.25mm solid #f1c0c0; }
+  .lt td { font-size: 8.8px; padding: 2.5px 3px; color: #7f1d1d; border-bottom: 0.15mm solid #f8dada; }
+  .lt th.r, .lt td.r { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .lt tr:last-child td { border-bottom: none; }
+  .lt tr.ok td { color: #166534; }
 
   /* Bank */
   .bank { margin-top: 10px; border: 0.3mm solid #b7dfca; border-left: 1.2mm solid var(--green); background: #f4fbf7; border-radius: 6px; padding: 6px 9px; }
@@ -325,10 +348,21 @@ const buildChallanCard = (challan, copyTitle) => {
     })
     .join("");
 
+  // Payment schedule: on-time row first, then one row per late-fine stage,
+  // each with the date range, the fine added and the total to be paid.
+  const baseTotal = stages.length ? stages[0].amount - stages[0].fine : total;
   const lateBox = stages.length
-    ? `<div class="late"><div class="t">Late fine — payable after due date</div>${stages
-        .map((s) => `<div class="r"><span>${s.label}</span><b>Rs ${num(s.amount)}</b></div>`)
-        .join("")}</div>`
+    ? `<div class="late"><div class="t">Payment schedule — late fine after due date</div>
+        <table class="lt">
+          <tr><th>Payment date</th><th class="r">Fine</th><th class="r">Total (Rs)</th></tr>
+          <tr class="ok"><td>On or before ${fmtDate(challan.dueDate)}</td><td class="r">—</td><td class="r">${num(baseTotal)}</td></tr>
+          ${stages
+            .map(
+              (s) =>
+                `<tr><td>${s.label}</td><td class="r">+${num(s.fine)}</td><td class="r">${num(s.amount)}</td></tr>`,
+            )
+            .join("")}
+        </table></div>`
     : "";
 
   return `<div class="challan-card">
@@ -376,7 +410,7 @@ const buildChallanCard = (challan, copyTitle) => {
     <table class="fees">
       <tr><th>#</th><th>Particulars</th><th class="r">Amount (Rs)</th></tr>
       ${feeRows}
-      <tr class="total"><td></td><td>Total payable</td><td class="r">${num(total)}</td></tr>
+      <tr class="total"><td></td><td>Total payable${stages.length ? ` (by ${fmtDate(challan.dueDate)})` : ""}</td><td class="r">${num(total)}</td></tr>
     </table>
     ${lateBox}
 
