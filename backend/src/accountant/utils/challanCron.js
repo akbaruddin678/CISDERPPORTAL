@@ -1,5 +1,27 @@
 import cron from "node-cron";
 import { StudentChallanService } from "../services/studentChallan.service.js";
+import StudentChallan from "../model/StudentChallan.js";
+import { getLateFineSchedule } from "../services/fineSetting.service.js";
+
+// Open challans created before the Late Fine setting existed (or saved under a
+// different campus) carry no schedule, so nothing is printed or charged for
+// them. Stamp the current saved schedule on them, per campus.
+const backfillLateFineTiers = async () => {
+  const missing = {
+    isDeleted: false,
+    status: { $in: ["issued", "partial", "draft", "overdue"] },
+    $or: [{ lateFineTiers: { $exists: false } }, { lateFineTiers: { $size: 0 } }],
+  };
+  const campusIds = await StudentChallan.distinct("campusId", missing);
+  for (const campusId of campusIds) {
+    const schedule = await getLateFineSchedule(campusId || null);
+    if (!schedule.some((tier) => tier.amount > 0)) continue;
+    await StudentChallan.updateMany(
+      { ...missing, campusId: campusId || null },
+      { $set: { lateFineTiers: schedule, lateFeeAmount: schedule[0].amount } },
+    );
+  }
+};
 
 export const startChallanCronJob = () => {
 
@@ -22,9 +44,14 @@ export const startChallanCronJob = () => {
   // runs until the next midnight. Running once here catches that up
   // immediately instead of leaving already-overdue challans stuck showing
   // "issued" for up to another day.
-  StudentChallanService.processOverdueChallansAutomatically().catch((err) => {
-    console.error("[CRON] Startup catch-up run of Overdue Challan Scanner failed:", err.message);
-  });
+  backfillLateFineTiers()
+    .catch((err) => {
+      console.error("[CRON] Late fine schedule backfill failed:", err.message);
+    })
+    .then(() => StudentChallanService.processOverdueChallansAutomatically())
+    .catch((err) => {
+      console.error("[CRON] Startup catch-up run of Overdue Challan Scanner failed:", err.message);
+    });
 
   console.log("[CRON] Daily Overdue Challan Scanner successfully initialized.");
 };
