@@ -46,6 +46,9 @@ export async function getLateFineSchedule(campusId = null) {
   let setting = null;
   if (campusId) setting = await FineSetting.findOne({ campusId }).lean();
   if (!setting) setting = await FineSetting.findOne({ campusId: null }).lean();
+  // A challan with no campus (or a campus without its own setting) must still
+  // get a fine when one has been configured anywhere: use the latest saved one.
+  if (!setting) setting = await FineSetting.findOne().sort({ updatedAt: -1 }).lean();
 
   const legacyAmount = setting?.lateFineAmount ?? DEFAULT_LATE_FINE;
   return normalizeLateFineTiers(setting?.lateFineTiers, legacyAmount);

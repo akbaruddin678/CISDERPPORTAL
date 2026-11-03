@@ -10,7 +10,8 @@ const backfillLateFineTiers = async () => {
   const missing = {
     isDeleted: false,
     status: { $in: ["issued", "partial", "draft", "overdue"] },
-    $or: [{ lateFineTiers: { $exists: false } }, { lateFineTiers: { $size: 0 } }],
+    // No schedule, or one that charges nothing (stamped before a fine was set up).
+    lateFineTiers: { $not: { $elemMatch: { amount: { $gt: 0 } } } },
   };
   const campusIds = await StudentChallan.distinct("campusId", missing);
   for (const campusId of campusIds) {

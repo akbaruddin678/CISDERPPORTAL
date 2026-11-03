@@ -1,6 +1,9 @@
 // src/Admin/accountant/common/ChallanPrintTemplate.js
 
-const LOGO_URL = window.location.origin + "/cisd-logo.png";
+import { baseUrl } from "../../../components/base/baseurl";
+import { getAuthToken } from "../../Admission/services/getAuthToken";
+
+const LOGO_URL =window.location.origin + "/cisd-logo.png";
 
 const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "N/A");
 
@@ -74,10 +77,33 @@ const toWords = (n) => {
 // New challans carry their own late-fine schedule.
 export const LATE_FEE = 0;
 
+// Current saved Late Fine schedule, used for any challan that has no schedule
+// of its own so the fine is printed on every challan. Loaded when this module
+// is first imported and refreshed on every print.
+let savedSchedule = [];
+let lastWarm = 0;
+const warmSavedSchedule = () => {
+  if (Date.now() - lastWarm < 30000) return Promise.resolve();
+  lastWarm = Date.now();
+  return fetch(`${baseUrl}/api/account/fines/settings`, {
+    headers: { Authorization: `Bearer ${getAuthToken()}` },
+  })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((json) => {
+      const tiers = json?.data?.lateFineTiers;
+      if (Array.isArray(tiers) && tiers.length) savedSchedule = tiers;
+    })
+    .catch(() => {});
+};
+warmSavedSchedule();
+
 const lateFineStages = (challan, total) => {
-  const tiers = Array.isArray(challan.lateFineTiers) && challan.lateFineTiers.length
-    ? challan.lateFineTiers
-    : [{ durationDays: null, amount: challan.lateFeeAmount ?? LATE_FEE }];
+  const own = Array.isArray(challan.lateFineTiers) ? challan.lateFineTiers : [];
+  const tiers = own.some((t) => Number(t.amount) > 0)
+    ? own
+    : savedSchedule.length
+      ? savedSchedule
+      : [{ durationDays: null, amount: challan.lateFeeAmount ?? LATE_FEE }];
   const base = Math.max(0, total - (challan.autoLateFineAmount || 0));
   const due = new Date(challan.dueDate);
   const hasDue = !Number.isNaN(due.getTime());
@@ -437,7 +463,12 @@ const buildChallanCard = (challan, copyTitle) => {
   </div>`;
 };
 
-export const buildChallanPage = (challan) =>
+export const buildChallanPage = (challan) => {
+  warmSavedSchedule(); // keeps the fallback schedule fresh for the next print
+  return buildChallanPageHtml(challan);
+};
+
+const buildChallanPageHtml = (challan) =>
   `<div class="challan-page"><div class="challan-row">${buildChallanCard(challan, "Bank Copy")}${buildChallanCard(challan, "College Copy")}${buildChallanCard(challan, "Student Copy")}</div></div>`;
 
 export const openPrintWindow = (
